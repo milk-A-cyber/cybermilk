@@ -1,0 +1,2629 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>页面布局 · Web Layout · 集成教学页面</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%2314261f'/%3E%3Cg stroke='%23e8f1ee' stroke-width='1.4'%3E%3Cpath d='M8 8h16v16H8z' fill='none'/%3E%3Cpath d='M16 8v16M8 16h16'/%3E%3C/g%3E%3Crect x='11.5' y='11.5' width='9' height='9' fill='%23e0932f'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* ============================================================
+   页面布局 · 集成教学页面
+   视觉语言：教学讲义 × 设计图纸（网格线 / 标尺 / 尺寸标注）
+   ============================================================ */
+:root{
+  --paper:#f6f8f6;          /* 纸面 */
+  --card:#ffffff;           /* 卡片 */
+  --ink:#16261f;            /* 主墨色（深绿黑） */
+  --ink-2:#3c4a44;          /* 次级文字 */
+  --mut:#6d7b75;            /* 弱化文字 */
+  --line:#dfe6e2;           /* 分隔线 */
+  --line-d:#c3d0ca;         /* 深分隔线 */
+  --frame:#9db3ab;           /* 内容区框线（更清晰） */
+  --teal:#0f766e;           /* 主强调 青绿 */
+  --teal-d:#0a5751;         /* 深青绿 */
+  --teal-t:#e2f1ef;         /* 青绿浅底 */
+  --ochre:#c07f22;          /* 次强调 赭黄 */
+  --ochre-d:#9c6417;
+  --ochre-t:#f7ecd9;        /* 赭黄浅底 */
+  --red:#b4412c;
+  --red-t:#f9e8e3;
+  --code-bg:#14211d;        /* 代码块深底 */
+  --code-ink:#dbe7e2;
+  --radius:10px;
+  --radius-s:6px;
+  --shadow:0 1px 2px rgba(18,38,31,.05),0 8px 24px rgba(18,38,31,.06);
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  --tabs-h:46px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+[hidden]{display:none !important}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans);
+  font-size:15.5px;line-height:1.8;color:var(--ink);
+  background:
+    repeating-linear-gradient(0deg,rgba(15,118,110,.028) 0 1px,transparent 1px 48px),
+    repeating-linear-gradient(90deg,rgba(15,118,110,.028) 0 1px,transparent 1px 48px),
+    var(--paper);
+}
+a{color:var(--teal-d);text-decoration:none}
+a:hover{text-decoration:underline}
+code{font-family:var(--mono);font-size:.88em;background:var(--teal-t);color:var(--teal-d);padding:.08em .4em;border-radius:4px}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:2px;border-radius:3px}
+::selection{background:var(--ochre-t)}
+
+/* ---------- 顶部导航 ---------- */
+.course-topbar{
+  position:sticky;top:0;z-index:50;
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+  padding:10px clamp(14px,3vw,36px);
+  background:rgba(246,248,246,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);
+}
+.brand{font-weight:700;color:var(--ink);display:inline-flex;align-items:center;gap:6px;font-size:14.5px}
+.brand:hover{text-decoration:none;color:var(--teal-d)}
+.brand .back{color:var(--teal);font-family:var(--mono)}
+.topbar-tabs{display:flex;gap:2px;flex-wrap:wrap;list-style:none}
+.topbar-tabs a{
+  display:block;padding:6px 12px;font-size:13.5px;border-radius:999px;color:var(--ink-2);
+}
+.topbar-tabs a:hover{background:var(--teal-t);text-decoration:none;color:var(--teal-d)}
+.topbar-tabs a.current{background:var(--teal);color:#fff}
+.lang-switch{
+  margin-left:auto;display:inline-flex;border:1px solid var(--line-d);border-radius:999px;overflow:hidden;
+}
+.lang-btn{
+  border:0;background:transparent;padding:5px 14px;font-size:13px;font-family:var(--sans);
+  cursor:pointer;color:var(--ink-2);
+}
+.lang-btn.active{background:var(--ink);color:#fff}
+/* 视图模式切换按钮：连续浏览 / 单节显示 */
+.view-toggle{
+  margin-left:auto;display:inline-flex;align-items:center;gap:6px;
+  border:1px solid var(--line-d);border-radius:999px;background:var(--card);
+  padding:5px 13px;font-size:13px;color:var(--ink-2);cursor:pointer;font-family:var(--sans);
+}
+.view-toggle:hover{border-color:var(--teal);color:var(--teal-d);background:var(--teal-t)}
+.view-toggle[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.course-topbar .lang-switch{margin-left:10px}
+
+/* ---------- 页头 ---------- */
+.lesson-header{
+  padding:clamp(18px,2.6vw,26px) 0 clamp(12px,1.6vw,16px);
+  border-bottom:2px solid var(--frame);
+  background:
+    radial-gradient(1200px 300px at 12% -40%,rgba(224,147,47,.13),transparent 60%),
+    radial-gradient(1000px 260px at 88% -30%,rgba(15,118,110,.13),transparent 60%),
+    var(--card);
+}
+.head-inner{
+  display:flex;flex-direction:column;align-items:flex-start;
+  padding:0 clamp(14px,3vw,36px);
+}
+.lesson-header h1{
+  font-family:var(--serif);font-weight:900;
+  font-size:clamp(28px,4.6vw,44px);letter-spacing:.5px;line-height:1.25;
+}
+.lesson-header .subtitle{margin-top:10px;color:var(--ink-2)}
+.header-tip{margin-top:10px;color:var(--mut);font-size:13.5px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.kbd{
+  font-family:var(--mono);font-size:12px;border:1px solid var(--line-d);border-bottom-width:2px;
+  border-radius:5px;padding:1px 7px;background:var(--paper);
+}
+
+/* ---------- 主体双栏 ---------- */
+.lesson-main{
+  display:grid;grid-template-columns:232px minmax(0,1fr);gap:clamp(16px,3vw,36px);
+  max-width:1320px;margin:0 auto;padding:26px 0 60px;
+}
+.chapter-nav{position:sticky;top:76px;align-self:start;height:fit-content;background:var(--card);border:1.5px solid var(--frame);border-radius:12px;padding:12px 10px 14px}
+.chapter-nav h3{
+  font-size:14px;color:var(--mut);letter-spacing:1px;font-weight:700;
+  padding:0 6px 8px;border-bottom:1px solid var(--line);
+}
+.chapter-nav ul{list-style:none;margin-top:6px}
+.chapter-nav a{
+  display:flex;gap:8px;align-items:baseline;padding:4px 10px;border-radius:8px;
+  font-size:15px;color:var(--ink-2);border-left:2px solid transparent;
+}
+.chapter-nav a .no{font-family:var(--mono);font-size:12.5px;color:var(--mut)}
+.chapter-nav a:hover{background:var(--teal-t);text-decoration:none;color:var(--teal-d)}
+.chapter-nav a.active{
+  background:var(--teal-t);color:var(--teal-d);font-weight:700;border-left-color:var(--teal);
+}
+.chapter-nav .nav-group{
+  margin:8px 6px 2px;padding:0 4px 5px;font-size:13px;letter-spacing:.06em;
+  color:var(--ochre);font-weight:700;border-bottom:1px dashed var(--line-d);
+}
+.chapter-nav li:first-child.nav-group{margin-top:4px}
+
+/* ---------- 章节 ---------- */
+.chapter-content{min-width:0}
+.chapter{
+  scroll-margin-top:84px;background:var(--card);
+  border:1.5px solid var(--frame);border-radius:12px;
+  padding:clamp(16px,2.4vw,26px) clamp(18px,2.8vw,30px) 28px;
+}
+.chapter h2{
+  font-family:var(--serif);font-weight:700;font-size:clamp(22px,3vw,30px);
+  display:flex;align-items:center;gap:12px;line-height:1.3;
+}
+.chapter h2 .no{
+  font-family:var(--mono);font-size:15px;line-height:1.2;color:var(--ochre);background:var(--ochre-t);
+  padding:3px 9px;border-radius:6px;white-space:nowrap;
+}
+.chapter-subtitle{margin:8px 0 18px;color:var(--mut);font-size:14.5px}
+.chapter + .chapter{margin-top:26px}
+/* 单节模式：只显示当前小节 */
+body.single-mode .chapter{display:none}
+body.single-mode .chapter.in-view{
+  display:block;margin-top:0;
+  padding:clamp(16px,2.4vw,26px) clamp(18px,2.8vw,30px) 28px;
+  animation:fadeIn .3s ease;
+}
+
+/* ---------- 三 tab ---------- */
+.tabs{display:inline-flex;background:var(--card);border:1px solid var(--line-d);border-radius:10px;padding:4px;gap:4px}
+.tab-btn{
+  border:0;background:transparent;padding:8px 16px;border-radius:7px;cursor:pointer;
+  font-family:var(--sans);font-size:14px;color:var(--ink-2);display:inline-flex;align-items:center;gap:8px;
+}
+.tab-btn .dot{width:8px;height:8px;border-radius:50%;background:var(--line-d)}
+.tab-btn:hover{background:var(--paper);color:var(--ink)}
+.tab-btn.active{background:var(--ink);color:#fff}
+.tab-btn.active .dot{background:var(--ochre)}
+.tab-panels{margin-top:16px}
+.tab-panel{display:none;animation:fadeIn .25s ease}
+.tab-panel.active{display:block}
+@keyframes fadeIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+
+/* ---------- 正文排版 ---------- */
+.tab-panel h3{
+  font-family:var(--serif);font-size:18px;font-weight:900;margin:22px 0 8px;
+  padding-left:12px;border-left:4px solid var(--ochre);
+}
+.tab-panel h3:first-child{margin-top:4px}
+.tab-panel p{margin:8px 0}
+.tab-panel ul,.tab-panel ol{margin:8px 0 8px 22px}
+.tab-panel li{margin:5px 0}
+.tab-panel strong{font-weight:700}
+.note{
+  background:var(--ochre-t);border:1px solid rgba(192,127,34,.25);border-radius:8px;
+  padding:10px 14px;margin:12px 0;font-size:14.5px;
+}
+.note strong{color:var(--ochre-d)}
+.key-point{
+  background:var(--teal-t);border-radius:8px;padding:10px 14px;margin:10px 0;
+  font-size:14px;color:var(--ink-2);
+}
+.key-point strong{color:var(--teal-d)}
+.code-purpose{margin:2px 0 8px;font-size:13.5px;color:var(--mut)}
+
+/* ---------- 1.2 六原则表：原则名直达对应小节 ---------- */
+.prin-link{
+  color:var(--teal-d);text-decoration:none;font-weight:700;
+  border-bottom:1px solid rgba(15,118,110,.4);border-radius:3px;
+  padding:1px 2px;transition:color .18s ease,border-color .18s ease,background .18s ease;
+}
+.prin-link br{pointer-events:none}
+.prin-link::after{
+  content:"→";display:inline-block;margin-left:5px;font-weight:600;
+  opacity:0;transform:translateX(-4px);transition:opacity .18s ease,transform .18s ease;
+}
+.prin-link:hover{color:var(--teal);border-bottom-color:var(--teal);background:rgba(15,118,110,.08)}
+.prin-link:hover::after{opacity:1;transform:translateX(0)}
+.prin-link:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* ---------- 表格 ---------- */
+table.theory-table{
+  width:100%;border-collapse:collapse;margin:12px 0;table-layout:fixed;
+  background:var(--card);border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  font-size:14px;
+}
+.theory-table th{
+  background:var(--ink);color:#fff;text-align:left;padding:8px 12px;font-weight:600;
+}
+.theory-table td{padding:7px 12px;border-top:1px solid var(--line);vertical-align:top}
+.theory-table tbody tr:nth-child(even){background:#fbfcfb}
+.theory-table tbody tr:hover{background:var(--teal-t)}
+
+/* ---------- 代码块 ---------- */
+pre.code-block{
+  background:var(--code-bg);color:var(--code-ink);border-radius:10px;
+  padding:14px 16px;margin:10px 0;overflow:auto;font-family:var(--mono);
+  font-size:13px;line-height:1.75;border:1px solid #0d1713;
+}
+.code-block code{
+  background:none;color:inherit;padding:0;border-radius:0;font-size:1em;display:block;
+}
+.code-block .cmt{color:#8fb5a6;font-style:italic}
+.code-block .str{color:#ecc27c}
+.code-block .kw{color:#9adfd2;font-weight:600}
+.code-block .num{color:#e9a552}
+.code-block .fn{color:#eed08d}
+.code-block .op{color:#c9d8d3}
+.code-block .cls{color:#b5e8dd}
+.code-block .tag{color:#9adfd2}
+.code-block .attr{color:#ecc27c}
+
+/* ---------- 演示区通用 ---------- */
+.demo-mount{
+  background:var(--card);border:1px solid var(--line);border-radius:12px;
+  padding:18px;margin:14px 0;box-shadow:var(--shadow);
+}
+.demo-hint{margin:10px 0 4px;font-size:14px;color:var(--mut)}
+.demo-btn{
+  border:1px solid var(--line-d);background:var(--card);color:var(--ink-2);
+  padding:6px 14px;border-radius:7px;cursor:pointer;font-family:var(--sans);font-size:13.5px;
+}
+.demo-btn:hover{border-color:var(--teal);color:var(--teal-d);background:var(--teal-t)}
+.demo-btn.active{background:var(--teal);border-color:var(--teal);color:#fff}
+.demo-btn.warn{background:var(--red);border-color:var(--red);color:#fff}
+.controls{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:12px}
+.controls label{font-size:13.5px;color:var(--ink-2);display:inline-flex;gap:8px;align-items:center}
+.console{
+  background:var(--code-bg);color:var(--code-ink);font-family:var(--mono);font-size:12.5px;
+  padding:12px 14px;border-radius:8px;line-height:1.7;white-space:pre-wrap;margin:8px 0;overflow:auto;
+}
+.demo-legend{font-size:13px;color:var(--mut);margin-top:10px;display:flex;gap:14px;flex-wrap:wrap}
+.demo-legend b{font-weight:600}
+
+/* ---------- 滑块 ---------- */
+input[type=range]{accent-color:var(--teal);cursor:pointer}
+.range-row{display:flex;gap:14px;flex-wrap:wrap;align-items:center;margin:6px 0}
+.range-row label{font-size:13px;color:var(--ink-2);display:inline-flex;gap:8px;align-items:center}
+.range-row output{font-family:var(--mono);font-size:12.5px;color:var(--teal-d);min-width:34px;text-align:right}
+
+/* ---------- 时间轴 ---------- */
+.timeline{
+  display:grid;grid-template-columns:64px 26px 1fr;column-gap:10px;row-gap:2px;
+  margin:12px 0;align-items:center;
+  background:linear-gradient(var(--line-d),var(--line-d)) no-repeat 86px 0/2px 100%;
+}
+.tl-time{font-family:var(--mono);font-size:12.5px;color:var(--mut);text-align:right}
+.tl-node{justify-self:center;width:13px;height:13px;border-radius:50%;background:var(--teal);
+  border:3px solid var(--teal-t);box-shadow:0 0 0 1px var(--teal)}
+.tl-body{padding:8px 0 14px}
+.tl-body b{font-size:14.5px;display:block}
+.tl-body span{font-size:13px;color:var(--mut)}
+/* 轴线：容器背景绘制，x=87px 与圆点列中心对齐 */
+/* ---------- 原则卡片 demo ---------- */
+.pcard-wrap{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin:12px 0}
+@media (max-width:760px){.pcard-wrap{grid-template-columns:1fr}}
+.pcard{
+  border:1px solid var(--line);border-radius:10px;padding:18px;background:#fff;
+  transition:all .3s ease;
+}
+.pcard h5{font-family:var(--serif);font-size:17px;margin-bottom:6px}
+.pcard .pc-tag{font-size:12px;padding:2px 8px;border-radius:999px;margin-bottom:12px;display:inline-block}
+.pcard-bad{box-shadow:none}
+.pcard-bad .pc-tag{background:var(--red-t);color:var(--red)}
+.pcard-good .pc-tag{background:var(--teal-t);color:var(--teal-d)}
+.pcard .pc-btn{display:inline-block;padding:6px 14px;border-radius:6px;font-size:13px;margin-top:10px}
+.pcard-bad .pc-btn{background:#eef1ef;color:#8b9893}
+.pcard-good .pc-btn{background:var(--teal);color:#fff}
+.pcard .pc-meta{font-size:12.5px;color:var(--mut);margin-top:8px}
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.chip{
+  border:1px solid var(--line-d);border-radius:999px;padding:4px 13px;font-size:13px;cursor:pointer;
+  background:var(--card);color:var(--ink-2);font-family:var(--sans);
+}
+.chip.on{background:var(--teal);border-color:var(--teal);color:#fff}
+
+/* ---------- 网格生成器 demo ---------- */
+.ggrid{
+  display:grid;gap:8px;margin:10px 0;transition:gap .2s ease;
+  border:1px dashed var(--line-d);background:
+    repeating-linear-gradient(90deg,rgba(15,118,110,.07) 0 1px,transparent 1px calc(100%/var(--cols,12)));
+  padding:10px;border-radius:8px;
+}
+.gcell{
+  background:var(--teal-t);border:1px solid var(--teal);border-radius:5px;min-height:34px;
+  display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--teal-d);
+  font-family:var(--mono);
+}
+.gcell.span2{background:var(--ochre-t);border-color:var(--ochre);color:var(--ochre-d)}
+
+/* ---------- 层级 demo ---------- */
+.hhero{
+  border:1px solid var(--line);border-radius:10px;padding:22px;background:#fff;margin:12px 0;
+}
+.hhero .hh-eyebrow{font-size:12px;letter-spacing:2px;color:var(--mut);text-transform:uppercase}
+.hhero .hh-title{font-family:var(--serif);font-weight:900;margin:4px 0 8px;transition:all .3s ease}
+.hhero .hh-sub{color:var(--ink-2);transition:all .3s ease}
+.hhero .hh-cta{display:inline-block;margin-top:12px;background:var(--teal);color:#fff;padding:8px 18px;border-radius:7px;font-size:14px}
+.heat-wrap{position:relative;margin-top:14px;border-radius:8px;overflow:hidden;border:1px solid var(--line-d);box-shadow:0 8px 22px rgba(22,38,31,.16)}
+#wf-view .ms{border:1px solid var(--line-d);box-shadow:0 8px 22px rgba(22,38,31,.16)}
+#wf-view>div{box-shadow:0 8px 22px rgba(22,38,31,.12)}
+.heat-wrap svg{display:block;width:100%;height:auto}
+.heat-wrap .hh-eye{position:absolute;inset:0;pointer-events:none;transition:opacity .3s}
+.heat{fill:var(--ochre);opacity:.28}
+
+/* ---------- 间距 demo ---------- */
+.sgroups{display:flex;flex-direction:column;gap:var(--inter,40px);margin:12px 0;transition:gap .2s ease}
+.sgroup{display:flex;flex-wrap:wrap;gap:var(--intra,10px);border:1px dashed var(--line-d);border-radius:12px;padding:12px;transition:gap .2s ease}
+.sg-name{width:100%;font-size:11.5px;color:var(--mut);letter-spacing:.06em;margin-bottom:2px}
+.sgroup .scard{min-width:120px}
+.prox-status{margin:10px 0 0;font-size:13px;color:var(--teal-d);background:var(--teal-t);border-radius:8px;padding:8px 12px}
+.scard{flex:1;background:#fff;border:1px solid var(--line);border-radius:10px;padding:16px;transition:padding .2s ease;min-width:0}
+.scard h5{font-size:14.5px;margin-bottom:4px}
+.scard p{font-size:12.5px;color:var(--mut)}
+.scard .sc-chip{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;background:var(--teal-t);color:var(--teal-d);margin-top:8px}
+.spacing-scale{
+  display:flex;align-items:flex-end;gap:2px;height:56px;margin:14px 0;
+  border-bottom:1px solid var(--line-d);padding-bottom:0;
+}
+.spacing-scale i{background:var(--teal);opacity:.55;flex:1;border-radius:2px 2px 0 0}
+.spacing-scale .sp-label{font-family:var(--mono);font-size:10.5px;color:var(--mut);text-align:center;flex:1}
+
+/* ---------- 演示舞台：深色画布，衬托浅色案例边界 ---------- */
+.frame{
+  border:1px solid #182420;border-radius:12px;
+  background:#24332c;
+  background-image:radial-gradient(rgba(255,255,255,.09) 1px,transparent 1.4px);
+  background-size:22px 22px;
+  padding:14px;
+  margin:12px 0;display:flex;justify-content:safe center;overflow-x:auto;scrollbar-width:thin;
+}
+.frame .ms{
+  margin:0;flex:0 0 auto;background:#fff;border-radius:6px;overflow:hidden;
+  box-shadow:0 0 0 1px rgba(255,255,255,.12),0 12px 30px rgba(4,12,9,.5);
+  transition:width .3s ease;
+}
+.ms-nav{display:flex;align-items:center;gap:16px;padding:10px 16px;border-bottom:1px solid var(--line)}
+.ms-logo{font-family:var(--serif);font-weight:900;font-size:15px;color:var(--teal-d)}
+.ms-links{display:flex;gap:14px;font-size:13px;color:var(--ink-2)}
+.ms-links a:hover{text-decoration:none;color:var(--teal-d)}
+.ms-cta{margin-left:auto;background:var(--teal);color:#fff;font-size:12.5px;padding:5px 12px;border-radius:6px}
+.ms-hero{padding:22px 16px;background:linear-gradient(180deg,#f0f7f5,#fff)}
+.ms-hero h3{font-family:var(--serif);font-size:22px;font-weight:900}
+.ms-hero p{font-size:13px;color:var(--ink-2);margin:6px 0 12px}
+.ms-cards{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:14px 16px}
+.ms-card{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff}
+.ms-card .ms-img{height:64px;border-radius:5px;background:repeating-linear-gradient(45deg,var(--teal-t) 0 10px,#eaf3f1 10px 20px);margin-bottom:8px}
+.ms-card h5{font-size:13px}
+.ms-card p{font-size:11.5px;color:var(--mut)}
+.ms-footer{background:var(--ink);color:#cfe0da;font-size:12px;padding:12px 16px;text-align:center}
+
+/* ---------- 完整案例 demo ---------- */
+.case-head{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.case-head .demo-btn{font-size:13px}
+.pins-on .pin{display:inline-flex}
+.pin{
+  display:none;align-items:center;justify-content:center;position:absolute;
+  width:22px;height:22px;border-radius:50%;background:var(--ochre);color:#fff;
+  font-family:var(--mono);font-size:11.5px;z-index:5;cursor:help;
+  box-shadow:0 0 0 3px rgba(192,127,34,.25);
+}
+.pin:hover{background:var(--ochre-d)}
+.workbench{margin-top:14px}
+.wb-stage{width:100%}
+.wb-devwrap{overflow-x:auto;display:flex;justify-content:safe center;scrollbar-width:thin;border:1px solid #182420;border-radius:12px;background:#24332c;background-image:radial-gradient(rgba(255,255,255,.09) 1px,transparent 1.4px);background-size:22px 22px;padding:16px}
+.devframe{position:relative;flex:0 0 auto;width:var(--w,1200px);height:var(--h,800px)}
+.case-site{position:absolute;top:0;left:0;width:var(--w,1200px);height:var(--h,800px);overflow-y:auto;overflow-x:hidden;background:#fff;border:1px solid var(--line-d);border-radius:10px;transform:scale(var(--s,1));transform-origin:top left;box-shadow:0 0 0 1px rgba(255,255,255,.12),0 14px 34px rgba(4,12,9,.55)}
+.case-site .cs-inner{transition:width .3s ease}
+/* 1.8 铺满桌面模式（真实视口 + 原生全屏） */
+.case-head .case-sep{width:1px;align-self:stretch;margin:2px 4px;background:var(--line-d)}
+.cs-fs{display:none;position:fixed;inset:0;z-index:90;background:#24332c;background-image:radial-gradient(rgba(255,255,255,.09) 1px,transparent 1.4px);background-size:22px 22px;flex-direction:column}
+.cs-fs.open{display:flex}
+body.cs-fs-lock{overflow:hidden}
+.cs-fs-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:9px 14px;background:var(--card);border-bottom:1px solid var(--line-d);box-shadow:0 1px 6px rgba(18,38,31,.08)}
+.cs-fs-title{font-weight:700;font-size:13.5px;color:var(--ink)}
+.cs-fs-w{font-family:var(--mono);font-size:12px;color:var(--mut)}
+.fs-exit{margin-left:4px;background:var(--ink);border-color:var(--ink);color:#fff}
+.fs-exit:hover{background:var(--teal-d);border-color:var(--teal-d)}
+.cs-fs-body{flex:1;min-height:0;padding:12px;display:flex}
+.cs-fs-body .case-site{
+  position:static!important;flex:1 1 auto;min-width:0;
+  width:auto!important;height:auto!important;align-self:stretch;
+  transform:none!important;border-radius:10px;
+}
+.cs-fs-body .cs-inner{transition:none}
+.wb-inspector{
+  display:none;position:fixed;z-index:60;width:270px;max-width:calc(100vw - 16px);
+  max-height:calc(100vh - 24px);overflow-y:auto;
+  background:var(--card);border:1px solid var(--frame);border-radius:12px;padding:0 14px 14px;
+  box-shadow:0 14px 34px rgba(23,37,32,.18);
+}
+.wb-inspector.open{display:block}
+.wb-inspector .te-grip{
+  display:flex;align-items:center;margin:0 -14px 10px;padding:9px 14px;
+  border-bottom:1px dashed var(--line-d);cursor:move;user-select:none;
+}
+.wb-inspector .te-grip::after{content:"⠿";margin-left:auto;font-size:15px;color:var(--mut);line-height:1}
+.wb-inspector .te-close{
+  margin-left:8px;width:24px;height:24px;padding:0;flex:0 0 auto;cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  border:1px solid var(--line-d);border-radius:6px;background:var(--card);
+  color:var(--mut);font-size:13px;line-height:1;font-family:var(--sans);
+}
+.wb-inspector .te-close:hover{color:#fff;background:var(--red);border-color:var(--red)}
+.wb-inspector .te-title{margin-bottom:0}
+.tk-hl{outline:2px solid rgba(192,127,34,.75);outline-offset:2px;border-radius:6px}
+.pin-tip{
+  position:absolute;display:none;background:var(--ink);color:#eef4f1;font-size:12px;
+  padding:8px 12px;border-radius:7px;width:max-content;max-width:280px;z-index:20;line-height:1.6;
+  box-shadow:0 6px 18px rgba(0,0,0,.25);pointer-events:none;
+}
+.pin:hover + .pin-tip,.pin-tip.show{display:block}
+.pin{top:10px;right:10px}
+.pin-tip{top:38px;right:0}
+
+/* ---------- 页脚 & 翻页 ---------- */
+.lesson-footer{
+  text-align:center;padding:18px clamp(14px,3vw,36px);color:var(--mut);font-size:13px;
+  background:var(--card);border:1.5px solid var(--frame);border-radius:12px;
+  max-width:1320px;margin:0 auto;
+}
+.chapter-pager{
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+  max-width:1320px;margin:16px auto 40px;padding:10px clamp(14px,3vw,36px);
+  background:var(--card);border:1.5px solid var(--frame);border-radius:12px;
+}
+.pager-btn{
+  border:1px solid var(--line-d);background:var(--card);border-radius:9px;padding:9px 16px;
+  font-size:13.5px;color:var(--ink-2);cursor:pointer;font-family:var(--sans);
+}
+.pager-btn:hover{border-color:var(--teal);color:var(--teal-d);background:var(--teal-t)}
+.pager-btn:disabled{opacity:.4;cursor:default}
+
+/* ---------- 响应式 ---------- */
+@media (max-width:980px){
+  .lesson-main{grid-template-columns:1fr}
+  .chapter-nav{position:static}
+  .chapter-nav ul{display:flex;flex-wrap:wrap;gap:4px}
+  .chapter-nav li{flex:1 1 auto}
+  .chapter-nav a{font-size:14px;padding:6px 9px}
+  .chapter-nav .no{display:none}
+}
+@media (max-width:640px){
+  body{font-size:15px}
+  .lang-switch{margin-left:0}
+  .view-toggle{padding:4px 10px;font-size:12.5px}
+  .topbar-tabs a{padding:9px 10px;font-size:14px}
+  .sgroup .scard{flex:1 1 calc(50% - 8px);min-width:0}
+  .lesson-header .header-tip{display:none}
+  .wb-devwrap{padding:10px}
+}
+/* ---------- 原则卡片（1.2 演示）：默认 = 无原则的“差”态 ---------- */
+.pg-card .pg-title{font-size:15px;font-weight:400;color:var(--mut);transition:all .3s ease;margin-bottom:4px}
+.pg-card .pg-body{color:var(--mut);text-align:center;margin:0;transition:all .3s ease;font-size:14px}
+.pg-card .pg-meta{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;font-size:12px;color:var(--mut);margin-top:2px;transition:all .3s ease}
+.pg-card .pg-meta span{white-space:nowrap}
+.pg-card .pg-btns{display:flex;gap:8px;justify-content:center;margin-top:6px;transition:all .3s ease;flex-wrap:wrap}
+.pg-btn,.pg-btn2{display:inline-block;padding:6px 14px;font-size:13px;text-align:center;transition:all .3s ease;border:1px solid transparent}
+.pg-btn{background:#e8ecea;color:#8b9893;border-radius:6px}
+.pg-btn2{background:transparent;color:#9aa5a0;border-radius:999px;padding:5px 10px;font-size:12px;border-color:var(--line-d)}
+.pg-card.prin-w{padding:12px}
+/* 六个原则各自对应的“好”态 */
+.pg-card.prin-h .pg-title{font-size:21px;font-weight:900;color:var(--ink)}
+.pg-card.prin-a .pg-body,.pg-card.prin-a .pg-meta,.pg-card.prin-a .pg-btns{text-align:left;justify-content:flex-start}
+.pg-card.prin-c .pg-body{color:var(--ink-2)}
+.pg-card.prin-c .pg-btn{background:var(--teal);color:#fff}
+.pg-card.prin-c .pg-btn2{color:var(--ink-2);border-color:var(--line-d)}
+.pg-card.prin-p .pg-meta{margin-top:12px}
+.pg-card.prin-p .pg-btns{margin-top:16px}
+.pg-card.prin-w{padding:22px}
+.pg-card.prin-s .pg-btn2{border-radius:6px;padding:6px 14px;font-size:13px}
+
+/* ---------- 演示 1.6 对比 · 一致性 ---------- */
+.cc-stage{display:flex;gap:16px;flex-wrap:wrap;padding:18px;background:#f6faf8;border:1px dashed var(--line-d);border-radius:10px}
+.cc-card{flex:1 1 190px;display:flex;flex-direction:column;gap:6px;padding:16px;background:#fff;border:1px solid var(--line-d);border-radius:8px;transition:all .3s ease}
+.cc-card h5{margin:0;font-size:14px;font-weight:700;color:var(--ink);transition:all .3s ease}
+.cc-card p{margin:0;font-size:12.5px;color:var(--mut);transition:all .3s ease}
+.cc-price{font-family:var(--mono);font-size:13px;color:var(--teal-d);transition:all .3s ease}
+.cc-btn{border:none;cursor:pointer;padding:6px 12px;border-radius:6px;font-size:12.5px;background:var(--teal);color:#fff;transition:all .3s ease}
+.cc-stage.cc-weak .cc-card h5{font-size:13px;font-weight:400;color:var(--ink-2)}
+.cc-stage.cc-weak .cc-card p{color:var(--ink-2)}
+.cc-stage.cc-weak .cc-price{color:var(--ink-2)}
+.cc-stage.cc-weak .cc-btn{background:#e8ecea;color:#8b9893}
+.cc-stage.cc-mess .cc-card:nth-child(1){border-radius:0;padding:10px;border-color:var(--ochre)}
+.cc-stage.cc-mess .cc-card:nth-child(2){border-radius:999px;padding:22px;background:#fdf3e3}
+.cc-stage.cc-mess .cc-card:nth-child(3){border-radius:2px;background:#e8f1ee}
+.cc-stage.cc-mess .cc-btn{background:#8b9893}
+.cc-stage.cc-mess .cc-price{color:var(--ochre-d)}
+.cc-status{margin-top:10px;font-size:13px;color:var(--ink-2);line-height:1.7}
+.cc-sep{display:inline-block;width:1px;height:20px;background:var(--line-d);margin:0 4px;vertical-align:middle}
+
+/* ---------- 完整案例站点（1.8 演示） ---------- */
+.cs-nav{position:relative;display:flex;align-items:center;gap:18px;padding:12px 20px;border-bottom:1px solid var(--line)}
+.cs-logo{font-family:var(--serif);font-weight:900;font-size:16px;color:var(--teal-d);white-space:nowrap}
+.cs-links{display:flex;gap:16px;font-size:13.5px;color:var(--ink-2)}
+.cs-links a:hover{text-decoration:none;color:var(--teal-d)}
+.cs-cta{margin-left:auto;background:var(--teal);color:#fff;font-size:13px;padding:6px 14px;border-radius:6px;white-space:nowrap}
+.cs-hero{position:relative;padding:32px 20px;background:linear-gradient(180deg,#eef7f4,#fff)}
+.cs-hero h3{font-family:var(--serif);font-size:28px;font-weight:900;line-height:1.3}
+.cs-hero p{color:var(--ink-2);margin:8px 0 16px;max-width:44em;font-size:14px}
+.cs-actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.cs-btn{background:var(--teal);color:#fff;padding:9px 18px;border-radius:7px;font-size:13.5px}
+.cs-btn2{background:#fff;border:1px solid var(--line-d);color:var(--ink-2);padding:9px 18px;border-radius:7px;font-size:13.5px}
+.cs-stats{display:flex;gap:26px;margin-top:18px;font-size:12.5px;color:var(--mut);flex-wrap:wrap}
+.cs-stats b{display:block;font-family:var(--serif);font-size:18px;color:var(--ink)}
+.cs-feat{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:18px 20px}
+.cf{background:#fbfcfb;border:1px solid var(--line);border-radius:8px;padding:14px;position:relative}
+.cf h5{font-size:14px;margin-bottom:4px}
+.cf p{font-size:12px;color:var(--mut)}
+.cs-grid{position:relative;display:grid;grid-template-columns:repeat(3,1fr);gap:14px;padding:0 20px 18px}
+.cs-card{border:1px solid var(--line);border-radius:8px;padding:12px;background:#fff;position:relative}
+.cs-card .cs-img{height:74px;border-radius:6px;background:repeating-linear-gradient(45deg,var(--ochre-t) 0 10px,#fbf4e6 10px 20px);margin-bottom:10px}
+.cs-card h5{font-size:13.5px;margin-bottom:4px}
+.cs-card p{font-size:11.5px;color:var(--mut)}
+.cs-quote{background:var(--ink);color:#dcebe5;padding:18px 20px;margin:0 20px 18px;border-radius:8px;font-family:var(--serif);font-size:15px;position:relative}
+.cs-footer{position:relative;background:var(--ink);color:#9db3ab;padding:14px 20px;font-size:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+
+/* ---------- 创意扩展 ①：Design Token 编辑器（1.8） ---------- */
+#case-inner{--tk-radius:7px;--tk-space:1}
+#case-inner .cs-cta{border-radius:calc(var(--tk-radius) - 1px)}
+#case-inner .cs-btn,#case-inner .cs-btn2{border-radius:var(--tk-radius)}
+#case-inner .cf,#case-inner .cs-card,#case-inner .cs-quote{border-radius:calc(var(--tk-radius) + 1px)}
+#case-inner .cs-img{border-radius:calc(var(--tk-radius) - 1px)}
+#case-inner .cs-nav{padding:calc(12px * var(--tk-space)) 20px}
+#case-inner .cs-hero{padding:calc(32px * var(--tk-space)) 20px}
+#case-inner .cs-feat{gap:calc(14px * var(--tk-space));padding:calc(18px * var(--tk-space)) 20px}
+#case-inner .cs-grid{gap:calc(14px * var(--tk-space));padding:0 20px calc(18px * var(--tk-space))}
+#case-inner .cf{padding:calc(14px * var(--tk-space))}
+#case-inner .cs-card{padding:calc(12px * var(--tk-space))}
+#case-inner .cs-quote{padding:calc(18px * var(--tk-space)) 20px;margin:0 20px calc(18px * var(--tk-space))}
+#case-inner .cs-footer{padding:calc(14px * var(--tk-space)) 20px}
+.te-title{font-weight:700;font-size:15px;display:flex;align-items:center;gap:8px;margin-bottom:2px}
+.te-title .no{font-family:var(--mono);font-size:11.5px;color:var(--ochre);background:var(--ochre-t);padding:2px 8px;border-radius:6px}
+.te-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px 20px;margin:8px 0 2px}
+.te-grid label{font-size:13.5px;color:var(--ink-2);display:flex;flex-direction:column;gap:4px}
+.te-grid .te-row{display:flex;gap:8px;align-items:center}
+.te-grid input[type=range]{flex:1}
+.te-grid output{font-family:var(--mono);font-size:12.5px;color:var(--teal-d);min-width:64px}
+.te-grid input[type=color]{width:44px;height:26px;padding:0;border:1px solid var(--line-d);border-radius:6px;background:none;cursor:pointer}
+
+/* ---------- 创意扩展 ②：无障碍审查浮层（1.8） ---------- */
+.case-site.a11y-on .a11y-target{position:relative;outline:1.5px dashed rgba(15,118,110,.55);outline-offset:2px}
+.case-site.a11y-on .a11y-region{outline:2px solid rgba(192,127,34,.45);outline-offset:-2px}
+.a11y-badge{
+  position:absolute;top:-12px;left:0;z-index:30;pointer-events:none;
+  font-family:var(--mono);font-size:10px;line-height:1.6;white-space:nowrap;
+  padding:0 5px;border-radius:4px;background:var(--ink);color:#fff;
+}
+.a11y-badge.pass{background:#0e7a4f}
+.a11y-badge.warn{background:#b98a1c}
+.a11y-badge.fail{background:#b4412c}
+.a11y-badge.hd{left:auto;right:0}
+
+/* ---------- 创意扩展 ③：分步组装（1.8） ---------- */
+.cs-anim{opacity:0;transform:translateY(10px);transition:opacity .5s ease,transform .5s ease}
+.cs-anim.cs-in{opacity:1;transform:none}
+
+/* ---------- 创意扩展 ④：案例布局找茬（1.9） ---------- */
+.crime-head{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:10px;font-size:13.5px;color:var(--ink-2)}
+.crime-head b{font-family:var(--mono);color:var(--teal-d)}
+.crime-scene{
+  background:#fff;border:1.5px solid var(--line-d);border-radius:10px;padding:16px;margin:10px 0;
+  cursor:crosshair;user-select:none;transition:border-color .3s,box-shadow .3s;
+}
+.crime-scene.cleared{border-color:#0e7a4f;box-shadow:0 0 0 3px rgba(14,122,79,.12)}
+.crime-page{font-size:14px;line-height:1.7;color:#3c4a44}
+.ce{transition:box-shadow .2s ease}
+.ce.found{position:relative;outline:2.5px dashed var(--red);outline-offset:3px;border-radius:2px}
+.ce.found::after{
+  content:"✕ " attr(data-n);
+  position:absolute;top:-11px;left:6px;background:var(--red);color:#fff;
+  font-family:var(--mono);font-size:10px;padding:0 6px;border-radius:4px;line-height:1.6;
+}
+.ce.nope{animation:crimeNo .45s ease}
+@keyframes crimeNo{0%,100%{background:transparent}40%{background:var(--ochre-t);box-shadow:0 0 0 3px rgba(192,127,34,.35)}}
+.ce.hinting{animation:crimeHint 1s ease 2;border-radius:2px}
+@keyframes crimeHint{0%,100%{outline:2.5px dashed transparent}50%{outline:2.5px dashed var(--ochre)}}
+/* 罪行现场：故意做坏的迷你首页 */
+.cp-top{display:flex;gap:14px;align-items:center;border-bottom:1px solid #e5eae7;padding:4px 6px 8px}
+.cp-logo{font-weight:900;font-family:var(--serif)}
+.cp-links{font-size:13px}
+.cp-sub{margin-left:auto;background:#7fc8bf;color:#fff;font-size:12px;padding:4px 12px;border-radius:2px}
+.cp-title{font-size:15.5px;font-weight:400;margin:8px 0 4px}
+.cp-lede{margin:0}
+.cp-center{text-align:center;color:#6d7b75;font-size:12.5px;margin:8px 0}
+.cp-faint{color:#c9d3cd;font-size:12.5px;margin:6px 0}
+.cp-cta{display:inline-block;margin-top:34px;background:#b4412c;color:#fff;padding:6px 16px;border-radius:4px;font-size:13px}
+.cp-card{border:1px solid #e0e6e2;padding:2px 3px;margin:10px 0;border-radius:2px}
+.cp-card p{margin:1px 0}
+.cp-cardtitle{font-size:13px}
+.cp-cardbody{font-size:12px;color:#8b9893}
+.cp-img{height:56px;background:repeating-linear-gradient(45deg,#eef1ef 0 10px,#f7f9f8 10px 20px);border-radius:2px;margin:8px 0}
+.cp-btns{display:flex;gap:10px;margin-top:10px}
+.cp-b1{background:#0f766e;color:#fff;padding:8px 16px;border-radius:2px;font-size:12px}
+.cp-b2{background:#fff;color:#0f766e;border:2px solid #c07f22;padding:5px 20px;border-radius:999px;font-size:14px}
+.cp-b3{background:#c07f22;color:#fff;padding:10px 10px;border-radius:12px;font-size:11px}
+.crime-banner{
+  display:none;margin-top:10px;padding:12px 16px;border-radius:8px;
+  background:#e7f5ee;border:1px solid #0e7a4f;color:#0a5f3e;font-weight:700;font-size:14px;
+}
+.crime-banner.show{display:block;animation:fadeIn .4s ease}
+.crime-log{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:8px;margin-top:10px}
+.crime-slot{border:1px dashed var(--line-d);border-radius:8px;padding:8px 12px;font-size:12.5px;color:var(--mut);line-height:1.6;min-height:44px}
+.crime-slot.hit{border:1px solid rgba(180,65,44,.45);background:var(--red-t);color:var(--ink)}
+.crime-slot b{color:var(--red)}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  *{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+<body>
+
+<nav class="course-topbar" aria-label="课程导航">
+  <a class="brand" href="#top" id="brand-top"><span class="back">←</span><span data-lang="zh-CN">课程门户</span><span data-lang="en-US" hidden>Course Hub</span></a>
+  <ul class="topbar-tabs">
+    <li><a href="#top" data-lang="zh-CN">页面布局</a><a href="#top" data-lang="en-US" hidden>Web Layout</a></li>
+  </ul>
+  <button type="button" class="view-toggle" data-lang="zh-CN" aria-pressed="false">☰ 连续浏览</button><button type="button" class="view-toggle" data-lang="en-US" hidden aria-pressed="false">☰ Continuous</button>
+  <div class="lang-switch" role="group" aria-label="切换语言 / Switch language">
+    <button type="button" class="lang-btn active" data-lang="zh-CN" aria-label="中文">中</button>
+    <button type="button" class="lang-btn" data-lang="en-US" aria-label="English">EN</button>
+  </div>
+</nav>
+
+<header class="lesson-header" id="top">
+  <div class="head-inner">
+    <div>
+      <h1><span data-lang="zh-CN">页面布局</span><span data-lang="en-US" hidden>Web Layout</span></h1>
+      <p class="subtitle" data-lang="zh-CN">以「拾味山居 · 美食旅行博客首页」为贯穿案例：先给理论（设计原则），再用案例逐步展开，边做边学。</p>
+      <p class="subtitle" data-lang="en-US" hidden>Built around one running case — the homepage of “Shiwei Mountain House”, a food &amp; travel blog: theory first (design principles), then the case step by step, learning by doing.</p>
+    </div>
+    <div class="header-tip">
+      <span data-lang="zh-CN">按 Tab 切换「讲解 / 关键代码 / 演示」板块 · 目录与翻页器切换章节 · 右上角切换中英双语</span>
+      <span data-lang="en-US" hidden>Press Tab to switch Explain / Key Code / Demo panels · chapters via contents &amp; pager · toggle Chinese / English at the top right</span>
+    </div>
+  </div>
+</header>
+
+<main class="lesson-main">
+  <aside class="chapter-nav" aria-label="章节目录">
+    <h3 data-lang="zh-CN">章节目录</h3>
+    <h3 data-lang="en-US" hidden>Contents</h3>
+    <ul>
+      <li class="nav-group"><span data-lang="zh-CN">认知</span><span data-lang="en-US" hidden>Understand</span></li>
+      <li><a href="#ch-1-1" data-chapter="ch-1-1"><span class="no">1.1</span><span data-lang="zh-CN">布局设计流程</span><span data-lang="en-US" hidden>Layout Workflow</span></a></li>
+      <li><a href="#ch-1-2" data-chapter="ch-1-2"><span class="no">1.2</span><span data-lang="zh-CN">六大设计原则</span><span data-lang="en-US" hidden>Six Principles</span></a></li>
+      <li class="nav-group"><span data-lang="zh-CN">深入</span><span data-lang="en-US" hidden>Deep-dive</span></li>
+      <li><a href="#ch-1-3" data-chapter="ch-1-3"><span class="no">1.3</span><span data-lang="zh-CN">对齐</span><span data-lang="en-US" hidden>Alignment</span></a></li>
+      <li><a href="#ch-1-4" data-chapter="ch-1-4"><span class="no">1.4</span><span data-lang="zh-CN">层级</span><span data-lang="en-US" hidden>Hierarchy</span></a></li>
+      <li><a href="#ch-1-5" data-chapter="ch-1-5"><span class="no">1.5</span><span data-lang="zh-CN">亲密性·留白</span><span data-lang="en-US" hidden>Proximity &amp; Whitespace</span></a></li>
+      <li><a href="#ch-1-6" data-chapter="ch-1-6"><span class="no">1.6</span><span data-lang="zh-CN">对比·一致性</span><span data-lang="en-US" hidden>Contrast &amp; Consistency</span></a></li>
+      <li class="nav-group"><span data-lang="zh-CN">实战</span><span data-lang="en-US" hidden>Practice</span></li>
+      <li><a href="#ch-1-7" data-chapter="ch-1-7"><span class="no">1.7</span><span data-lang="zh-CN">响应式布局</span><span data-lang="en-US" hidden>Responsive Layout</span></a></li>
+      <li><a href="#ch-1-8" data-chapter="ch-1-8"><span class="no">1.8</span><span data-lang="zh-CN">案例组装</span><span data-lang="en-US" hidden>Case Assembly</span></a></li>
+      <li><a href="#ch-1-9" data-chapter="ch-1-9"><span class="no">1.9</span><span data-lang="zh-CN">案例布局找茬</span><span data-lang="en-US" hidden>Case Layout Crime Scene</span></a></li>
+    </ul>
+  </aside>
+
+  <section class="chapter-content">
+
+    <!-- ============ 1.1 布局设计流程 ============ -->
+    <article class="chapter" id="ch-1-1">
+      <h2><span class="no">1.1</span><span data-lang="zh-CN">布局设计流程</span><span data-lang="en-US" hidden>Layout Design Workflow</span></h2>
+      <p class="chapter-subtitle" data-lang="zh-CN">先规划、后实现：从需求到线框图，再落到代码</p>
+      <p class="chapter-subtitle" data-lang="en-US" hidden>Plan first, then build: from requirements to wireframes, then to code</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="explain"><span class="dot"></span><span data-lang="zh-CN">讲解</span><span data-lang="en-US" hidden>Explain</span></button>
+        <button class="tab-btn" data-tab="code"><span class="dot"></span><span data-lang="zh-CN">关键代码</span><span data-lang="en-US" hidden>Key Code</span></button>
+        <button class="tab-btn" data-tab="demo"><span class="dot"></span><span data-lang="zh-CN">演示</span><span data-lang="en-US" hidden>Demo</span></button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="explain">
+          <h3 data-lang="zh-CN">你的贯穿案例</h3>
+          <h3 data-lang="en-US" hidden>Your Running Case</h3>
+          <p data-lang="zh-CN">全章案例是「拾味山居」美食旅行博客的首页。它的任务很明确：<strong>让访客在 3 秒内知道这是什么网站、今天有什么新内容、可以从哪里进入</strong>。所有章节都会围绕这个页面展开。</p>
+          <p data-lang="en-US" hidden>The running case of this chapter is the homepage of “Shiwei Mountain House”, a food &amp; travel blog. Its mission is clear: <strong>let visitors know within 3 seconds what this site is, what is new today, and where to go next</strong>. Every section revolves around this page.</p>
+
+          <h3 data-lang="zh-CN">布局设计的五步流程</h3>
+          <h3 data-lang="en-US" hidden>The Five-Step Layout Workflow</h3>
+          <ol>
+            <li data-lang="zh-CN"><strong>明确需求与目标</strong>：给谁看、要达成什么。本例 = 内容型博客，重点是“读”，不是“买”。</li>
+            <li data-lang="en-US" hidden><strong>Clarify requirements &amp; goals</strong>: for whom, and to achieve what. This case = a content blog, focused on “reading”, not “buying”.</li>
+            <li data-lang="zh-CN"><strong>信息架构（IA）</strong>：把内容分组并排序 —— 导航、首屏、栏目、文章列表、页脚。</li>
+            <li data-lang="en-US" hidden><strong>Information architecture (IA)</strong>: group and order content — nav, hero, sections, article list, footer.</li>
+            <li data-lang="zh-CN"><strong>线框图（Wireframe）</strong>：用灰块画出每一块内容的位置与大小，只谈结构，不谈样式。</li>
+            <li data-lang="en-US" hidden><strong>Wireframe</strong>: draw the position and size of every block with grey boxes — structure only, no styling.</li>
+            <li data-lang="zh-CN"><strong>视觉设计</strong>：在线框上加字体、色彩、间距，确定层级与情绪。</li>
+            <li data-lang="en-US" hidden><strong>Visual design</strong>: add typography, color, and spacing on the wireframe; settle hierarchy and mood.</li>
+            <li data-lang="zh-CN"><strong>代码实现</strong>：把定稿的结构翻译成语义化 HTML 与 CSS 布局。</li>
+            <li data-lang="en-US" hidden><strong>Implementation</strong>: translate the approved structure into semantic HTML and CSS layout.</li>
+          </ol>
+
+          <h3 data-lang="zh-CN">嵌入理论：为什么必须“先线框后代码”</h3>
+          <h3 data-lang="en-US" hidden>Embedded Theory: Why Wireframe Before Code</h3>
+          <ul>
+            <li data-lang="zh-CN"><strong>返工成本曲线</strong>：改线框只需 5 分钟，改写好的页面需要数小时。结构错误越晚发现，修复越贵。</li>
+            <li data-lang="en-US" hidden><strong>The rework cost curve</strong>: fixing a wireframe takes 5 minutes; fixing a finished page takes hours. The later a structural flaw is found, the more expensive it is.</li>
+            <li data-lang="zh-CN"><strong>聚焦结构</strong>：线框刻意“丑”，因为样式会干扰你对布局的判断（这也是本页所有演示都用灰块的原因）。</li>
+            <li data-lang="en-US" hidden><strong>Focus on structure</strong>: wireframes are intentionally “ugly”, because styling distracts your judgment about layout (which is why every demo on this page uses grey blocks).</li>
+            <li data-lang="zh-CN"><strong>心智模型</strong>：用户对页面有既有期待（导航在顶部、页脚在最底）。线框帮你检查 IA 是否符合直觉。</li>
+            <li data-lang="en-US" hidden><strong>Mental model</strong>: users already expect certain conventions (nav on top, footer at the bottom). Wireframes help you check whether your IA matches intuition.</li>
+          </ul>
+          <p class="note"><strong data-lang="zh-CN">课堂要点：</strong><span data-lang="zh-CN">新手最常见的错误是跳过线框直接写代码，于是“边写边想结构”，反复重构。先花 10 分钟画线框，能省下 2 小时返工。</span><strong data-lang="en-US" hidden>Classroom takeaway:</strong><span data-lang="en-US" hidden>The most common beginner mistake is skipping the wireframe and coding directly, “thinking about structure while writing”, then refactoring repeatedly. Ten minutes of wireframing saves two hours of rework.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="code">
+          <h3 data-lang="zh-CN">关键代码 ① 线框 → 语义化骨架</h3>
+          <h3 data-lang="en-US" hidden>Key Code ① Wireframe → Semantic Skeleton</h3>
+          <p class="code-purpose" data-lang="zh-CN">线框的每个灰块，对应一个语义标签。命名区域（grid-template-areas）让整个页面结构一眼可读。</p>
+          <p class="code-purpose" data-lang="en-US" hidden>Every grey block in the wireframe maps to a semantic tag. Named areas (grid-template-areas) make the whole page structure readable at a glance.</p>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* 用 grid-template-areas 描述宏观布局：线框 → 代码一一对应 */</span>
+<span class="cls">.page</span>{
+  <span class="kw">display</span>: grid;
+  <span class="kw">grid-template-areas</span>:
+    <span class="str">"nav   nav"</span>
+    <span class="str">"hero  hero"</span>
+    <span class="str">"feat  feat"</span>
+    <span class="str">"posts posts"</span>
+    <span class="str">"footer footer"</span>;
+  <span class="kw">grid-template-columns</span>: <span class="num">1fr</span> <span class="num">1fr</span>;
+  <span class="kw">max-width</span>: <span class="num">1200px</span>;
+  <span class="kw">margin-inline</span>: auto;  <span class="cmt">/* 容器水平居中 */</span>
+}</code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">CSS Grid 的 <code>grid-template-areas</code> 让你用“名字”描述整页布局，和线框图同构；改结构时只改这一处，不用数浮动或边距。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden><code>grid-template-areas</code> lets you describe the whole page by “names”, isomorphic to the wireframe; restructuring only touches this one block — no floats or margins to count.</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ② 从线框到首屏（hero）</h3>
+          <h3 data-lang="en-US" hidden>Key Code ② From Wireframe to the Hero</h3>
+          <p class="code-purpose" data-lang="zh-CN">同一块内容，先有结构再有样式：语义容器 + 少量样式即可成型。</p>
+          <p class="code-purpose" data-lang="en-US" hidden>The same content: structure first, then style — a semantic container plus a little CSS makes it real.</p>
+<pre class="code-block"><code class="lang-html"><span class="tag">&lt;section</span> <span class="attr">class</span>=<span class="str">"hero"</span><span class="tag">&gt;</span>
+  <span class="tag">&lt;h1&gt;</span>山里的味道，值得慢慢走<span class="tag">&lt;/h1&gt;</span>
+  <span class="tag">&lt;p&gt;</span>记录每一道菜与它背后的地方。<span class="tag">&lt;/p&gt;</span>
+  <span class="tag">&lt;a</span> <span class="attr">class</span>=<span class="str">"btn"</span> <span class="attr">href</span>=<span class="str">"#posts"</span><span class="tag">&gt;</span>开始阅读<span class="tag">&lt;/a&gt;</span>
+<span class="tag">&lt;/section&gt;</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">先用 HTML 把“内容层级”写对（h1 → p → a），CSS 只负责把它们放在页面上的位置。结构对了，样式只是锦上添花。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden">First get the content hierarchy right in HTML (h1 → p → a); CSS only positions them on the page. Right structure makes styling a bonus, not a rescue.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="demo">
+          <p class="demo-hint" data-lang="zh-CN">五步流程时间轴 · 点击下方按钮对比「线框图」与「成品」——同一内容，先结构后样式。</p>
+          <p class="demo-hint" data-lang="en-US" hidden>The five-step timeline · click the buttons below to compare “Wireframe” and “Final” — same content, structure first, style later.</p>
+          <div class="demo-mount" id="demo-wf">
+            <div class="timeline" id="wf-tl"></div>
+            <div class="controls">
+              <button class="demo-btn active" id="wf-wire">线框 / Wireframe</button>
+              <button class="demo-btn" id="wf-final">成品 / Final</button>
+            </div>
+            <div id="wf-view"></div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ 1.2 六大设计原则 ============ -->
+    <article class="chapter" id="ch-1-2">
+      <h2><span class="no">1.2</span><span data-lang="zh-CN">六大设计原则</span><span data-lang="en-US" hidden>Six Core Design Principles</span></h2>
+      <p class="chapter-subtitle" data-lang="zh-CN">层级、对齐、对比、亲密性、留白、一致性 —— 布局质量的检查清单</p>
+      <p class="chapter-subtitle" data-lang="en-US" hidden>Hierarchy, Alignment, Contrast, Proximity, Whitespace, Consistency — the checklist for layout quality</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="explain"><span class="dot"></span><span data-lang="zh-CN">讲解</span><span data-lang="en-US" hidden>Explain</span></button>
+        <button class="tab-btn" data-tab="code"><span class="dot"></span><span data-lang="zh-CN">关键代码</span><span data-lang="en-US" hidden>Key Code</span></button>
+        <button class="tab-btn" data-tab="demo"><span class="dot"></span><span data-lang="zh-CN">演示</span><span data-lang="en-US" hidden>Demo</span></button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="explain">
+          <h3 data-lang="zh-CN">六条原则，一次记牢</h3>
+          <h3 data-lang="en-US" hidden>Six Principles, Memorized at Once</h3>
+          <table class="theory-table">
+            <colgroup><col style="width:18%"><col style="width:37%"><col style="width:45%"></colgroup>
+            <thead data-lang="zh-CN"><tr><th>原则</th><th>解决的问题</th><th>常见错误</th></tr></thead>
+            <thead data-lang="en-US" hidden><tr><th>Principle</th><th>Solves</th><th>Common mistake</th></tr></thead>
+            <tbody>
+              <tr data-lang="zh-CN"><td><a class="prin-link" href="#ch-1-4" data-cross="ch-1-4"><strong>层级</strong><br>Hierarchy</a></td><td>“先看什么、再看什么”的顺序</td><td>所有文字一样大，视线无处落脚</td></tr>
+              <tr data-lang="en-US" hidden><td><a class="prin-link" href="#ch-1-4" data-cross="ch-1-4"><strong>Hierarchy</strong></a></td><td>The order of “look here first, then there”</td><td>All text the same size; the eye has no place to land</td></tr>
+              <tr data-lang="zh-CN"><td><a class="prin-link" href="#ch-1-3" data-cross="ch-1-3"><strong>对齐</strong><br>Alignment</a></td><td>元素之间形成清晰的“线”，让页面整洁</td><td>每块内容各自居中，视觉上杂乱无章</td></tr>
+              <tr data-lang="en-US" hidden><td><a class="prin-link" href="#ch-1-3" data-cross="ch-1-3"><strong>Alignment</strong></a></td><td>Clear “lines” between elements keep the page tidy</td><td>Every block centered independently; visual chaos</td></tr>
+              <tr data-lang="zh-CN"><td><a class="prin-link" href="#ch-1-6" data-cross="ch-1-6"><strong>对比</strong><br>Contrast</a></td><td>让重点“跳出来”，弱化次要信息</td><td>标题正文全是灰色，重点不突出</td></tr>
+              <tr data-lang="en-US" hidden><td><a class="prin-link" href="#ch-1-6" data-cross="ch-1-6"><strong>Contrast</strong></a></td><td>Make the important “pop” and the secondary recede</td><td>Headings and body all grey; nothing stands out</td></tr>
+              <tr data-lang="zh-CN"><td><a class="prin-link" href="#ch-1-5" data-cross="ch-1-5"><strong>亲密性</strong><br>Proximity</a></td><td>相近的内容视觉上归为一组（空间即分组）</td><td>标题、摘要、按钮间距全都一样</td></tr>
+              <tr data-lang="en-US" hidden><td><a class="prin-link" href="#ch-1-5" data-cross="ch-1-5"><strong>Proximity</strong></a></td><td>Nearby content is perceived as one group (space = grouping)</td><td>Title, summary, and button all evenly spaced</td></tr>
+              <tr data-lang="zh-CN"><td><a class="prin-link" href="#ch-1-5" data-cross="ch-1-5"><strong>留白</strong><br>Whitespace</a></td><td>给内容呼吸空间，提升可读性与“质感”</td><td>把页面塞满，生怕浪费一像素</td></tr>
+              <tr data-lang="en-US" hidden><td><a class="prin-link" href="#ch-1-5" data-cross="ch-1-5"><strong>Whitespace</strong></a></td><td>Breathing room for content; better readability and polish</td><td>Filling every pixel, afraid of wasting space</td></tr>
+              <tr data-lang="zh-CN"><td><a class="prin-link" href="#ch-1-6" data-cross="ch-1-6"><strong>一致性</strong><br>Consistency</a></td><td>同类元素同样式，用户建立认知后不再困惑</td><td>同是按钮，大小圆角颜色各不相同</td></tr>
+              <tr data-lang="en-US" hidden><td><a class="prin-link" href="#ch-1-6" data-cross="ch-1-6"><strong>Consistency</strong></a></td><td>Same style for the same kind of element; no re-learning</td><td>All “buttons”, yet sizes, radii, and colors differ</td></tr>
+            </tbody>
+          </table>
+
+          <h3 data-lang="zh-CN">嵌入理论：格式塔原理（Gestalt）</h3>
+          <h3 data-lang="en-US" hidden>Embedded Theory: Gestalt Principles</h3>
+          <p data-lang="zh-CN">这六条原则的心理学根基是格式塔原理——大脑会把“接近、相似、闭合”的元素自动组织成整体：</p>
+          <p data-lang="en-US" hidden>The psychological foundation of these six principles is Gestalt theory — the brain automatically organizes elements that are close, similar, or enclosed into wholes:</p>
+          <ul>
+            <li data-lang="zh-CN"><strong>邻近律（Proximity）</strong>：距离近的元素被视为一组 → 支撑“亲密性”。</li>
+            <li data-lang="en-US" hidden><strong>Proximity</strong>: elements close together are seen as one group → supports “proximity” design.</li>
+            <li data-lang="zh-CN"><strong>相似律（Similarity）</strong>：形状 / 颜色相同的元素被归为一类 → 支撑“一致性”。</li>
+            <li data-lang="en-US" hidden><strong>Similarity</strong>: elements sharing shape or color are grouped → supports “consistency”.</li>
+            <li data-lang="zh-CN"><strong>闭合律（Closure）</strong>：大脑自动补全缺口 → 对齐形成的“线”让页面显得完整。</li>
+            <li data-lang="en-US" hidden><strong>Closure</strong>: the brain fills in gaps → the “lines” formed by alignment make the page feel complete.</li>
+          </ul>
+          <p class="note"><strong data-lang="zh-CN">课堂要点：</strong><span data-lang="zh-CN">原则不是法律，而是“自查清单”。每次画完布局，用这六条逐项检查，大多数版式问题都能自己发现。</span><strong data-lang="en-US" hidden>Classroom takeaway:</strong><span data-lang="en-US" hidden>Principles are not laws, but a self-review checklist. Run the six items over every layout you draw, and most problems reveal themselves.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="code">
+          <h3 data-lang="zh-CN">关键代码 ① 层级阶梯（type scale）</h3>
+          <h3 data-lang="en-US" hidden>Key Code ① The Type Scale</h3>
+          <p class="code-purpose" data-lang="zh-CN">层级靠“字号 + 字重 + 颜色”三级叠加，而不是只放大字号。</p>
+          <p class="code-purpose" data-lang="en-US" hidden>Hierarchy stacks three levers — size, weight, and color — not just a bigger font.</p>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* 首屏：主标题 44px 特重，副文 17px 次级色，按钮 14px 加粗高对比 */</span>
+<span class="cls">.hero h1</span>{<span class="kw">font-size</span>:<span class="fn">clamp</span>(<span class="num">28px</span>,<span class="num">5vw</span>,<span class="num">44px</span>);<span class="kw">font-weight</span>:<span class="num">900</span>}
+<span class="cls">.hero p</span>{<span class="kw">font-size</span>:<span class="num">17px</span>;<span class="kw">color</span>:<span class="kw">var</span>(--ink-2)}
+<span class="cls">.hero .btn</span>{<span class="kw">font-size</span>:<span class="num">14px</span>;<span class="kw">font-weight</span>:<span class="num">700</span>;<span class="kw">background</span>:<span class="kw">var</span>(--teal);<span class="kw">color</span>:#fff}</code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">把“字重 + 颜色”也用上，字号可以不用拉得很大；层级越少越清晰，一页一般只保留 2–3 级（主标题 / 小节 / 正文）。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>With weight and color doing part of the work, type sizes stay modest; fewer levels are clearer — usually 2–3 levels per page (headline / section / body).</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ② 对比度（WCAG）</h3>
+          <h3 data-lang="en-US" hidden>Key Code ② Contrast (WCAG)</h3>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* 正文与背景的对比率至少 4.5:1，大号文字 ≥3:1 */</span>
+--ink:#<span class="num">16261f</span>;   <span class="cmt">/* 正文 on #fff ≈ 14.2:1，达标 */</span>
+--mut:#<span class="num">6d7b75</span>;   <span class="cmt">/* 弱化文字 on #fff ≈ 4.6:1，达标 */</span>
+--line-d:#<span class="num">c3d0ca</span>; <span class="cmt">/* 只作分隔线，永远不作文字颜色 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">对比度是“对比原则”的硬指标。可以用浏览器 DevTools 的取色器直接查看对比率；弱化文字也别低于 4.5:1。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Contrast is the hard metric of the contrast principle. Check the ratio with DevTools’ color picker; even muted text should stay ≥ 4.5:1.</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ③ 一致性 token</h3>
+          <h3 data-lang="en-US" hidden>Key Code ③ Consistency Tokens</h3>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* 把“间距 / 圆角 / 颜色”收进变量，全站只改一处 */</span>
+:root{
+  --space-<span class="num">1</span>:<span class="num">4px</span>; --space-<span class="num">2</span>:<span class="num">8px</span>; --space-<span class="num">3</span>:<span class="num">16px</span>;
+  --space-<span class="num">4</span>:<span class="num">24px</span>; --space-<span class="num">5</span>:<span class="num">32px</span>;
+  --radius:<span class="num">10px</span>;
+  --teal:#<span class="num">0f766e</span>; --ochre:#<span class="num">c07f22</span>;
+}
+<span class="cls">.btn</span>,<span class="cls">.card</span>,<span class="cls">.input</span>{<span class="kw">border-radius</span>:<span class="kw">var</span>(--radius)}</code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">一致性在代码层面就是“不许各自为政”：圆角、阴影、间距全部来自同一组变量，样式自然统一。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Consistency, in code, means “no ad-hoc values”: radii, shadows, and spacing all come from one set of variables, so styles stay unified by construction.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="demo">
+          <p class="demo-hint" data-lang="zh-CN">同一张文章卡片：左边全部原则都违背；右边默认六原则全开。点击下方标签“关掉”某一原则，观察右边卡片如何退化。</p>
+          <p class="demo-hint" data-lang="en-US" hidden>The same article card: the left violates all principles; the right starts with all six on. Click a chip to “turn off” one principle and watch the card degrade.</p>
+          <div class="demo-mount">
+            <div class="pcard-wrap">
+              <div class="pcard pcard-bad pg-card">
+                <span class="pc-tag" data-lang="zh-CN">反面示例 · 全部违背</span><span class="pc-tag" data-lang="en-US" hidden>Anti-example · all violated</span>
+                <h5 class="pg-title">周末特辑：山间的一碗面</h5>
+                <p class="pg-body">记录滇西小城的一碗饵丝，以及做它的人。</p>
+                <div class="pg-meta"><span>5 分钟阅读</span><span>云南 · 面食</span></div>
+                <div class="pg-btns"><span class="pg-btn">阅读全文</span><span class="pg-btn2">收藏</span></div>
+              </div>
+              <div class="pcard pcard-good pg-card prin-h prin-a prin-c prin-p prin-w prin-s" id="pg-good">
+                <span class="pc-tag" data-lang="zh-CN">正面示例 · 六原则全开（可逐项关闭）</span><span class="pc-tag" data-lang="en-US" hidden>Good example · all six on (toggle them off)</span>
+                <h5 class="pg-title">周末特辑：山间的一碗面</h5>
+                <p class="pg-body">记录滇西小城的一碗饵丝，以及做它的人。</p>
+                <div class="pg-meta"><span>5 分钟阅读</span><span>云南 · 面食</span></div>
+                <div class="pg-btns"><span class="pg-btn">阅读全文</span><span class="pg-btn2">收藏</span></div>
+              </div>
+            </div>
+            <div class="chips" id="prin-chips">
+              <button class="chip on" data-p="h" data-lang="zh-CN">层级 Hierarchy</button>
+              <button class="chip on" data-p="a" data-lang="zh-CN">对齐 Alignment</button>
+              <button class="chip on" data-p="c" data-lang="zh-CN">对比 Contrast</button>
+              <button class="chip on" data-p="p" data-lang="zh-CN">亲密性 Proximity</button>
+              <button class="chip on" data-p="w" data-lang="zh-CN">留白 Whitespace</button>
+              <button class="chip on" data-p="s" data-lang="zh-CN">一致性 Consistency</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ 1.3 对齐 ============ -->
+    <article class="chapter" id="ch-1-3">
+      <h2><span class="no">1.3</span><span data-lang="zh-CN">对齐</span><span data-lang="en-US" hidden>Alignment</span></h2>
+      <p class="chapter-subtitle" data-lang="zh-CN">网格系统是对齐的落地机制：容器、列、沟槽，让对齐成为默认状态</p>
+      <p class="chapter-subtitle" data-lang="en-US" hidden>The grid is alignment’s mechanism: container, columns, gutters make alignment the default</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="explain"><span class="dot"></span><span data-lang="zh-CN">讲解</span><span data-lang="en-US" hidden>Explain</span></button>
+        <button class="tab-btn" data-tab="code"><span class="dot"></span><span data-lang="zh-CN">关键代码</span><span data-lang="en-US" hidden>Key Code</span></button>
+        <button class="tab-btn" data-tab="demo"><span class="dot"></span><span data-lang="zh-CN">演示</span><span data-lang="en-US" hidden>Demo</span></button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="explain">
+          <p data-lang="zh-CN"><strong>对齐</strong>（Alignment）是让所有元素共享同一条基准线的原则——整齐来自“有共同的边”。它的落地机制就是本节的<strong>网格系统</strong>：把页面切成固定列，元素按列占位，对齐自动完成，无需逐项手调。</p>
+          <p data-lang="en-US" hidden><strong>Alignment</strong> is the principle of sharing baselines — tidiness comes from common edges. Its mechanism is the <strong>grid system</strong>: slice the page into fixed columns, let elements occupy columns, and alignment happens automatically instead of by hand.</p>
+          <h3 data-lang="zh-CN">文字对齐：宁左勿乱</h3>
+          <h3 data-lang="en-US" hidden>Text Alignment: Left Over Chaos</h3>
+          <p data-lang="zh-CN">正文默认左对齐（中文阅读方向）；每一列内容共享同一条基准线。居中只用于少量元素（按钮、单行标语），不要整段居中。</p>
+          <p data-lang="en-US" hidden>Body text is left-aligned by default (the Chinese reading direction); every column shares one baseline. Centering is only for a few elements (buttons, one-line slogans) — never whole paragraphs.</p>
+          <h3 data-lang="zh-CN">网格的四要素</h3>
+          <h3 data-lang="en-US" hidden>The Four Parts of a Grid</h3>
+          <ul>
+            <li data-lang="zh-CN"><strong>容器（Container）</strong>：内容的宽度上限，常用 960–1440px，居中放置。</li>
+            <li data-lang="en-US" hidden><strong>Container</strong>: the max width of content, commonly 960–1440px, centered.</li>
+            <li data-lang="zh-CN"><strong>列（Columns）</strong>：把容器纵向切成的栏位；元素按“列”来占位，天然对齐。</li>
+            <li data-lang="en-US" hidden><strong>Columns</strong>: vertical slices of the container; elements occupy columns, so alignment is automatic.</li>
+            <li data-lang="zh-CN"><strong>沟槽（Gutter）</strong>：列与列之间的空隙，全站统一（如 16 / 24px）。</li>
+            <li data-lang="en-US" hidden><strong>Gutters</strong>: the gaps between columns, uniform site-wide (e.g., 16 / 24px).</li>
+            <li data-lang="zh-CN"><strong>外边距（Margin）</strong>：容器与视口边缘的留白，随屏幕缩放。</li>
+            <li data-lang="en-US" hidden><strong>Margins</strong>: the space between the container and the viewport edge, scaling with the screen.</li>
+          </ul>
+          <h3 data-lang="zh-CN">为什么是 12 列？</h3>
+          <h3 data-lang="en-US" hidden>Why 12 Columns?</h3>
+          <p data-lang="zh-CN">12 能被 2、3、4、6 整除，可以自由组合出 1/2、1/3、1/4、1/6 宽的模块，是“灵活性”与“简单性”的最佳折中。</p>
+          <p data-lang="en-US" hidden>12 divides evenly by 2, 3, 4, and 6, freely composing 1/2, 1/3, 1/4, and 1/6 width modules — the best trade-off between flexibility and simplicity.</p>
+          <h3 data-lang="zh-CN">Grid 与 Flexbox 的分工</h3>
+          <h3 data-lang="en-US" hidden>Grid vs Flexbox: Division of Labor</h3>
+          <table class="theory-table">
+            <colgroup><col style="width:22%"><col style="width:39%"><col style="width:39%"></colgroup>
+            <thead data-lang="zh-CN"><tr><th></th><th>CSS Grid</th><th>Flexbox</th></tr></thead>
+            <thead data-lang="en-US" hidden><tr><th></th><th>CSS Grid</th><th>Flexbox</th></tr></thead>
+            <tbody>
+              <tr data-lang="zh-CN"><td><strong>适用</strong></td><td>整页 / 二维：行和列同时控制</td><td>一条轴：组件内部（导航、按钮排、卡片内容）</td></tr>
+              <tr data-lang="en-US" hidden><td><strong>Use for</strong></td><td>Page-level / 2D: rows and columns together</td><td>One axis: inside components (nav, button rows, card content)</td></tr>
+              <tr data-lang="zh-CN"><td><strong>经典口诀</strong></td><td>“页面用 Grid，组件用 Flex”</td><td>“页面用 Grid，组件用 Flex”</td></tr>
+              <tr data-lang="en-US" hidden><td><strong>Rule of thumb</strong></td><td>“Grid for the page, Flex for the component”</td><td>“Grid for the page, Flex for the component”</td></tr>
+            </tbody>
+          </table>
+          <p class="note"><strong data-lang="zh-CN">课堂要点：</strong><span data-lang="zh-CN">响应式网格 = 在断点处改变“列数”，而不是把整页推倒重排。断点由内容决定（见 1.7），不是照着设备型号抄。</span><strong data-lang="en-US" hidden>Classroom takeaway:</strong><span data-lang="en-US" hidden>A responsive grid changes the number of columns at breakpoints — it does not rebuild the page. Breakpoints follow content (see 1.7), not device names.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="code">
+          <h3 data-lang="zh-CN">关键代码 ① 12 列文章栅格</h3>
+          <h3 data-lang="en-US" hidden>Key Code ① A 12-Column Article Grid</h3>
+<pre class="code-block"><code class="lang-css"><span class="cls">.posts</span>{
+  <span class="kw">display</span>: grid;
+  <span class="kw">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="num">12</span>,<span class="num">1fr</span>); <span class="cmt">/* 12 等分 */</span>
+  <span class="kw">gap</span>: <span class="num">24px</span>;              <span class="cmt">/* 沟槽统一 24px */</span>
+  <span class="kw">max-width</span>: <span class="num">1200px</span>;      <span class="cmt">/* 容器 */</span>
+  <span class="kw">margin-inline</span>: auto;     <span class="cmt">/* 外边距自适应居中 */</span>
+}
+<span class="cls">.post</span>{<span class="kw">grid-column</span>: <span class="kw">span</span> <span class="num">4</span>}            <span class="cmt">/* 一行 3 篇 */</span>
+<span class="cls">.post.featured</span>{<span class="kw">grid-column</span>: <span class="kw">span</span> <span class="num">8</span>}     <span class="cmt">/* 头条占 8 列 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN"><code>grid-column: span 4</code> 表示“占 4 列宽”，元素自动贴齐列线，这就是网格让“对齐”变成默认状态的原因。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden><code>grid-column: span 4</code> means “occupy 4 columns”, and elements snap to column lines automatically — that is why a grid makes alignment the default.</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ② 导航用 Flexbox</h3>
+          <h3 data-lang="en-US" hidden>Key Code ② Nav with Flexbox</h3>
+<pre class="code-block"><code class="lang-css"><span class="cls">.nav</span>{<span class="kw">display</span>: flex;<span class="kw">align-items</span>: center;<span class="kw">gap</span>: <span class="num">24px</span>}
+<span class="cls">.nav .links</span>{<span class="kw">display</span>: flex;<span class="kw">gap</span>: <span class="num">16px</span>}
+<span class="cls">.nav .cta</span>{<span class="kw">margin-left</span>: auto}  <span class="cmt">/* 推到最后侧 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">一条轴上的排布（Logo、链接、按钮）用 Flexbox；<code>margin-left:auto</code> 是把元素推到行尾的惯用技巧。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>One-axis arrangement (logo, links, button) uses Flexbox; <code>margin-left:auto</code> is the classic trick to push an item to the end of the row.</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ③ 断点处改列数</h3>
+          <h3 data-lang="en-US" hidden>Key Code ③ Changing Column Count at Breakpoints</h3>
+<pre class="code-block"><code class="lang-css"><span class="cls">.post</span>{<span class="kw">grid-column</span>: <span class="kw">span</span> <span class="num">4</span>}
+<span class="tag">@media</span> (<span class="kw">max-width</span>: <span class="num">900px</span>){<span class="cls">.post</span>{<span class="kw">grid-column</span>: <span class="kw">span</span> <span class="num">6</span>}}  <span class="cmt">/* 平板：2 列 */</span>
+<span class="tag">@media</span> (<span class="kw">max-width</span>: <span class="num">600px</span>){<span class="cls">.post</span>{<span class="kw">grid-column</span>: <span class="kw">span</span> <span class="num">12</span>}} <span class="cmt">/* 手机：1 列 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">响应式只改“一行的列数”，内容与样式保持不变——栅格替你完成了大部分响应式工作。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Responsiveness only changes the column count per row; content and styles stay put — the grid does most of the responsive work for you.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="demo">
+          <p class="demo-hint" data-lang="zh-CN">网格生成器：拖动滑块改变列数 / 沟槽 / 容器宽度，观察内容块如何吸附列线；右上角数字块即“列”。</p>
+          <p class="demo-hint" data-lang="en-US" hidden>Grid generator: drag the sliders to change columns / gutter / container width and watch content blocks snap to column lines; the numbered blocks are the columns.</p>
+          <div class="demo-mount">
+            <div class="controls range-row">
+              <label data-lang="zh-CN">列数</label><label data-lang="en-US" hidden>Columns</label>
+              <input type="range" id="g-col" min="2" max="12" value="12"><output id="g-col-o">12</output>
+              <label data-lang="zh-CN">沟槽</label><label data-lang="en-US" hidden>Gutter</label>
+              <input type="range" id="g-gut" min="0" max="40" step="2" value="16"><output id="g-gut-o">16</output>
+              <label data-lang="zh-CN">容器</label><label data-lang="en-US" hidden>Container</label>
+              <input type="range" id="g-wid" min="360" max="1200" step="20" value="920"><output id="g-wid-o">920</output>
+            </div>
+            <div class="ggrid" id="g-grid" style="--cols:12"></div>
+            <p class="demo-legend"><span data-lang="zh-CN"><b>青色块</b> = 列 · <b>赭色块</b> = 按列数组合的内容模块（span）</span><span data-lang="en-US" hidden><b>Teal blocks</b> = columns · <b>Ochre blocks</b> = content modules combining columns (span)</span></p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ 1.4 层级 ============ -->
+    <article class="chapter" id="ch-1-4">
+      <h2><span class="no">1.4</span><span data-lang="zh-CN">层级</span><span data-lang="en-US" hidden>Hierarchy</span></h2>
+      <p class="chapter-subtitle" data-lang="zh-CN">层级 + 视觉动线：设计“视线先落在哪”，而不是等用户自己找</p>
+      <p class="chapter-subtitle" data-lang="en-US" hidden>Hierarchy + visual flow: design where the eye lands first — don’t make the user hunt</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="explain"><span class="dot"></span><span data-lang="zh-CN">讲解</span><span data-lang="en-US" hidden>Explain</span></button>
+        <button class="tab-btn" data-tab="code"><span class="dot"></span><span data-lang="zh-CN">关键代码</span><span data-lang="en-US" hidden>Key Code</span></button>
+        <button class="tab-btn" data-tab="demo"><span class="dot"></span><span data-lang="zh-CN">演示</span><span data-lang="en-US" hidden>Demo</span></button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="explain">
+          <h3 data-lang="zh-CN">层级：四个控制杆</h3>
+          <h3 data-lang="en-US" hidden>Hierarchy: Four Levers</h3>
+          <ul>
+            <li data-lang="zh-CN"><strong>字号</strong>：大 = 先看（主标题最大，正文最小）。</li>
+            <li data-lang="en-US" hidden><strong>Size</strong>: big = seen first (headline largest, body smallest).</li>
+            <li data-lang="zh-CN"><strong>字重</strong>：同字号下，更粗的更强。</li>
+            <li data-lang="en-US" hidden><strong>Weight</strong>: at the same size, bolder is stronger.</li>
+            <li data-lang="zh-CN"><strong>颜色对比</strong>：深色 / 高对比在浅色 / 低对比之前被看到。</li>
+            <li data-lang="en-US" hidden><strong>Color contrast</strong>: dark / high-contrast is read before light / low-contrast.</li>
+            <li data-lang="zh-CN"><strong>位置与亲密性</strong>：顶部与左侧的权重高；孤立的元素更突出。</li>
+            <li data-lang="en-US" hidden><strong>Position &amp; isolation</strong>: top and left carry more weight; an isolated element stands out.</li>
+          </ul>
+          <h3 data-lang="zh-CN">动线：用户怎么扫视页面</h3>
+          <h3 data-lang="en-US" hidden>Flow: How Users Scan a Page</h3>
+          <table class="theory-table">
+            <colgroup><col style="width:20%"><col style="width:80%"></colgroup>
+            <thead data-lang="zh-CN"><tr><th>模式</th><th>特征</th></tr></thead>
+            <thead data-lang="en-US" hidden><tr><th>Pattern</th><th>Characteristic</th></tr></thead>
+            <tbody>
+              <tr data-lang="zh-CN"><td><strong>F 型</strong><br>F-pattern</td><td>文本密集型页面：先横读第一行（标题），再横读第二行（摘要），之后沿左侧竖扫。重点放左上，弱化放在右侧与底部。</td></tr>
+              <tr data-lang="en-US" hidden><td><strong>F-pattern</strong></td><td>Text-heavy pages: read the first line (title) across, the second line (summary) across, then scan down the left edge. Put emphasis top-left; de-emphasize right and bottom.</td></tr>
+              <tr data-lang="zh-CN"><td><strong>Z 型</strong><br>Z-pattern</td><td>视觉型页面（首屏 / 登录页）：从左上一路到右下，四个角最受关注。把 Logo、CTA 放在两角。</td></tr>
+              <tr data-lang="en-US" hidden><td><strong>Z-pattern</strong></td><td>Visual pages (hero / landing): from top-left to bottom-right; the four corners get the most attention. Place the logo and CTA at the corners.</td></tr>
+            </tbody>
+          </table>
+          <h3 data-lang="zh-CN">嵌入理论：眼球追踪与视觉重量</h3>
+          <h3 data-lang="en-US" hidden>Embedded Theory: Eye-Tracking and Visual Weight</h3>
+          <p data-lang="zh-CN">Nielsen Norman Group 的眼动实验发现：用户以“扫读”为主，约 80% 的时间只花在页面的“F 型”热区上。因此布局的第一任务是<strong>让最重要的内容落在热区</strong>，而不是要求用户逐字读完。</p>
+          <p data-lang="en-US" hidden>Eye-tracking studies by the Nielsen Norman Group show users mostly scan: roughly 80% of the time is spent on the “F-shaped” hot zones. The first job of layout is therefore to <strong>place the most important content inside the hot zones</strong>, not to expect users to read everything.</p>
+          <p class="note"><strong data-lang="zh-CN">课堂要点：</strong><span data-lang="zh-CN">一页只设计一条主动线：标题 → 摘要 → 行动按钮。动线越多，用户越迷茫。</span><strong data-lang="en-US" hidden>Classroom takeaway:</strong><span data-lang="en-US" hidden">Design one main flow per page: headline → summary → call to action. The more flows you offer, the more lost users get.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="code">
+          <h3 data-lang="zh-CN">关键代码 ① 首屏的完整层级</h3>
+          <h3 data-lang="en-US" hidden>Key Code ① The Full Hero Hierarchy</h3>
+<pre class="code-block"><code class="lang-css"><span class="cls">.hero</span>{
+  <span class="kw">display</span>: grid; <span class="kw">justify-items</span>: start;      <span class="cmt">/* 内容整体靠左，符合 F 型 */</span>
+  <span class="kw">padding</span>: <span class="num">64px</span> <span class="num">24px</span>;
+}
+<span class="cls">.hero .eyebrow</span>{<span class="kw">font-size</span>: <span class="num">12px</span>;<span class="kw">letter-spacing</span>: <span class="num">2px</span>;<span class="kw">color</span>: <span class="kw">var</span>(--ochre)} <span class="cmt">/* 第 0 级：眉标 */</span>
+<span class="cls">.hero h1</span>{<span class="kw">font-size</span>: <span class="fn">clamp</span>(<span class="num">28px</span>,<span class="num">5vw</span>,<span class="num">44px</span>);<span class="kw">font-weight</span>: <span class="num">900</span>}   <span class="cmt">/* 第 1 级：主标题 */</span>
+<span class="cls">.hero p</span>{<span class="kw">font-size</span>: <span class="num">17px</span>;<span class="kw">color</span>: <span class="kw">var</span>(--ink-2);<span class="kw">max-width</span>: <span class="num">36em</span>}  <span class="cmt">/* 第 2 级：摘要 */</span>
+<span class="cls">.hero .btn</span>{<span class="kw">font-size</span>: <span class="num">14px</span>;<span class="kw">background</span>: <span class="kw">var</span>(--teal);<span class="kw">color</span>: #fff} <span class="cmt">/* 第 3 级：行动 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">代码里“层级”体现在选择器顺序与 CSS 数值上：主标题的字号、字重、颜色都要显著大于其它元素；把 CTA 做成唯一的高对比色块。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden">In code, hierarchy lives in selector order and values: the headline’s size, weight, and color must clearly dominate; the CTA becomes the single high-contrast block.</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ② 用 max-width 控制行长</h3>
+          <h3 data-lang="en-US" hidden>Key Code ② Controlling Measure with max-width</h3>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* 正文行长：中文约 34–40 字 / 行，英文 45–75 字符 */</span>
+<span class="cls">.article p</span>{<span class="kw">max-width</span>: <span class="num">38em</span>}  <span class="cmt">/* 过长则读起来累，过短则换行频繁 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">全宽正文很难读——限制行长（measure）是文本层级中最容易被忽略的一环。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Full-width body text is hard to read — limiting the measure is the most overlooked part of text hierarchy.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="demo">
+          <p class="demo-hint" data-lang="zh-CN">案例首屏 + 扫读热区叠加：切换 F / Z 型查看视线路径；拖动“层级强度”滑块，观察标题与摘要的层级差如何影响首看顺序。</p>
+          <p class="demo-hint" data-lang="en-US" hidden>The case hero + scan-heat overlay: switch F / Z pattern to see the reading path; drag the “hierarchy strength” slider and watch how the size gap between title and summary changes what you notice first.</p>
+          <div class="demo-mount">
+            <div class="controls">
+              <button class="demo-btn active" id="h-f">F 型 / F-pattern</button>
+              <button class="demo-btn" id="h-z">Z 型 / Z-pattern</button>
+              <span style="flex:1"></span>
+              <label style="display:inline-flex;align-items:center;gap:8px;font-size:13px"><span data-lang="zh-CN">层级强度</span><span data-lang="en-US" hidden>Hierarchy</span>
+                <input type="range" id="h-str" min="0" max="100" value="80" style="width:130px"></label>
+              <output id="h-str-o" style="font-family:var(--mono);font-size:12.5px;color:var(--teal-d)">80</output>
+            </div>
+            <div class="hhero">
+              <div class="hh-eyebrow">SHIWEI JOURNAL · 拾味山居</div>
+              <h3 class="hh-title" id="hh-title">山里的味道，值得慢慢走</h3>
+              <p class="hh-sub" id="hh-sub">记录每一道菜与它背后的地方，一周两更。</p>
+              <span class="hh-cta">开始阅读 · Read now</span>
+            </div>
+            <div class="heat-wrap">
+              <svg viewBox="0 0 600 150" style="display:block;width:100%">
+                <g id="heat-f">
+                  <rect class="heat" x="0" y="0" width="600" height="42"></rect>
+                  <rect class="heat" x="0" y="48" width="420" height="34"></rect>
+                  <rect class="heat" x="0" y="88" width="220" height="26"></rect>
+                  <rect class="heat" x="0" y="118" width="110" height="20"></rect>
+                </g>
+                <g id="heat-z" style="display:none">
+                  <rect class="heat" x="0" y="0" width="240" height="60"></rect>
+                  <rect class="heat" x="360" y="0" width="240" height="60"></rect>
+                  <rect class="heat" x="180" y="56" width="240" height="36"></rect>
+                  <rect class="heat" x="0" y="96" width="240" height="54"></rect>
+                  <rect class="heat" x="360" y="96" width="240" height="54"></rect>
+                </g>
+              </svg>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ 1.5 亲密性 · 留白 ============ -->
+    <article class="chapter" id="ch-1-5">
+      <h2><span class="no">1.5</span><span data-lang="zh-CN">亲密性 · 留白</span><span data-lang="en-US" hidden>Proximity &amp; Whitespace</span></h2>
+      <p class="chapter-subtitle" data-lang="zh-CN">空间是有语义的：距离即分组，留白即层级</p>
+      <p class="chapter-subtitle" data-lang="en-US" hidden>Space carries meaning: distance groups, whitespace creates hierarchy</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="explain"><span class="dot"></span><span data-lang="zh-CN">讲解</span><span data-lang="en-US" hidden>Explain</span></button>
+        <button class="tab-btn" data-tab="code"><span class="dot"></span><span data-lang="zh-CN">关键代码</span><span data-lang="en-US" hidden>Key Code</span></button>
+        <button class="tab-btn" data-tab="demo"><span class="dot"></span><span data-lang="zh-CN">演示</span><span data-lang="en-US" hidden>Demo</span></button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="explain">
+          <h3 data-lang="zh-CN">间距系统：4 / 8 点基准</h3>
+          <h3 data-lang="en-US" hidden>The Spacing System: 4 / 8-Point Base</h3>
+          <p data-lang="zh-CN">全站间距取 4 或 8 的倍数（4、8、16、24、32、48…）。好处：<strong>整除</strong>（不同模块对齐顺畅）、<strong>节奏一致</strong>（视觉上“同一系统”）、<strong>改起来快</strong>（只调 token，不逐个调）。</p>
+          <p data-lang="en-US" hidden>All spacing on the site is a multiple of 4 or 8 (4, 8, 16, 24, 32, 48…). Benefits: <strong>divisibility</strong> (modules align cleanly), <strong>consistent rhythm</strong> (one visual system), and <strong>fast changes</strong> (tweak a token, not every rule).</p>
+          <h3 data-lang="zh-CN">距离即分组（邻近律落地）</h3>
+          <h3 data-lang="en-US" hidden>Distance Is Grouping (Proximity in Practice)</h3>
+          <ul>
+            <li data-lang="zh-CN">同一组的元素间距 <strong>小</strong>（8–16px），组与组之间间距 <strong>大</strong>（24–48px）。</li>
+            <li data-lang="en-US" hidden>Elements in one group get <strong>small</strong> gaps (8–16px); groups get <strong>large</strong> gaps (24–48px).</li>
+            <li data-lang="zh-CN">“间距相等”是新手最常见的错误：它抹掉了分组信息，让页面变成一锅粥。</li>
+            <li data-lang="en-US" hidden>Equal spacing everywhere is the classic beginner mistake: it erases grouping and turns the page into mush.</li>
+            <li data-lang="zh-CN">当间距本身足够表达分组时，就可以少画分割线。</li>
+            <li data-lang="en-US" hidden>When spacing already expresses grouping, you can draw fewer divider lines.</li>
+          </ul>
+          <h3 data-lang="zh-CN">留白：不是浪费，是结构</h3>
+          <h3 data-lang="en-US" hidden>Whitespace: Not Waste, But Structure</h3>
+          <p data-lang="zh-CN">留白把内容“托”出来：更大的内边距让卡片更聚焦；区块之间的大留白提示“新段落开始了”。高级感的来源之一就是“敢留白”。</p>
+          <p data-lang="en-US" hidden>Whitespace lifts content out: larger padding focuses a card; generous gaps between blocks signal “a new section starts”. One source of premium feel is daring to leave space.</p>
+          <p class="note"><strong data-lang="zh-CN">课堂要点：</strong><span data-lang="zh-CN">亲密性靠“距离差”实现——组内近、组间远；留白则是结构的一部分，不是浪费。二者共同决定页面“干不干净”。</span><strong data-lang="en-US" hidden>Classroom takeaway:</strong><span data-lang="en-US" hidden>Proximity works through distance — close inside a group, far between groups; whitespace is structure, not waste. Together they decide whether a page looks clean.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="code">
+          <h3 data-lang="zh-CN">关键代码 ① 间距 token</h3>
+          <h3 data-lang="en-US" hidden>Key Code ① Spacing Tokens</h3>
+<pre class="code-block"><code class="lang-css">:root{
+  --s-<span class="num">1</span>:<span class="num">4px</span>;  --s-<span class="num">2</span>:<span class="num">8px</span>;  --s-<span class="num">3</span>:<span class="num">16px</span>;
+  --s-<span class="num">4</span>:<span class="num">24px</span>; --s-<span class="num">5</span>:<span class="num">32px</span>; --s-<span class="num">6</span>:<span class="num">48px</span>;
+}
+<span class="cls">.card</span>{<span class="kw">padding</span>: <span class="kw">var</span>(--s-<span class="num">3</span>);<span class="kw">gap</span>: <span class="kw">var</span>(--s-<span class="num">2</span>)}
+<span class="cls">.section</span>{<span class="kw">margin-block</span>: <span class="kw">var</span>(--s-<span class="num">6</span>)} <span class="cmt">/* 区块间用最大档 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">只定义 6 个档位，强迫自己“从系统里选”，而不是随手写 13px / 27px。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Define only six steps, forcing yourself to “choose from the system” instead of typing ad-hoc 13px / 27px values.</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ② margin 还是 padding？</h3>
+          <h3 data-lang="en-US" hidden>Key Code ② Margin or Padding?</h3>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* padding = 容器内部（内容与边框之间） */</span>
+<span class="cls">.card</span>{<span class="kw">padding</span>: <span class="num">24px</span>; <span class="kw">border</span>: <span class="num">1px</span> <span class="kw">solid</span> <span class="kw">var</span>(--line)}
+
+<span class="cmt">/* margin = 元素之间（外部空间，不画进卡片） */</span>
+<span class="cls">.card + .card</span>{<span class="kw">margin-top</span>: <span class="num">16px</span>}
+<span class="cmt">/* 或用 flex/grid 的 gap，更推荐 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">凡是“元素之间的距离”优先用 <code>gap</code> 或 <code>margin</code>；“内容与自身边框的距离”用 <code>padding</code>。用反了会出现间距叠加、背景漏色等怪问题。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Distances between elements use <code>gap</code> or <code>margin</code>; the distance between content and its own border uses <code>padding</code>. Reversing them causes doubled gaps and bleeding backgrounds.</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ③ 垂直节奏</h3>
+          <h3 data-lang="en-US" hidden>Key Code ③ Vertical Rhythm</h3>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* 行高统一为基础单位，让段落与标题的“底线”落在同一节奏上 */</span>
+<span class="cls">body</span>{<span class="kw">line-height</span>: <span class="num">1.8</span>}
+<span class="cls">h1</span>,<span class="cls">h2</span>,<span class="cls">h3</span>{<span class="kw">line-height</span>: <span class="num">1.35</span>; <span class="kw">margin-block</span>: <span class="num">1.2em</span> <span class="num">.5em</span>}</code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">用 em 做标题间距，字号变化时间距自动成比例，垂直方向读起来有“呼吸感”。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Use em for heading margins so spacing scales with type size — the vertical rhythm breathes on its own.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="demo">
+          <p class="demo-hint" data-lang="zh-CN">两组共八张栏目卡：拖「组内间距」与「组间距」制造距离差——组内近、组间远，分组才成立；拖「内边距」观察留白。下方是 4/8 点间距标尺。</p>
+          <p class="demo-hint" data-lang="en-US" hidden>Eight cards in two groups: drag “Intra-group gap” and “Inter-group gap” to create the distance difference — close inside, far between. Drag “Padding” for whitespace. The 4/8-pt scale below.</p>
+          <div class="demo-mount">
+            <div class="controls range-row">
+              <label data-lang="zh-CN">组内间距</label><label data-lang="en-US" hidden>Intra-group gap</label>
+              <input type="range" id="s-intra" min="0" max="32" step="2" value="10"><output id="s-intra-o">10</output>
+              <label data-lang="zh-CN">组间距</label><label data-lang="en-US" hidden>Inter-group gap</label>
+              <input type="range" id="s-inter" min="4" max="64" step="4" value="40"><output id="s-inter-o">40</output>
+              <label data-lang="zh-CN">内边距</label><label data-lang="en-US" hidden>Padding</label>
+              <input type="range" id="s-pad" min="4" max="40" step="4" value="16"><output id="s-pad-o">16</output>
+            </div>
+            <p class="prox-status" id="s-status"></p>
+            <div class="sgroups" id="s-groups">
+              <div class="sgroup">
+                <span class="sg-name" data-lang="zh-CN">组① · 山野栏目</span><span class="sg-name" data-lang="en-US" hidden>Group ① · Mountain</span>
+                <div class="scard"><h5>山野菜单</h5><p>当季食材与做法</p><span class="sc-chip">栏目 · Column</span></div>
+                <div class="scard"><h5>行脚笔记</h5><p>小镇与市场的散步</p><span class="sc-chip">栏目 · Column</span></div>
+                <div class="scard"><h5>灶台手记</h5><p>家常菜背后的故事</p><span class="sc-chip">栏目 · Column</span></div>
+                <div class="scard"><h5>时令清单</h5><p>跟着节气吃东西</p><span class="sc-chip">栏目 · Column</span></div>
+              </div>
+              <div class="sgroup">
+                <span class="sg-name" data-lang="zh-CN">组② · 来访笔记</span><span class="sg-name" data-lang="en-US" hidden>Group ② · Letters</span>
+                <div class="scard"><h5>四季茶话</h5><p>一杯茶的四季</p><span class="sc-chip">栏目 · Column</span></div>
+                <div class="scard"><h5>节气食谱</h5><p>跟着时令下厨</p><span class="sc-chip">栏目 · Column</span></div>
+                <div class="scard"><h5>山里人家</h5><p>山间日常记录</p><span class="sc-chip">栏目 · Column</span></div>
+                <div class="scard"><h5>远方来信</h5><p>读者来信分享</p><span class="sc-chip">栏目 · Column</span></div>
+              </div>
+            </div>
+            <div class="spacing-scale" id="s-scale">
+              <i style="flex:1"></i><span class="sp-label" style="flex:1">8</span>
+              <i style="flex:2"></i><span class="sp-label" style="flex:1">16</span>
+              <i style="flex:3"></i><span class="sp-label" style="flex:1">24</span>
+              <i style="flex:4"></i><span class="sp-label" style="flex:1">32</span>
+              <i style="flex:6"></i><span class="sp-label" style="flex:1">48</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ 1.6 对比 · 一致性 ============ -->
+    <article class="chapter" id="ch-1-6">
+      <h2><span class="no">1.6</span><span data-lang="zh-CN">对比 · 一致性</span><span data-lang="en-US" hidden>Contrast &amp; Consistency</span></h2>
+      <p class="chapter-subtitle" data-lang="zh-CN">对比让主角跳出来，一致性让全站像“一家人”</p>
+      <p class="chapter-subtitle" data-lang="en-US" hidden>Contrast makes the hero stand out; consistency makes the whole site feel like one family</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="explain"><span class="dot"></span><span data-lang="zh-CN">讲解</span><span data-lang="en-US" hidden>Explain</span></button>
+        <button class="tab-btn" data-tab="code"><span class="dot"></span><span data-lang="zh-CN">关键代码</span><span data-lang="en-US" hidden>Key Code</span></button>
+        <button class="tab-btn" data-tab="demo"><span class="dot"></span><span data-lang="zh-CN">演示</span><span data-lang="en-US" hidden>Demo</span></button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="explain">
+          <h3 data-lang="zh-CN">对比：让最重要的东西跳出来</h3>
+          <h3 data-lang="en-US" hidden>Contrast: Make the Most Important Thing Pop</h3>
+          <ul>
+            <li data-lang="zh-CN">对比的三板斧：<strong>字号差</strong>（标题大、正文小）、<strong>字重差</strong>（900 vs 400）、<strong>颜色差</strong>（强调色 vs 正文色）。</li>
+            <li data-lang="en-US" hidden>Three levers of contrast: <strong>size</strong> (big headings, small body), <strong>weight</strong> (900 vs 400), and <strong>color</strong> (accent vs body).</li>
+            <li data-lang="zh-CN">对比也是无障碍要求：正文与背景对比度应达到 WCAG 4.5:1（1.8 的“无障碍审查”会自动检测）。</li>
+            <li data-lang="en-US" hidden>Contrast is also an accessibility requirement: body text should hit WCAG 4.5:1 against its background (the A11y Audit in 1.8 checks it automatically).</li>
+            <li data-lang="zh-CN">原则：每屏只有一个主角——如果什么都强调，就什么也没强调。</li>
+            <li data-lang="en-US" hidden>Rule: one hero per screen — if everything is emphasized, nothing is.</li>
+          </ul>
+          <h3 data-lang="zh-CN">一致性：复用，而不是重新设计</h3>
+          <h3 data-lang="en-US" hidden>Consistency: Reuse, Don’t Redesign</h3>
+          <ul>
+            <li data-lang="zh-CN">同类元素用同一套 <strong>token</strong>：同一种圆角、同一种间距、同一种按钮样式（圆角 / 颜色 / 字号全相同）。</li>
+            <li data-lang="en-US" hidden>Same-kind elements share one set of <strong>tokens</strong>: the same radius, the same spacing, the same button style (radius / color / size all identical).</li>
+            <li data-lang="zh-CN">一致性来自“改一处，处处变”——1.8 的 Design Token 编辑器就是它的实时演示。</li>
+            <li data-lang="en-US" hidden>Consistency means “change once, changes everywhere” — the Design Token editor in 1.8 is its live demo.</li>
+          </ul>
+          <p class="note"><strong data-lang="zh-CN">课堂要点：</strong><span data-lang="zh-CN">对比决定“先看什么”，一致性决定“越看越顺”。拾味山居的 CTA 用赭黄强调色（对比），所有卡片共用同一套 token（一致性）。</span><strong data-lang="en-US" hidden>Classroom takeaway:</strong><span data-lang="en-US" hidden>Contrast decides what you see first; consistency makes it feel right. On Shiwei Mountain House the CTA uses ochre (contrast) and every card shares one token set (consistency).</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="code">
+          <h3 data-lang="zh-CN">关键代码 ① 对比：字号 / 字重 / 强调色</h3>
+          <h3 data-lang="en-US" hidden>Key Code ① Contrast: Size / Weight / Accent</h3>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* 层级拉开：标题大而重，正文小而弱 */</span>
+<span class="cls">.hero h1</span>{<span class="kw">font-size</span>: <span class="fn">clamp</span>(<span class="num">28px</span>,<span class="num">5vw</span>,<span class="num">48px</span>);<span class="kw">font-weight</span>: <span class="num">900</span>}
+<span class="cls">.hero p</span>{<span class="kw">color</span>: <span class="kw">var</span>(--ink-2)}        <span class="cmt">/* 正文弱化，衬托主角 */</span>
+<span class="cls">.cta</span>{<span class="kw">background</span>: <span class="kw">var</span>(--ochre);<span class="kw">color</span>: <span class="num">#fff</span>} <span class="cmt">/* 唯一的强调色按钮 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">对比不是“加一条边框”，而是靠字号、字重、颜色三个维度的<strong>差距</strong>；三个维度同时拉开，主角才真正跳出来。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Contrast is not “adding a border” — it comes from the <strong>gap</strong> in size, weight, and color; pull all three apart and the hero truly pops.</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ② 一致性：token 复用</h3>
+          <h3 data-lang="en-US" hidden>Key Code ② Consistency: Token Reuse</h3>
+<pre class="code-block"><code class="lang-css">:root{
+  <span class="kw">--radius</span>: <span class="num">8px</span>;  <span class="kw">--space</span>: <span class="num">16px</span>; <span class="kw">--teal</span>: <span class="num">#0f766e</span>;
+}
+<span class="cls">.card</span>,<span class="cls">.btn</span>,<span class="cls">.input</span>{<span class="kw">border-radius</span>: <span class="kw">var</span>(--radius)} <span class="cmt">/* 一个圆角，处处一致 */</span>
+<span class="cls">.card</span>{<span class="kw">padding</span>: <span class="kw">var</span>(--space)}  <span class="cmt">/* 一个间距，处处一致 */</span>
+<span class="cmt">/* 改 :root 一处，全站同步 —— 一致性是“设计系统”的雏形 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">一致性 = 拒绝“每次重新设计”。把圆角、间距、颜色定义成变量并复用，组件之间自然长得一样。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Consistency = refusing to redesign each time. Define radius, spacing, and color as variables and reuse them — components naturally look alike.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="demo">
+          <p class="demo-hint" data-lang="zh-CN">同一组菜品卡：分别切换「对比」与「一致性」两个开关，看清晰与混乱如何产生。</p>
+          <p class="demo-hint" data-lang="en-US" hidden>The same set of dish cards: toggle Contrast and Consistency separately to see how clarity — or chaos — is made.</p>
+          <div class="demo-mount">
+            <div class="controls">
+              <button class="demo-btn cc-c active" data-g="contrast" data-cc="strong" data-lang="zh-CN">强对比</button><button class="demo-btn cc-c active" data-g="contrast" data-cc="strong" data-lang="en-US" hidden>Strong</button>
+              <button class="demo-btn cc-c" data-g="contrast" data-cc="weak" data-lang="zh-CN">弱对比</button><button class="demo-btn cc-c" data-g="contrast" data-cc="weak" data-lang="en-US" hidden>Weak</button>
+              <span class="cc-sep"></span>
+              <button class="demo-btn cc-c active" data-g="consis" data-cc="uni" data-lang="zh-CN">统一</button><button class="demo-btn cc-c active" data-g="consis" data-cc="uni" data-lang="en-US" hidden>Unified</button>
+              <button class="demo-btn cc-c" data-g="consis" data-cc="mess" data-lang="zh-CN">不一致</button><button class="demo-btn cc-c" data-g="consis" data-cc="mess" data-lang="en-US" hidden>Mixed</button>
+            </div>
+            <div class="cc-stage cc-strong cc-uni" id="cc-stage">
+              <div class="cc-card"><h5>山野菜单</h5><p>当季食材与做法</p><span class="cc-price">¥68</span><button class="cc-btn">预订</button></div>
+              <div class="cc-card"><h5>行脚笔记</h5><p>小镇与市场的散步</p><span class="cc-price">¥45</span><button class="cc-btn">阅读</button></div>
+              <div class="cc-card"><h5>灶台手记</h5><p>家常菜背后的故事</p><span class="cc-price">免费</span><button class="cc-btn">收听</button></div>
+            </div>
+            <p class="cc-status" id="cc-status"></p>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ 1.7 响应式布局 ============ -->
+    <article class="chapter" id="ch-1-7">
+      <h2><span class="no">1.7</span><span data-lang="zh-CN">响应式布局</span><span data-lang="en-US" hidden>Responsive Layout</span></h2>
+      <p class="chapter-subtitle" data-lang="zh-CN">移动优先：内容不变，布局渐进增强</p>
+      <p class="chapter-subtitle" data-lang="en-US" hidden>Mobile-first: content stays, layout progressively enhances</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="explain"><span class="dot"></span><span data-lang="zh-CN">讲解</span><span data-lang="en-US" hidden>Explain</span></button>
+        <button class="tab-btn" data-tab="code"><span class="dot"></span><span data-lang="zh-CN">关键代码</span><span data-lang="en-US" hidden>Key Code</span></button>
+        <button class="tab-btn" data-tab="demo"><span class="dot"></span><span data-lang="zh-CN">演示</span><span data-lang="en-US" hidden>Demo</span></button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="explain">
+          <h3 data-lang="zh-CN">三个关键策略</h3>
+          <h3 data-lang="en-US" hidden>Three Key Strategies</h3>
+          <ul>
+            <li data-lang="zh-CN"><strong>移动优先（Mobile-first）</strong>：先设计最小的屏（一列、内容最简），再用媒体查询“加宽”。好处是天然内容优先，代码也更少。</li>
+            <li data-lang="en-US" hidden><strong>Mobile-first</strong>: design the smallest screen first (one column, minimal chrome), then add width with media queries. It keeps content first by construction, with less code.</li>
+            <li data-lang="zh-CN"><strong>断点按内容定</strong>：在“内容开始变形 / 挤在一起”的位置设断点（常见 600 / 900 / 1200px），而不是照抄设备型号。</li>
+            <li data-lang="en-US" hidden><strong>Breakpoints follow content</strong>: set breakpoints where content starts to squeeze or break (commonly 600 / 900 / 1200px), not by copying device names.</li>
+            <li data-lang="zh-CN"><strong>流式单位</strong>：布局用 <code>%</code> / <code>fr</code>，字号用 <code>clamp()</code>，图片用 <code>max-width:100%</code>——让元素自己适应，而不是全靠断点。</li>
+            <li data-lang="en-US" hidden><strong>Fluid units</strong>: layout in <code>%</code> / <code>fr</code>, type in <code>clamp()</code>, images at <code>max-width:100%</code> — let elements adapt by themselves instead of relying on breakpoints alone.</li>
+          </ul>
+          <h3 data-lang="zh-CN">导航的响应策略</h3>
+          <h3 data-lang="en-US" hidden>Responsive Nav Strategies</h3>
+          <table class="theory-table">
+            <colgroup><col style="width:30%"><col style="width:70%"></colgroup>
+            <thead data-lang="zh-CN"><tr><th>策略</th><th>适用</th></tr></thead>
+            <thead data-lang="en-US" hidden><tr><th>Strategy</th><th>Best for</th></tr></thead>
+            <tbody>
+              <tr data-lang="zh-CN"><td><strong>链接收进菜单</strong>（汉堡）</td><td>导航项多（≥5）：小屏时折叠成按钮，展开后纵向排列。</td></tr>
+              <tr data-lang="en-US" hidden><td><strong>Links into a menu</strong> (hamburger)</td><td>Many nav items (≥5): collapse into a button on small screens, expanding to a vertical list.</td></tr>
+              <tr data-lang="zh-CN"><td><strong>收缩显示</strong></td><td>导航项少（≤4）：保留品牌与 CTA，藏起次级链接。</td></tr>
+              <tr data-lang="en-US" hidden><td><strong>Shrink</strong></td><td>Few nav items (≤4): keep the brand and CTA, hide secondary links.</td></tr>
+              <tr data-lang="zh-CN"><td><strong>换行</strong></td><td>项数居中：允许链接折行，保持全部可见。</td></tr>
+              <tr data-lang="en-US" hidden><td><strong>Wrap</strong></td><td>Medium count: let links wrap while keeping everything visible.</td></tr>
+            </tbody>
+          </table>
+          <h3 data-lang="zh-CN">嵌入理论：渐进增强 vs 优雅降级</h3>
+          <h3 data-lang="en-US" hidden>Embedded Theory: Progressive Enhancement vs Graceful Degradation</h3>
+          <p data-lang="zh-CN">响应式的核心思想是<strong>渐进增强</strong>：先保证“最小设备可用”，再为更宽的屏幕增加体验。这比“先做桌面版，再慢慢砍掉”的优雅降级更健壮——内容永远不会因为屏幕小而被牺牲。</p>
+          <p data-lang="en-US" hidden>Responsive design is built on <strong>progressive enhancement</strong>: make the smallest device usable first, then add experience for wider screens. That is more robust than graceful degradation — content is never sacrificed for a small screen.</p>
+          <p class="note"><strong data-lang="zh-CN">课堂要点：</strong><span data-lang="zh-CN">响应式不是“缩放页面”，而是“重新编排布局”。用 1.3 的网格改列数，用 1.5 的间距改密度，大多数页面 3 个断点就够。</span><strong data-lang="en-US" hidden>Classroom takeaway:</strong><span data-lang="en-US" hidden>Responsive is not “zooming the page” but “re-choreographing the layout”. Change column counts with the 1.3 grid, adjust density with the 1.5 spacing — three breakpoints cover most pages.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="code">
+          <h3 data-lang="zh-CN">关键代码 ① 断点改栅格</h3>
+          <h3 data-lang="en-US" hidden>Key Code ① Breakpoints Change the Grid</h3>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* 基础 = 手机（一列），向上增强 */</span>
+<span class="cls">.cards</span>{<span class="kw">display</span>: grid;<span class="kw">grid-template-columns</span>: <span class="num">1fr</span>;<span class="kw">gap</span>: <span class="num">16px</span>}
+<span class="tag">@media</span> (<span class="kw">min-width</span>: <span class="num">640px</span>){ <span class="cls">.cards</span>{<span class="kw">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="num">2</span>,<span class="num">1fr</span>)} }   <span class="cmt">/* 平板 2 列 */</span>
+<span class="tag">@media</span> (<span class="kw">min-width</span>: <span class="num">1024px</span>){ <span class="cls">.cards</span>{<span class="kw">grid-template-columns</span>: <span class="fn">repeat</span>(<span class="num">3</span>,<span class="num">1fr</span>)} } <span class="cmt">/* 桌面 3 列 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">用 <code>min-width</code> 从窄到宽写，基础样式就是手机样式——符合移动优先。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Write with <code>min-width</code> from narrow to wide, so the base styles are the mobile styles — that is mobile-first.</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ② 流式字号 clamp()</h3>
+          <h3 data-lang="en-US" hidden>Key Code ② Fluid Type with clamp()</h3>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* clamp(最小值, 随视口变化, 最大值)：字号自己伸缩 */</span>
+<span class="cls">.hero h1</span>{<span class="kw">font-size</span>: <span class="fn">clamp</span>(<span class="num">28px</span>, <span class="num">5vw</span> + <span class="num">8px</span>, <span class="num">44px</span>)}</code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">流式字号在断点之间平滑过渡，避免“断点一过就跳变”；<code>vw</code> 单位让字号跟随视口。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Fluid type transitions smoothly between breakpoints instead of jumping; the <code>vw</code> unit ties the size to the viewport.</span></p>
+
+          <h3 data-lang="zh-CN">关键代码 ③ 小屏导航</h3>
+          <h3 data-lang="en-US" hidden>Key Code ③ Small-Screen Nav</h3>
+<pre class="code-block"><code class="lang-css"><span class="cls">.nav .links</span>{<span class="kw">display</span>: none}                       <span class="cmt">/* 手机：先藏 */</span>
+<span class="cls">.nav .menu-btn</span>{<span class="kw">display</span>: block}                    <span class="cmt">/* 汉堡按钮 */</span>
+<span class="tag">@media</span> (<span class="kw">min-width</span>: <span class="num">768px</span>){
+  <span class="cls">.nav .links</span>{<span class="kw">display</span>: flex}
+  <span class="cls">.nav .menu-btn</span>{<span class="kw">display</span>: none}
+}</code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">“内容隐藏再按需显示”是小屏导航的标准做法；别忘了为菜单按钮提供真实的展开 / 收起逻辑。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>“Hide first, reveal on demand” is the standard small-screen nav pattern; remember to give the menu button real open/close behavior.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="demo">
+          <p class="demo-hint" data-lang="zh-CN">视口切换器：点击按钮把“迷你站点”缩放到手机 / 平板 / 桌面宽度，观察栅格与导航如何重新编排（纯 JS 重排，容器尺寸即视口）。桌面 1200 超出预览区时，可横向滚动查看完整视图。</p>
+          <p class="demo-hint" data-lang="en-US" hidden>Viewport switcher: click to scale the mini-site to phone / tablet / desktop widths and watch the grid and nav re-choreograph (pure JS reflow — the container width is the viewport). When Desktop 1200 overflows the preview, scroll horizontally to see the full view.</p>
+          <div class="demo-mount">
+            <div class="controls" id="r-btns">
+              <button class="demo-btn" data-w="375" data-lang="zh-CN">手机 375</button><button class="demo-btn" data-w="375" data-lang="en-US" hidden>Phone 375</button>
+              <button class="demo-btn" data-w="768" data-lang="zh-CN">平板 768</button><button class="demo-btn" data-w="768" data-lang="en-US" hidden>Tablet 768</button>
+              <button class="demo-btn active" data-w="1200" data-lang="zh-CN">桌面 1200</button><button class="demo-btn active" data-w="1200" data-lang="en-US" hidden>Desktop 1200</button>
+            </div>
+            <p class="demo-legend" id="r-status"></p>
+            <div class="frame">
+              <div class="ms" id="ms" style="width:1200px">
+                <div class="ms-nav">
+                  <span class="ms-logo">拾味山居</span>
+                  <div class="ms-links" id="ms-links"><a>山野菜单</a><a>行脚笔记</a><a>灶台手记</a></div>
+                  <span class="ms-cta">订阅</span>
+                </div>
+                <div class="ms-hero">
+                  <h3>山里的味道，值得慢慢走</h3>
+                  <p>记录每一道菜与它背后的地方，一周两更。</p>
+                  <span class="ms-cta" style="margin-left:0;display:inline-block">开始阅读</span>
+                </div>
+                <div class="ms-cards" id="ms-cards">
+                  <div class="ms-card"><div class="ms-img"></div><h5>山野菜单</h5><p>当季食材与做法</p></div>
+                  <div class="ms-card"><div class="ms-img"></div><h5>行脚笔记</h5><p>小镇与市场的散步</p></div>
+                  <div class="ms-card"><div class="ms-img"></div><h5>灶台手记</h5><p>家常菜背后的故事</p></div>
+                </div>
+                <div class="ms-footer">© 拾味山居 · 本站为布局教学演示</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+    <!-- ============ 1.8 案例组装 ============ -->
+    <article class="chapter" id="ch-1-8">
+      <h2><span class="no">1.8</span><span data-lang="zh-CN">案例组装</span><span data-lang="en-US" hidden>Case Assembly</span></h2>
+      <p class="chapter-subtitle" data-lang="zh-CN">把 1.1–1.7 全部应用到「拾味山居」首页：原则标注每一处落点</p>
+      <p class="chapter-subtitle" data-lang="en-US" hidden>Apply 1.1–1.7 to the “Shiwei Mountain House” homepage: every principle annotated at its spot</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="explain"><span class="dot"></span><span data-lang="zh-CN">讲解</span><span data-lang="en-US" hidden>Explain</span></button>
+        <button class="tab-btn" data-tab="code"><span class="dot"></span><span data-lang="zh-CN">关键代码</span><span data-lang="en-US" hidden>Key Code</span></button>
+        <button class="tab-btn" data-tab="demo"><span class="dot"></span><span data-lang="zh-CN">演示</span><span data-lang="en-US" hidden>Demo</span></button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="explain">
+          <h3 data-lang="zh-CN">组装顺序：骨架 → 层级 → 间距 → 响应式</h3>
+          <h3 data-lang="en-US" hidden>Assembly Order: Skeleton → Hierarchy → Spacing → Responsive</h3>
+          <ol>
+            <li data-lang="zh-CN"><strong>骨架</strong>（1.1 / 1.3）：导航、首屏、栏目、文章、页脚，套上 12 列栅格。</li>
+            <li data-lang="en-US" hidden><strong>Skeleton</strong> (1.1 / 1.3): nav, hero, sections, articles, footer — on a 12-column grid.</li>
+            <li data-lang="zh-CN"><strong>层级</strong>（1.2 / 1.4）：给每个区块定 2–3 级字号，确定唯一 CTA。</li>
+            <li data-lang="en-US" hidden><strong>Hierarchy</strong> (1.2 / 1.4): give each block 2–3 type levels and one clear CTA.</li>
+            <li data-lang="zh-CN"><strong>间距</strong>（1.5）：用 4/8 点系统统一内边距与区块间隙。</li>
+            <li data-lang="en-US" hidden><strong>Spacing</strong> (1.5): unify padding and section gaps with the 4/8-point system.</li>
+            <li data-lang="zh-CN"><strong>响应式</strong>（1.7）：三个断点重排栅格与导航。</li>
+            <li data-lang="en-US" hidden><strong>Responsive</strong> (1.7): three breakpoints re-arrange grid and nav.</li>
+          </ol>
+          <h3 data-lang="zh-CN">原则落点总表</h3>
+          <h3 data-lang="en-US" hidden>Where Each Principle Lands</h3>
+          <table class="theory-table">
+            <colgroup><col style="width:20%"><col style="width:44%"><col style="width:36%"></colgroup>
+            <thead data-lang="zh-CN"><tr><th>原则</th><th>案例落点</th><th>实现手段</th></tr></thead>
+            <thead data-lang="en-US" hidden><tr><th>Principle</th><th>Where it lands</th><th>How</th></tr></thead>
+            <tbody>
+              <tr data-lang="zh-CN"><td>层级</td><td>首屏：眉标 → 主标题 → 摘要 → CTA</td><td>字号 12/28/17/14 + 字重 + 唯一高对比按钮</td></tr>
+              <tr data-lang="en-US" hidden><td>Hierarchy</td><td>Hero: eyebrow → headline → summary → CTA</td><td>12/28/17/14px + weights + one high-contrast button</td></tr>
+              <tr data-lang="zh-CN"><td>对齐</td><td>全部区块共享左基准线；栅格列线</td><td>12 列 grid + 左对齐</td></tr>
+              <tr data-lang="en-US" hidden><td>Alignment</td><td>All blocks share a left baseline; column lines</td><td>12-column grid + left alignment</td></tr>
+              <tr data-lang="zh-CN"><td>对比</td><td>CTA vs 次级按钮；正文 vs 弱化文字</td><td>品牌色实心按钮 vs 描边按钮；两档文字色</td></tr>
+              <tr data-lang="en-US" hidden><td>Contrast</td><td>CTA vs secondary button; body vs muted text</td><td>Solid brand button vs outline; two text tones</td></tr>
+              <tr data-lang="zh-CN"><td>亲密性</td><td>卡片内 8px、卡片间 24px、区块间 48px</td><td>gap / padding 分级</td></tr>
+              <tr data-lang="en-US" hidden><td>Proximity</td><td>8px inside cards, 24px between cards, 48px between sections</td><td>Graded gap / padding</td></tr>
+              <tr data-lang="zh-CN"><td>留白</td><td>首屏上下 64px；卡片内边距 24px</td><td>大块 padding 让内容“浮起来”</td></tr>
+              <tr data-lang="en-US" hidden><td>Whitespace</td><td>64px around the hero; 24px card padding</td><td>Generous padding lifts content</td></tr>
+              <tr data-lang="zh-CN"><td>一致性</td><td>按钮、卡片、间距全部来自同一 token</td><td>CSS 变量统一</td></tr>
+              <tr data-lang="en-US" hidden><td>Consistency</td><td>Buttons, cards, spacing all from one token set</td><td>CSS variables</td></tr>
+            </tbody>
+          </table>
+          <p class="note"><strong data-lang="zh-CN">课堂要点：</strong><span data-lang="zh-CN">交付前用“五查”自检：① 每个区块有明确层级？② 有没有元素偏离基准线？③ 弱化文字还读得清吗？④ 间距是否符合 4/8 系统？⑤ 三个断点都试过吗？</span><strong data-lang="en-US" hidden>Classroom takeaway:</strong><span data-lang="en-US" hidden>Run the five-point check before shipping: ① Does every block have clear hierarchy? ② Does anything break the baseline? ③ Is muted text still readable? ④ Does spacing follow the 4/8 system? ⑤ Have you tested all three breakpoints?</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="code">
+          <h3 data-lang="zh-CN">关键代码 ① 页面骨架（摘要）</h3>
+          <h3 data-lang="en-US" hidden>Key Code ① Page Skeleton (Summary)</h3>
+<pre class="code-block"><code class="lang-html"><span class="tag">&lt;body&gt;</span>
+  <span class="tag">&lt;header</span> <span class="attr">class</span>=<span class="str">"site-nav"</span><span class="tag">&gt;</span>…logo·链接·订阅…<span class="tag">&lt;/header&gt;</span>
+  <span class="tag">&lt;main&gt;</span>
+    <span class="tag">&lt;section</span> <span class="attr">class</span>=<span class="str">"hero"</span><span class="tag">&gt;</span>眉标 · 标题 · 摘要 · CTA<span class="tag">&lt;/section&gt;</span>
+    <span class="tag">&lt;section</span> <span class="attr">class</span>=<span class="str">"features"</span><span class="tag">&gt;</span>3 张栏目卡<span class="tag">&lt;/section&gt;</span>
+    <span class="tag">&lt;section</span> <span class="attr">class</span>=<span class="str">"posts"</span><span class="tag">&gt;</span>文章栅格（12 列）<span class="tag">&lt;/section&gt;</span>
+    <span class="tag">&lt;blockquote</span> <span class="attr">class</span>=<span class="str">"quote"</span><span class="tag">&gt;</span>一句引言<span class="tag">&lt;/blockquote&gt;</span>
+  <span class="tag">&lt;/main&gt;</span>
+  <span class="tag">&lt;footer</span> <span class="attr">class</span>=<span class="str">"site-footer"</span><span class="tag">&gt;</span>版权与链接<span class="tag">&lt;/footer&gt;</span>
+<span class="tag">&lt;/body&gt;</span></code></pre>
+
+          <h3 data-lang="zh-CN">关键代码 ② 全站布局变量</h3>
+          <h3 data-lang="en-US" hidden>Key Code ② Global Layout Variables</h3>
+<pre class="code-block"><code class="lang-css">:root{
+  --container:<span class="num">1200px</span>;  --gutter:<span class="num">24px</span>; --cols:<span class="num">12</span>;
+  --s-<span class="num">2</span>:<span class="num">8px</span>; --s-<span class="num">3</span>:<span class="num">16px</span>; --s-<span class="num">4</span>:<span class="num">24px</span>; --s-<span class="num">5</span>:<span class="num">32px</span>; --s-<span class="num">6</span>:<span class="num">48px</span>;
+}
+<span class="cls">.container</span>{<span class="kw">max-width</span>: <span class="kw">var</span>(--container);<span class="kw">margin-inline</span>: auto;<span class="kw">padding-inline</span>: <span class="kw">var</span>(--s-<span class="num">4</span>)}</code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">把容器、沟槽、间距全部声明为变量，整个案例的“节奏”由这 5 行决定——这就是一致性在代码里的样子。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden">Declare container, gutter, and spacing as variables — five lines set the whole case’s rhythm. That is what consistency looks like in code.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="demo">
+          <p class="demo-hint" data-lang="zh-CN">最终成品：一个可切换三档预设宽度（桌面 / 平板 / 手机）的「拾味山居」首页；也可以点「铺满桌面」，让案例按你自己屏幕的真实宽度渲染并进入浏览器全屏，像真实网站一样滚动操作，Esc 退出。四件创意工具：① 「Design Token 编辑器」实时改色板/圆角/间距；② 「无障碍审查」给每处文字标出 WCAG 对比度并检查标题层级；③ 「分步组装」按骨架→层级→间距逐步搭出页面；④ 「原则标注」悬停①–⑦号图钉看设计决策。</p>
+          <p class="demo-hint" data-lang="en-US" hidden>The final product: a “Shiwei Mountain House” homepage with three preset widths (desktop / tablet / phone), or click “Fill my screen” to render the case at your own screen’s real width in browser fullscreen — scroll and use it like a real site, Esc to exit. Four creative tools: ① the live Design Token editor; ② the A11y audit overlay showing WCAG contrast for every text item; ③ step-by-step assembly; ④ hover pins ①–⑦ for the principle behind each decision.</p>
+          <div class="workbench">
+            <div class="wb-inspector" id="wb-inspector">
+            <div class="te-grip"><span class="te-title"><span class="no">CREATIVE ①</span><span data-lang="zh-CN">Design Token 实时编辑器</span><span data-lang="en-US" hidden>Live Design Token Editor</span></span><button type="button" class="te-close" id="te-close" title="关闭 / Close" aria-label="关闭编辑器">✕</button></div>
+            <p class="demo-hint" data-lang="zh-CN">悬停任一 token，会在案例中高亮它的落点；拖拽时案例自动跟随、实时重绘，底部同步生成对应 CSS。所谓“换主题”，只是换一组变量值。</p>
+            <p class="demo-hint" data-lang="en-US" hidden>Hover a token to spotlight where it lands in the case; dragging re-renders live and auto-follows, while the CSS panel updates. Re-theming is just swapping variable values.</p>
+            <div class="te-grid">
+              <label><span data-lang="zh-CN">主色 --teal</span><span data-lang="en-US" hidden>Primary --teal</span>
+                <span class="te-row"><input type="color" id="tk-teal" value="#0f766e"><output id="tk-teal-o">#0f766e</output></span></label>
+              <label><span data-lang="zh-CN">强调色 --ochre</span><span data-lang="en-US" hidden>Accent --ochre</span>
+                <span class="te-row"><input type="color" id="tk-ochre" value="#c07f22"><output id="tk-ochre-o">#c07f22</output></span></label>
+              <label><span data-lang="zh-CN">圆角 --radius</span><span data-lang="en-US" hidden>Radius --radius</span>
+                <span class="te-row"><input type="range" id="tk-radius" min="0" max="20" step="1" value="7"><output id="tk-radius-o">7px</output></span></label>
+              <label><span data-lang="zh-CN">间距倍率 --space</span><span data-lang="en-US" hidden>Spacing --space</span>
+                <span class="te-row"><input type="range" id="tk-space" min="50" max="200" step="5" value="100"><output id="tk-space-o">1.00×</output></span></label>
+            </div>
+            <div class="controls" style="margin:10px 0 8px">
+              <button class="demo-btn" data-tk-preset="forest"><span data-lang="zh-CN">山林青</span><span data-lang="en-US" hidden>Forest</span></button>
+              <button class="demo-btn" data-tk-preset="persimmon"><span data-lang="zh-CN">落日柿</span><span data-lang="en-US" hidden>Persimmon</span></button>
+              <button class="demo-btn" data-tk-preset="inkjade"><span data-lang="zh-CN">墨玉</span><span data-lang="en-US" hidden>Ink Jade</span></button>
+              <button class="demo-btn" id="tk-rand"><span data-lang="zh-CN">随机一套</span><span data-lang="en-US" hidden>Surprise me</span></button>
+              <button class="demo-btn" id="tk-reset"><span data-lang="zh-CN">重置</span><span data-lang="en-US" hidden>Reset</span></button>
+            </div>
+            <pre class="code-block" id="tk-code" style="margin-bottom:0">:root{
+  --teal:#0f766e;  /* 主色 */
+  --ochre:#c07f22; /* 强调 */
+  --radius:7px;
+  --space:1.00;
+}</pre>
+            </div>
+            <div class="wb-stage">
+            <div class="case-head">
+              <button class="demo-btn active" data-w="1200" data-lang="zh-CN">桌面 1200</button><button class="demo-btn active" data-w="1200" data-lang="en-US" hidden>Desktop 1200</button>
+              <button class="demo-btn" data-w="768" data-lang="zh-CN">平板 768</button><button class="demo-btn" data-w="768" data-lang="en-US" hidden>Tablet 768</button>
+              <button class="demo-btn" data-w="375" data-lang="zh-CN">手机 375</button><button class="demo-btn" data-w="375" data-lang="en-US" hidden>Phone 375</button>
+              <span class="case-sep"></span>
+              <button class="demo-btn case-fs" data-lang="zh-CN">铺满桌面</button><button class="demo-btn case-fs" data-lang="en-US" hidden>Fill my screen</button>
+              <span style="flex:1"></span>
+              <button class="demo-btn case-a11y" data-lang="zh-CN">◎ 无障碍审查</button><button class="demo-btn case-a11y" data-lang="en-US" hidden>◎ A11y Audit</button>
+              <button class="demo-btn case-asm" data-lang="zh-CN">▶ 分步组装</button><button class="demo-btn case-asm" data-lang="en-US" hidden>▶ Build step-by-step</button>
+              <button class="demo-btn case-pins" data-lang="zh-CN">○ 原则标注</button><button class="demo-btn case-pins" data-lang="en-US" hidden>○ Annotations</button>
+              <button class="demo-btn" id="tk-toggle"><span data-lang="zh-CN">◈ Design Token 编辑器</span><span data-lang="en-US" hidden>◈ Design Token Editor</span></button>
+            </div>
+            <div class="wb-devwrap">
+              <div class="devframe" id="devframe" style="--w:1200px;--h:800px;--s:1">
+                <div class="case-site" id="case-site">
+                  <div class="cs-inner" id="case-inner" style="width:1200px">
+                <div class="cs-nav" id="pin-1">
+                  <span class="cs-logo">拾味山居 · Shiwei</span>
+                  <div class="cs-links" id="cs-links"><a>山野菜单</a><a>行脚笔记</a><a>灶台手记</a></div>
+                  <span class="cs-cta">订阅</span>
+                </div>
+                <div class="cs-hero" id="pin-2">
+                  <div style="font-size:12px;letter-spacing:2px;color:var(--ochre);margin-bottom:6px">SHIWEI JOURNAL · 拾味山居</div>
+                  <h3>山里的味道，值得慢慢走</h3>
+                  <p>记录每一道菜与它背后的地方。一周两更，跟着节气吃东西。</p>
+                  <div class="cs-actions"><span class="cs-btn">开始阅读</span><span class="cs-btn2">订阅周刊</span></div>
+                  <div class="cs-stats"><span><b>260+</b>食谱</span><span><b>18</b>座小城</span><span><b>3.2w</b>读者</span></div>
+                </div>
+                <div class="cs-feat" id="pin-3">
+                  <div class="cf"><h5>山野菜单</h5><p>当季食材与做法，跟着节气吃。</p></div>
+                  <div class="cf"><h5>行脚笔记</h5><p>小镇与市场的散步记录。</p></div>
+                  <div class="cf"><h5>灶台手记</h5><p>家常菜背后的故事与手艺。</p></div>
+                </div>
+                <div class="cs-grid" id="pin-4">
+                  <div class="cs-card"><div class="cs-img"></div><h5>一碗饵丝的时间</h5><p>滇西 · 面食</p></div>
+                  <div class="cs-card"><div class="cs-img"></div><h5>秋天的第一锅菌汤</h5><p>云南 · 时令</p></div>
+                  <div class="cs-card"><div class="cs-img"></div><h5>小城早市图鉴</h5><p>行脚 · 市场</p></div>
+                  <div class="cs-card"><div class="cs-img"></div><h5>外婆的醪糟</h5><p>川南 · 甜点</p></div>
+                  <div class="cs-card"><div class="cs-img"></div><h5>海边的一顿炭火</h5><p>闽南 · 海鲜</p></div>
+                  <div class="cs-card"><div class="cs-img"></div><h5>雪山下的一碗酥油茶</h5><p>藏地 · 饮品</p></div>
+                </div>
+                <div class="cs-quote" id="pin-5">“味道是记忆的索引——我们记录的不只是菜，是那个地方。”</div>
+                <div class="cs-footer" id="pin-6">
+                  <span>© 2026 拾味山居 · 本站为布局教学演示</span>
+                  <span>关于 · 投稿 · RSS</span>
+                </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <p class="demo-legend" id="asm-status" style="display:none"></p>
+            <p class="demo-legend" id="a11y-summary" style="display:none"></p>
+            </div>
+          </div>
+          <div class="cs-fs" id="cs-fs" aria-hidden="true">
+            <div class="cs-fs-bar">
+              <span class="cs-fs-title" data-lang="zh-CN">铺满桌面模式 · 案例按你的真实屏幕宽度渲染，Esc 退出</span>
+              <span class="cs-fs-title" data-lang="en-US" hidden>Fill-screen mode · rendered at your real screen width, Esc to exit</span>
+              <span class="cs-fs-w" id="cs-fs-w"></span>
+              <span style="flex:1"></span>
+              <button class="demo-btn fs-tool" data-proxy="tk"><span data-lang="zh-CN">◈ Token 编辑器</span><span data-lang="en-US" hidden>◈ Token Editor</span></button>
+              <button class="demo-btn fs-tool" data-proxy="a11y"><span data-lang="zh-CN">◎ 无障碍审查</span><span data-lang="en-US" hidden>◎ A11y Audit</span></button>
+              <button class="demo-btn fs-tool" data-proxy="asm"><span data-lang="zh-CN">▶ 分步组装</span><span data-lang="en-US" hidden>▶ Build step-by-step</span></button>
+              <button class="demo-btn fs-tool" data-proxy="pins"><span data-lang="zh-CN">○ 原则标注</span><span data-lang="en-US" hidden>○ Annotations</span></button>
+              <button class="demo-btn fs-exit" data-lang="zh-CN">✕ 退出铺满</button><button class="demo-btn fs-exit" data-lang="en-US" hidden>✕ Exit fullscreen</button>
+            </div>
+            <div class="cs-fs-body" id="cs-fs-body"></div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+
+    <!-- ============ 1.9 案例布局找茬 ============ -->
+    <article class="chapter" id="ch-1-9">
+      <h2><span class="no">1.9</span><span data-lang="zh-CN">案例布局找茬 · 布局犯罪现场</span><span data-lang="en-US" hidden>Case Layout Crime Scene</span></h2>
+      <p class="chapter-subtitle" data-lang="zh-CN">反着学最快：在一份“故意做坏”的迷你首页里，亲手抓出 6 处布局罪行</p>
+      <p class="chapter-subtitle" data-lang="en-US" hidden>Learn by the negative: catch six layout crimes in a deliberately broken mini homepage</p>
+
+      <div class="tabs">
+        <button class="tab-btn active" data-tab="explain"><span class="dot"></span><span data-lang="zh-CN">讲解</span><span data-lang="en-US" hidden>Explain</span></button>
+        <button class="tab-btn" data-tab="code"><span class="dot"></span><span data-lang="zh-CN">关键代码</span><span data-lang="en-US" hidden>Key Code</span></button>
+        <button class="tab-btn" data-tab="demo"><span class="dot"></span><span data-lang="zh-CN">演示</span><span data-lang="en-US" hidden>Demo</span></button>
+      </div>
+
+      <div class="tab-panels">
+        <div class="tab-panel active" data-panel="explain">
+          <h3 data-lang="zh-CN">为什么「找茬」比「照着做」更有效</h3>
+          <h3 data-lang="en-US" hidden>Why Spotting Crimes Beats Copying Perfection</h3>
+          <p data-lang="zh-CN">说出「哪里好看」不难，难的是一眼看出「哪里不对」。审查式阅读（critique）是设计师的核心练习：把 1.2 的六条原则倒过来，就是六种典型的「布局罪行」。能在别人的页面里 3 秒内指认罪行，你自己的页面才不会犯同样的错。</p>
+          <p data-lang="en-US" hidden>Saying what looks good is easy; seeing what is wrong at a glance is the real skill. Critique is a core designer exercise: invert the six principles of 1.2 and you get six classic layout crimes. If you can spot them in someone else's page within three seconds, you won't repeat them in your own.</p>
+          <h3 data-lang="zh-CN">六宗罪行档案</h3>
+          <h3 data-lang="en-US" hidden>The Six Crime Files</h3>
+          <table class="theory-table">
+            <colgroup><col style="width:16%"><col style="width:14%"><col style="width:38%"><col style="width:32%"></colgroup>
+            <thead data-lang="zh-CN"><tr><th>罪行</th><th>违背原则</th><th>一眼识别的特征</th><th>修复</th></tr></thead>
+            <thead data-lang="en-US" hidden><tr><th>Crime</th><th>Principle</th><th>How to spot it</th><th>Fix</th></tr></thead>
+            <tbody>
+              <tr data-lang="zh-CN"><td>层级塌陷</td><td>层级 · 对比</td><td>标题和正文一样大、一样灰，扫一眼没有落点</td><td>主标题 ≥21px / 900 字重，建立 2–3 级字号差</td></tr>
+              <tr data-lang="en-US" hidden><td>Flat hierarchy</td><td>Hierarchy</td><td>Headline same size and grey as body — nothing catches the eye</td><td>Headline ≥21px / 900; build 2–3 type levels</td></tr>
+              <tr data-lang="zh-CN"><td>对齐混乱</td><td>对齐</td><td>同一区块里混着左对齐和居中，基准线断了</td><td>全站锁定一种对齐 + 栅格</td></tr>
+              <tr data-lang="en-US" hidden><td>Broken alignment</td><td>Alignment</td><td>Left-aligned and centered mixed in one block</td><td>Lock one alignment site-wide + grid</td></tr>
+              <tr data-lang="zh-CN"><td>对比不足</td><td>对比</td><td>浅灰字压浅色底，要眯眼才看得清</td><td>正文对背景 ≥4.5:1，弱化文字 ≥3:1</td></tr>
+              <tr data-lang="en-US" hidden><td>Low contrast</td><td>Contrast</td><td>Pale grey on light ground — you squint to read</td><td>Body ≥4.5:1, muted text ≥3:1</td></tr>
+              <tr data-lang="zh-CN"><td>亲密性断裂</td><td>亲密性</td><td>按钮离它的介绍文字 30px+，像两个陌生组</td><td>相关元素 ≤8px，组与组 ≥24px</td></tr>
+              <tr data-lang="en-US" hidden><td>Broken proximity</td><td>Proximity</td><td>CTA 30px+ away from its own copy</td><td>Related ≤8px, between groups ≥24px</td></tr>
+              <tr data-lang="zh-CN"><td>留白不足</td><td>留白</td><td>文字贴着卡片边框，卡片贴着屏幕边</td><td>内边距 12–16px，区块间 48px</td></tr>
+              <tr data-lang="en-US" hidden><td>No whitespace</td><td>Whitespace</td><td>Text hugging card borders, cards hugging edges</td><td>Padding 12–16px, 48px between sections</td></tr>
+              <tr data-lang="zh-CN"><td>一致性破坏</td><td>一致性</td><td>同屏三种按钮：圆角、颜色、字号全不同</td><td>一类组件一套样式，token 复用（见 1.8）</td></tr>
+              <tr data-lang="en-US" hidden><td>Broken consistency</td><td>Consistency</td><td>Three button styles on one screen</td><td>One style per component, reuse tokens (see 1.8)</td></tr>
+            </tbody>
+          </table>
+          <p class="note"><strong data-lang="zh-CN">课堂要点：</strong><span data-lang="zh-CN">找茬是交付前最好的自检技巧——交作业前假装自己是“审查员”，把 1.9 现场里的六宗罪在自己的页面上逐条排查一遍。</span><strong data-lang="en-US" hidden>Classroom takeaway:</strong><span data-lang="en-US" hidden>Critique is the best pre-flight check — before shipping, play the inspector and run the six crimes against your own page.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="code">
+          <h3 data-lang="zh-CN">现场还原：罪行代码 vs 修复代码</h3>
+          <h3 data-lang="en-US" hidden>Reconstruction: Crime CSS vs Fixed CSS</h3>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* ✕ 现场版：六宗罪齐发 */</span>
+<span class="cls">.cp-title</span>{<span class="kw">font-size</span>:<span class="num">15.5px</span>;<span class="kw">font-weight</span>:<span class="num">400</span>}   <span class="cmt">/* 层级塌陷 */</span>
+<span class="cls">.cp-center</span>{<span class="kw">text-align</span>:<span class="kw">center</span>}                  <span class="cmt">/* 对齐混乱 */</span>
+<span class="cls">.cp-faint</span>{<span class="kw">color</span>:<span class="num">#c9d3cd</span>}                        <span class="cmt">/* 对比不足 ≈2.1:1 */</span>
+<span class="cls">.cp-cta</span>{<span class="kw">margin-top</span>:<span class="num">34px</span>}                        <span class="cmt">/* 亲密性断裂 */</span>
+<span class="cls">.cp-card</span>{<span class="kw">padding</span>:<span class="num">2px 3px</span>}                       <span class="cmt">/* 留白不足 */</span>
+<span class="cls">.cp-b1</span>{<span class="kw">border-radius</span>:<span class="num">2px</span>} <span class="cls">.cp-b2</span>{<span class="kw">border-radius</span>:<span class="num">999px</span>}
+<span class="cls">.cp-b3</span>{<span class="kw">border-radius</span>:<span class="num">12px</span>}                      <span class="cmt">/* 一致性破坏 */</span></code></pre>
+<pre class="code-block"><code class="lang-css"><span class="cmt">/* ✓ 修复版：六条原则各归其位 */</span>
+<span class="cls">.cp-title</span>{<span class="kw">font-size</span>:<span class="num">22px</span>;<span class="kw">font-weight</span>:<span class="num">900</span>}     <span class="cmt">/* 层级：2–3 级字号差 */</span>
+<span class="cls">.cp-center</span>{<span class="kw">text-align</span>:<span class="kw">left</span>}                     <span class="cmt">/* 对齐：全站左基准线 */</span>
+<span class="cls">.cp-faint</span>{<span class="kw">color</span>:<span class="num">#4a5a53</span>}                        <span class="cmt">/* 对比：≥4.5:1 */</span>
+<span class="cls">.cp-cta</span>{<span class="kw">margin-top</span>:<span class="num">8px</span>}                         <span class="cmt">/* 亲密性：相关 ≤8px */</span>
+<span class="cls">.cp-card</span>{<span class="kw">padding</span>:<span class="num">14px</span>}                          <span class="cmt">/* 留白：呼吸空间 */</span>
+<span class="cls">.btn</span>{<span class="kw">border-radius</span>:<span class="num">6px</span>}                         <span class="cmt">/* 一致性：单一按钮样式 */</span>
+<span class="cmt">/* 全部来自同一套 token —— 见 1.8 的编辑器 */</span></code></pre>
+          <p class="key-point"><strong data-lang="zh-CN">关键点解释：</strong><span data-lang="zh-CN">修复没有魔法：每宗罪对应一个 CSS 属性改动，背后是同一条原则。对照 1.2 的清单逐条“对号入座”，就是一次完整的布局审查。</span><strong data-lang="en-US" hidden>Key point:</strong><span data-lang="en-US" hidden>Fixing is not magic: each crime maps to one CSS property backed by one principle. Matching them one by one against the 1.2 checklist is a full layout audit.</span></p>
+        </div>
+
+        <div class="tab-panel" data-panel="demo">
+          <p class="demo-hint" data-lang="zh-CN">游戏规则：下面是一份「故意做坏」的拾味山居首页，藏着 6 处布局罪行。点击你认为有问题的地方——点对了显示红框并记入档案；点错了会闪黄并计一次误点。全部找齐解锁结案报告。</p>
+          <p class="demo-hint" data-lang="en-US" hidden>How to play: this mini homepage is deliberately broken and hides six layout crimes. Click what looks wrong — a correct hit gets a red outline and enters the case file; a wrong click flashes amber. Find all six to close the case.</p>
+          <div class="demo-mount">
+            <div class="crime-head">
+              <button class="demo-btn" id="crime-reset"><span data-lang="zh-CN">↺ 重开一局</span><span data-lang="en-US" hidden>↺ Restart</span></button>
+              <button class="demo-btn" id="crime-hint"><span data-lang="zh-CN">提示一下</span><span data-lang="en-US" hidden>Hint</span></button>
+              <b id="crime-score"></b>
+            </div>
+            <div class="crime-scene" id="crime-scene">
+              <div class="crime-page">
+                <div class="cp-top">
+                  <span class="cp-logo">拾味山居</span>
+                  <span class="cp-links">山野菜单 · 行脚笔记 · 灶台手记</span>
+                  <span class="cp-sub">订阅</span>
+                </div>
+                <div class="cp-title ce" data-crime="c1" data-n="1">山里的味道，值得慢慢走</div>
+                <p class="cp-lede">记录每一道菜与它背后的地方。一周两更，跟着节气吃东西。</p>
+                <p class="cp-center ce" data-crime="c2" data-n="2">本期专题：云南雨季的菌子与早市漫步</p>
+                <p class="cp-faint ce" data-crime="c3" data-n="3">更新时间：每周三、周六早八点 · 主理人：阿野</p>
+                <span class="cp-cta ce" data-crime="c4" data-n="4">开始阅读</span>
+                <div class="cp-card ce" data-crime="c5" data-n="5">
+                  <p class="cp-cardtitle">一碗饵丝的时间</p>
+                  <p class="cp-cardbody">滇西 · 面食 · 20 分钟</p>
+                </div>
+                <div class="cp-img"></div>
+                <div class="cp-btns ce" data-crime="c6" data-n="6">
+                  <span class="cp-b1">投稿</span><span class="cp-b2">关于我们</span><span class="cp-b3">RSS</span>
+                </div>
+              </div>
+            </div>
+            <div class="crime-banner" id="crime-banner"></div>
+            <div class="crime-log" id="crime-log"></div>
+          </div>
+        </div>
+      </div>
+    </article>
+
+  </section>
+</main>
+
+
+<nav class="chapter-pager" aria-label="章节翻页">
+  <button class="pager-btn" id="pg-prev" disabled><span data-lang="zh-CN">← 上一节</span><span data-lang="en-US" hidden>← Previous</span></button>
+  <button class="pager-btn" id="pg-top"><span data-lang="zh-CN">回到顶部 ↑</span><span data-lang="en-US" hidden>Back to top ↑</span></button>
+  <button class="pager-btn" id="pg-next"><span data-lang="zh-CN">下一节 →</span><span data-lang="en-US" hidden>Next →</span></button>
+</nav>
+
+<script>
+(function(){
+'use strict';
+/* ============ 语言与 i18n ============ */
+var I18N={
+'zh-CN':{
+ tl:[['01','明确需求','给谁看、要达成什么'],['02','信息架构','内容分组与排序'],['03','线框图','灰块画出结构与位置'],['04','视觉设计','字体、色彩与间距'],['05','代码实现','语义化 HTML + CSS 布局']],
+ wfNote:'同一块首屏内容：先结构（左），后样式（右）',
+ spanLabel:'列',
+ rStatus:['单列栅格 · 导航折叠为按钮','两列栅格 · 导航链接仍可见','三列栅格 · 导航完整展示'],
+ ccStatus:['弱对比 · 不一致：看不清重点，也看不出“一家人”','弱对比 · 统一：风格整齐，但主角不够突出','强对比 · 不一致：主角跳出来了，却像拼贴画','强对比 · 统一：主角突出，全组协调 —— 推荐状态'],
+ proxStatus:['分组清晰：组内近、组间远，两行各自成组','分组感减弱：组间距只比组内距略大，边界开始模糊','分组反转：组间距小于组内距，视觉上更像按列归组'],
+},
+'en-US':{
+ tl:[['01','Requirements','For whom, to achieve what'],['02','IA','Group and order content'],['03','Wireframe','Grey blocks for structure & position'],['04','Visual design','Type, color, spacing'],['05','Implementation','Semantic HTML + CSS layout']],
+ wfNote:'The same hero content: structure first (left), style later (right)',
+ spanLabel:'col',
+ rStatus:['One-column grid · nav collapses to a button','Two-column grid · nav links still visible','Three-column grid · full nav'],
+ ccStatus:['Weak + mixed: no focus, no family','Weak + unified: tidy, but nothing stands out','Strong + mixed: the hero pops, yet it looks like a collage','Strong + unified: clear hero, coherent set — the recommended state'],
+ proxStatus:['Clear grouping: close inside, far between — each row reads as one group','Weakening: inter-group gap barely exceeds intra-group, boundaries blur','Flipped: inter-group gap is smaller than intra-group — the eye groups by column'],
+}
+};
+var LANG='zh-CN';
+function t(key){return I18N[LANG][key];}
+
+function setLang(l){
+  LANG=l;
+  document.documentElement.lang=(l==='zh-CN')?'zh-CN':'en';
+  document.querySelectorAll('[data-lang]').forEach(function(el){
+    if(el.classList.contains('lang-btn'))return;
+    el.hidden=(el.getAttribute('data-lang')!==l);
+  });
+  document.querySelectorAll('.lang-btn').forEach(function(b){
+    b.classList.toggle('active',b.dataset.lang===l);
+  });
+  renderWF(); if(window.renderPins)window.renderPins();
+  if(window.renderA11y)window.renderA11y();
+  if(window.renderCrime)window.renderCrime();
+  if(window.renderAsm)window.renderAsm();
+  if(window.renderViewToggle)window.renderViewToggle();
+  if(window.renderCC)window.renderCC();
+  if(window.renderProx)window.renderProx();
+}
+document.querySelectorAll('.lang-btn').forEach(function(b){
+  b.addEventListener('click',function(){setLang(b.dataset.lang);});
+});
+
+/* ============ 章节内三 tab ============ */
+document.querySelectorAll('.tabs').forEach(function(tabs){
+  tabs.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      tabs.querySelectorAll('.tab-btn').forEach(function(b){b.classList.toggle('active',b===btn);});
+      var panels=tabs.parentElement.querySelector('.tab-panels');
+      panels.querySelectorAll('.tab-panel').forEach(function(p){
+        p.classList.toggle('active',p.dataset.panel===btn.dataset.tab);
+      });
+      if(window.recalcDev)window.recalcDev();
+    });
+  });
+});
+window.addEventListener('resize',function(){if(window.recalcDev)window.recalcDev();});
+
+/* ============ Tab 键切换板块 ============ */
+document.addEventListener('keydown',function(e){
+  if(e.key!=='Tab')return;
+  var c=chapters[curIdx];if(!c)return;
+  var tabsEl=c.querySelector('.tabs');if(!tabsEl)return;
+  var btns=tabsEl.querySelectorAll('.tab-btn');if(!btns.length)return;
+  e.preventDefault();
+  var idx=-1;
+  btns.forEach(function(b,i){if(b.classList.contains('active'))idx=i;});
+  var next=e.shiftKey?idx-1:idx+1;
+  if(next<0)next=btns.length-1;
+  if(next>=btns.length)next=0;
+  btns[next].click();
+});
+
+/* ============ 滚动监听 + 翻页器 ============ */
+var chapters=[].slice.call(document.querySelectorAll('.chapter'));
+var navLinks=[].slice.call(document.querySelectorAll('.chapter-nav a'));
+var topTabs=[].slice.call(document.querySelectorAll('.topbar-tabs a'));
+var curIdx=0;
+function setActive(id){
+  navLinks.forEach(function(a){a.classList.toggle('active',a.dataset.chapter===id);});
+  topTabs.forEach(function(a){a.classList.toggle('current',a.getAttribute('href')==='#'+id);});
+}
+if('IntersectionObserver' in window){
+  var spy=new IntersectionObserver(function(es){
+    es.forEach(function(e){
+      if(e.isIntersecting){curIdx=chapters.indexOf(e.target);setActive(e.target.id);}
+    });
+  },{rootMargin:'-35% 0px -60% 0px'});
+  chapters.forEach(function(c){spy.observe(c);});
+}
+function goChapter(i){
+  if(i<0||i>=chapters.length)return;
+  curIdx=i;
+  if(viewMode==='single')showOnlyChapter(i);
+  chapters[i].scrollIntoView({behavior:'smooth',block:'start'});
+  setActive(chapters[i].id);
+}
+document.getElementById('pg-prev').addEventListener('click',function(){goChapter(curIdx-1);});
+document.getElementById('pg-next').addEventListener('click',function(){goChapter(curIdx+1);});
+document.getElementById('pg-top').addEventListener('click',function(){
+  window.scrollTo({top:0,behavior:'smooth'});
+});
+setInterval(function(){
+  var p=document.getElementById('pg-prev'),n=document.getElementById('pg-next');
+  p.disabled=(curIdx<=0); n.disabled=(curIdx>=chapters.length-1);
+},400);
+
+/* ============ 视图模式切换：连续浏览 / 单节显示 ============ */
+var viewMode='flow';
+var viewBtns=[].slice.call(document.querySelectorAll('.view-toggle'));
+function showOnlyChapter(i){
+  chapters.forEach(function(c,n){c.classList.toggle('in-view',n===i);});
+}
+function renderViewBtns(){
+  var z=(LANG==='zh-CN');
+  viewBtns.forEach(function(b){
+    b.textContent=(viewMode==='flow'?'☰ ':'▤ ')+(z?(viewMode==='flow'?'连续浏览':'单节浏览'):(viewMode==='flow'?'Continuous':'One section'));
+    b.setAttribute('aria-pressed',viewMode==='single'?'true':'false');
+  });
+}
+window.renderViewToggle=renderViewBtns;
+viewBtns.forEach(function(b){
+  b.addEventListener('click',function(){
+    viewMode=(viewMode==='flow')?'single':'flow';
+    document.body.classList.toggle('single-mode',viewMode==='single');
+    if(viewMode==='single'){showOnlyChapter(curIdx);}
+    else{chapters.forEach(function(c){c.classList.remove('in-view');});}
+    renderViewBtns();
+    chapters[curIdx].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+navLinks.forEach(function(a){
+  a.addEventListener('click',function(ev){
+    if(viewMode!=='single')return;
+    var idx=-1;
+    chapters.forEach(function(c,n){if(c.id===a.dataset.chapter)idx=n;});
+    if(idx<0)return;
+    ev.preventDefault();
+    curIdx=idx;
+    showOnlyChapter(idx);
+    setActive(chapters[idx].id);
+    chapters[idx].scrollIntoView({behavior:'smooth',block:'start'});
+  });
+});
+/* 1.2 六原则表内链接：单节浏览模式下也能跳到对应小节；连续模式走原生锚点 */
+document.querySelectorAll('a[data-cross]').forEach(function(a){
+  a.addEventListener('click',function(ev){
+    if(viewMode!=='single')return;
+    var idx=-1;
+    chapters.forEach(function(c,n){if(c.id===a.dataset.cross)idx=n;});
+    if(idx<0)return;
+    ev.preventDefault();
+    curIdx=idx;
+    showOnlyChapter(idx);
+    setActive(chapters[idx].id);
+    chapters[idx].scrollIntoView({behavior:'smooth',block:'start'});
+    history.replaceState(null,'','#'+chapters[idx].id);
+  });
+});
+renderViewBtns();
+
+/* ============ 演示 1.1 流程：时间轴 + 线框/成品 ============ */
+function renderWF(){
+  var tl=document.getElementById('wf-tl');
+  if(!tl)return;
+  tl.innerHTML=t('tl').map(function(s){
+    return '<div class="tl-time">'+s[0]+'</div><div class="tl-node"></div><div class="tl-body"><b>'+s[1]+'</b><span>'+s[2]+'</span></div>';
+  }).join('');
+  document.getElementById('wf-note').textContent=t('wfNote');
+}
+var wfMode='wire';
+function renderWFView(){
+  var v=document.getElementById('wf-view');
+  if(wfMode==='wire'){
+    v.innerHTML=
+      '<div style="border:1px dashed var(--line-d);border-radius:10px;padding:10px;background:#fbfcfb">'+
+      '<div style="height:26px;background:#e6eae7;border-radius:5px;margin-bottom:8px"></div>'+
+      '<div style="height:80px;background:#dde3e0;border-radius:6px;margin-bottom:8px;position:relative"><span style="position:absolute;left:10px;top:6px;font-size:12px;color:#8b9893">H1 · 首屏主标题</span></div>'+
+      '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px">'+
+      '<div style="height:56px;background:#e6eae7;border-radius:5px"></div>'.repeat(3)+'</div>'+
+      '<div style="height:22px;background:#e6eae7;border-radius:5px"></div>'+
+      '</div>';
+  }else{
+    v.innerHTML=
+      '<div class="ms" style="width:100%">'+
+      '<div class="ms-nav"><span class="ms-logo">拾味山居</span><div class="ms-links"><a>山野菜单</a><a>行脚笔记</a></div><span class="ms-cta">订阅</span></div>'+
+      '<div class="ms-hero"><h3>山里的味道，值得慢慢走</h3><p>记录每一道菜与它背后的地方。</p><span class="ms-cta" style="margin-left:0;display:inline-block">开始阅读</span></div>'+
+      '<div class="ms-cards" style="grid-template-columns:repeat(3,1fr)">'+
+      '<div class="ms-card"><div class="ms-img"></div><h5>山野菜单</h5><p>当季食材</p></div>'+
+      '<div class="ms-card"><div class="ms-img"></div><h5>行脚笔记</h5><p>小镇散步</p></div>'+
+      '<div class="ms-card"><div class="ms-img"></div><h5>灶台手记</h5><p>家常故事</p></div>'+
+      '</div><div class="ms-footer">© 拾味山居</div></div>';
+  }
+}
+(function(){
+  var wfTl=document.getElementById('wf-tl');
+  if(!wfTl)return;
+  var note=document.createElement('p');
+  note.id='wf-note';note.className='demo-legend';note.style.marginTop='4px';
+  wfTl.parentElement.insertBefore(note,wfTl.nextSibling);
+  renderWF();renderWFView();
+  var wire=document.getElementById('wf-wire'),fin=document.getElementById('wf-final');
+  wire.addEventListener('click',function(){wfMode='wire';wire.classList.add('active');fin.classList.remove('active');renderWFView();});
+  fin.addEventListener('click',function(){wfMode='final';fin.classList.add('active');wire.classList.remove('active');renderWFView();});
+})();
+
+/* ============ 演示 1.2 原则开关 ============ */
+(function(){
+  var good=document.getElementById('pg-good');
+  if(!good)return;
+  document.querySelectorAll('#prin-chips .chip').forEach(function(ch){
+    ch.addEventListener('click',function(){
+      ch.classList.toggle('on');
+      good.classList.toggle('prin-'+ch.dataset.p,ch.classList.contains('on'));
+    });
+  });
+})();
+
+/* ============ 演示 1.3 网格生成器 ============ */
+(function(){
+  var grid=document.getElementById('g-grid');
+  if(!grid)return;
+  var col=document.getElementById('g-col'),gut=document.getElementById('g-gut'),wid=document.getElementById('g-wid');
+  function gRender(){
+    var c=+col.value,g=+gut.value,w=+wid.value;
+    document.getElementById('g-col-o').textContent=c;
+    document.getElementById('g-gut-o').textContent=g;
+    document.getElementById('g-wid-o').textContent=w;
+    grid.style.setProperty('--cols',c);
+    grid.style.gridTemplateColumns='repeat('+c+',1fr)';
+    grid.style.gap=g+'px';
+    grid.style.maxWidth=w+'px';
+    var html='';
+    for(var i=1;i<=c;i++){html+='<div class="gcell">'+i+'</div>';}
+    var parts=[];
+    if(c%3===0)parts=[c/3,c/3,c/3];
+    else if(c%4===0)parts=[c/4,c/4,c/4,c/4];
+    else if(c%2===0)parts=[c/2,c/2];
+    else parts=[c];
+    html+=parts.map(function(p){
+      return '<div class="gcell span2" style="grid-column:span '+p+'">'+p+' '+t('spanLabel')+'</div>';
+    }).join('');
+    grid.innerHTML=html;
+  }
+  [col,gut,wid].forEach(function(el){el.addEventListener('input',gRender);});
+  gRender();
+})();
+
+/* ============ 演示 1.4 层级 ============ */
+(function(){
+  var f=document.getElementById('h-f'),z=document.getElementById('h-z');
+  if(!f)return;
+  var hf=document.getElementById('heat-f'),hz=document.getElementById('heat-z');
+  function setPat(mode){
+    f.classList.toggle('active',mode==='f');
+    z.classList.toggle('active',mode==='z');
+    hf.style.display=(mode==='f')?'':'none';
+    hz.style.display=(mode==='z')?'':'none';
+  }
+  f.addEventListener('click',function(){setPat('f');});
+  z.addEventListener('click',function(){setPat('z');});
+  var str=document.getElementById('h-str');
+  var title=document.getElementById('hh-title'),sub=document.getElementById('hh-sub');
+  function hRender(){
+    var v=+str.value;
+    document.getElementById('h-str-o').textContent=v;
+    title.style.fontSize=(18+v/100*16)+'px';
+    title.style.fontWeight=Math.round(400+v/100*500);
+    sub.style.opacity=(0.45+v/100*0.55).toFixed(2);
+  }
+  str.addEventListener('input',hRender);
+  hRender();
+})();
+
+/* ============ 演示 1.5 亲密性 · 留白 ============ */
+(function(){
+  var groups=document.getElementById('s-groups');
+  if(!groups)return;
+  var intra=document.getElementById('s-intra'),inter=document.getElementById('s-inter'),pad=document.getElementById('s-pad');
+  var st=document.getElementById('s-status');
+  function renderProx(){
+    var a=+intra.value,b=+inter.value,p=+pad.value;
+    document.getElementById('s-intra-o').textContent=a;
+    document.getElementById('s-inter-o').textContent=b;
+    document.getElementById('s-pad-o').textContent=p;
+    groups.style.setProperty('--intra',a+'px');
+    groups.style.setProperty('--inter',b+'px');
+    groups.querySelectorAll('.scard').forEach(function(c){c.style.padding=p+'px';});
+    var idx=(b>=a*2)?0:(b>a?1:2);
+    st.innerHTML='<span data-lang="zh-CN">'+I18N['zh-CN'].proxStatus[idx]+'</span><span data-lang="en-US" hidden>'+I18N['en-US'].proxStatus[idx]+'</span>';
+    st.querySelectorAll('[data-lang]').forEach(function(el){el.hidden=(el.getAttribute('data-lang')!==LANG);});
+  }
+  intra.addEventListener('input',renderProx);
+  inter.addEventListener('input',renderProx);
+  pad.addEventListener('input',renderProx);
+  window.renderProx=renderProx;
+  renderProx();
+})();
+
+/* ============ 演示 1.6 对比 · 一致性 ============ */
+(function(){
+  var stage=document.getElementById('cc-stage');
+  if(!stage)return;
+  var st=document.getElementById('cc-status');
+  var state={contrast:'strong',consis:'uni'};
+  function renderCC(){
+    stage.classList.toggle('cc-weak',state.contrast==='weak');
+    stage.classList.toggle('cc-strong',state.contrast==='strong');
+    stage.classList.toggle('cc-mess',state.consis==='mess');
+    stage.classList.toggle('cc-uni',state.consis==='uni');
+    var i=(state.contrast==='strong'?1:0)*2+(state.consis==='uni'?1:0);
+    st.textContent=t('ccStatus')[i];
+    document.querySelectorAll('.cc-c').forEach(function(b){
+      var on=(b.getAttribute('data-g')==='contrast')
+        ? b.dataset.cc===state.contrast : b.dataset.cc===state.consis;
+      b.classList.toggle('active',on);
+    });
+  }
+  document.querySelectorAll('.cc-c').forEach(function(b){
+    b.addEventListener('click',function(){
+      state[b.getAttribute('data-g')]=b.dataset.cc;
+      renderCC();
+    });
+  });
+  window.renderCC=renderCC;
+  renderCC();
+})();
+
+/* ============ 演示 1.7 响应式迷你站 ============ */
+(function(){
+  var ms=document.getElementById('ms');
+  if(!ms)return;
+  var cards=document.getElementById('ms-cards'),links=document.getElementById('ms-links');
+  var status=document.getElementById('r-status');
+  var btns=document.querySelectorAll('#r-btns .demo-btn');
+  function rRender(w){
+    ms.style.width=w+'px';
+    var cols=(w>=900)?3:(w>=600)?2:1;
+    cards.style.gridTemplateColumns='repeat('+cols+',1fr)';
+    links.style.display=(w>=640)?'flex':'none';
+    var s=(w>=900)?2:(w>=600)?1:0;
+    status.innerHTML='<span data-lang="zh-CN">'+I18N['zh-CN'].rStatus[s]+'</span><span data-lang="en-US" hidden>'+I18N['en-US'].rStatus[s]+'</span>';
+    status.querySelectorAll('[data-lang]').forEach(function(el){el.hidden=(el.getAttribute('data-lang')!==LANG);});
+    btns.forEach(function(b){b.classList.toggle('active',+b.dataset.w===w);});
+  }
+  btns.forEach(function(b){
+    b.addEventListener('click',function(){rRender(+b.dataset.w);});
+  });
+  rRender(1200);
+})();
+
+/* 暴露语言 API 给后续脚本 */
+window.__LC={setLang:setLang,LANG:function(){return LANG;}};
+})();
+</script>
+<script>
+/* ============ 演示 1.8 完整案例 ============ */
+(function(){
+  var site=document.getElementById('case-site');
+  if(!site)return;
+  var inner=document.getElementById('case-inner');
+  var feat=document.querySelector('.cs-feat'),grid=document.querySelector('.cs-grid');
+  var links=document.getElementById('cs-links'),heroTitle=document.querySelector('.cs-hero h3');
+
+  var PINS={
+    'pin-1':['对齐 + 一致性：Logo、链接、订阅按钮共享同一水平基准线；同类按钮样式统一。','Alignment + Consistency: logo, links, and the subscribe button share one horizontal baseline; one button style.'],
+    'pin-2':['层级 + 动线：眉标 → 主标题 → 摘要 → CTA；主标题最大最重，CTA 是唯一高对比实心按钮（Z 型动线右下角）。','Hierarchy + Flow: eyebrow → headline → summary → CTA; the headline is largest and heaviest, the CTA is the only solid high-contrast button (bottom-right of the Z).'],
+    'pin-3':['亲密性 + 对齐：三张栏目卡间距 24px，与首屏拉开 48px 区块间距；共享左基准线。','Proximity + Alignment: three section cards 24px apart, 48px of section spacing above; one shared left baseline.'],
+    'pin-4':['网格：12 列栅格中每卡占 4 列（三列布局）；断点处自动改为 2 列 / 1 列。','Grid: each card spans 4 of 12 columns (3-up); breakpoints switch it to 2-up / 1-up.'],
+    'pin-5':['留白 + 对比：深色引言条给页面一个呼吸停顿，与浅色区块形成强对比。','Whitespace + Contrast: the dark quote band gives the page a breathing pause, contrasting with the light blocks.'],
+    'pin-6':['一致性：页脚与导航同用深色系、同字号体系；信息层级退到最弱。','Consistency: the footer shares the dark palette and the same type scale; its hierarchy is the weakest.']
+  };
+  function renderPins(){
+    Object.keys(PINS).forEach(function(id,n){
+      var el=document.getElementById(id);
+      if(!el)return;
+      if(!el.querySelector('.pin')){
+        var p=document.createElement('span');
+        p.className='pin';p.textContent=n+1;
+        var tip=document.createElement('span');
+        tip.className='pin-tip';
+        el.appendChild(p);el.appendChild(tip);
+      }
+      el.querySelector('.pin-tip').textContent=PINS[id][__LC.LANG()==='zh-CN'?0:1];
+    });
+  }
+  window.renderPins=renderPins;
+  var devframe=document.getElementById('devframe');
+  var devwrap=document.querySelector('.wb-devwrap');
+  var DEVS={1200:[1200,800,-1],768:[768,1024,0.8],375:[375,812,1]};
+  var curDev=1200;
+  function fitScale(w){
+    var aw=devwrap.clientWidth-32;
+    var s=aw/w;
+    return (s>=0.45)?Math.min(1,s):1;
+  }
+  window.recalcDev=function(){
+    var d=DEVS[curDev]||DEVS[1200];
+    var s=d[2]<0?fitScale(d[0]):d[2];
+    devframe.style.setProperty('--s',s);
+  };
+  function reflowCase(w){
+    curDev=w;
+    var d=DEVS[w]||DEVS[1200];
+    var s=d[2]<0?fitScale(d[0]):d[2];
+    devframe.style.setProperty('--w',d[0]+'px');
+    devframe.style.setProperty('--h',d[1]+'px');
+    devframe.style.setProperty('--s',s);
+    inner.style.width=d[0]+'px';
+    site.scrollTop=0;
+    var cols=(w>=900)?3:(w>=600)?2:1;
+    feat.style.gridTemplateColumns='repeat('+cols+',1fr)';
+    grid.style.gridTemplateColumns='repeat('+cols+',1fr)';
+    links.style.display=(w>=640)?'flex':'none';
+    heroTitle.style.fontSize=(w<600)?'22px':'28px';
+    document.querySelectorAll('.case-head .demo-btn[data-w]').forEach(function(b){
+      b.classList.toggle('active',+b.dataset.w===w);
+    });
+  }
+  document.querySelectorAll('.case-head .demo-btn[data-w]').forEach(function(b){
+    b.addEventListener('click',function(){reflowCase(+b.dataset.w);});
+  });
+  var pinBtns=document.querySelectorAll('.case-pins');
+  pinBtns.forEach(function(b){
+    b.addEventListener('click',function(){
+      site.classList.toggle('pins-on');
+      var on=site.classList.contains('pins-on');
+      pinBtns.forEach(function(x){x.textContent=(on?'● ':'○ ')+(__LC.LANG()==='zh-CN'?'原则标注':'Annotations');});
+    });
+  });
+  renderPins();
+  reflowCase(1200);
+})();
+
+/* ============ 1.8 铺满桌面模式：真实视口宽度 + 原生全屏，全部交互保留 ============ */
+(function(){
+  var site=document.getElementById('case-site');
+  if(!site)return;
+  var inner=document.getElementById('case-inner');
+  var devframe=document.getElementById('devframe');
+  var insp=document.getElementById('wb-inspector');
+  var stage=document.querySelector('#ch-1-8 .wb-stage');
+  var fs=document.getElementById('cs-fs');
+  var bodyBox=document.getElementById('cs-fs-body');
+  var wOut=document.getElementById('cs-fs-w');
+  var prevOverflow='';
+
+  function zh(){return __LC.LANG()==='zh-CN';}
+  function visible(sel){
+    var els=document.querySelectorAll(sel);
+    for(var i=0;i<els.length;i++){if(!els[i].hidden&&els[i].offsetParent!==null)return els[i];}
+    return els[0]||null;
+  }
+  /* 按铺满容器的真实宽度重新排版（断点规则与 reflowCase 完全一致） */
+  function applyFluid(){
+    if(!fs.classList.contains('open'))return;
+    var w=bodyBox.clientWidth;
+    inner.style.width='100%';
+    var feat=inner.querySelector('.cs-feat');
+    var grid=inner.querySelector('.cs-grid');
+    var links=document.getElementById('cs-links');
+    var heroTitle=inner.querySelector('.cs-hero h3');
+    var cols=(w>=900)?3:(w>=600)?2:1;
+    if(feat)feat.style.gridTemplateColumns='repeat('+cols+',1fr)';
+    if(grid)grid.style.gridTemplateColumns='repeat('+cols+',1fr)';
+    if(links)links.style.display=(w>=640)?'flex':'none';
+    if(heroTitle)heroTitle.style.fontSize=(w<600)?'22px':'28px';
+    var layout=(w>=900)?(zh()?'三列布局':'3-up'):(w>=600)?(zh()?'两列布局':'2-up'):(zh()?'单列布局':'1-up');
+    wOut.textContent=(zh()?'实际宽度 ':'Actual width ')+w+'px · '+layout;
+    site.scrollTop=0;
+  }
+  /* 退出后把站点与 Token 面板放回设备框，并恢复当前档位 */
+  function cleanup(){
+    if(!fs.classList.contains('open'))return;
+    fs.classList.remove('open');
+    fs.setAttribute('aria-hidden','true');
+    document.body.classList.remove('cs-fs-lock');
+    document.body.style.overflow=prevOverflow;
+    devframe.appendChild(site);
+    if(insp&&stage){
+      insp.classList.remove('open');
+      stage.parentNode.insertBefore(insp,stage);
+    }
+    var tg=document.getElementById('tk-toggle');
+    if(tg)tg.classList.remove('active');
+    var act=document.querySelector('#ch-1-8 .case-head .demo-btn[data-w].active')
+        ||document.querySelector('#ch-1-8 .case-head .demo-btn[data-w="1200"]');
+    if(act)act.click();
+  }
+  function enter(){
+    if(fs.classList.contains('open'))return;
+    prevOverflow=document.body.style.overflow;
+    bodyBox.appendChild(site);
+    if(insp)fs.appendChild(insp);
+    fs.classList.add('open');
+    fs.removeAttribute('aria-hidden');
+    document.body.classList.add('cs-fs-lock');
+    document.body.style.overflow='hidden';
+    applyFluid();
+    try{
+      var p=fs.requestFullscreen&&fs.requestFullscreen();
+      if(p&&p.catch)p.catch(function(){});
+    }catch(e){/* 不支持或被拒绝时保留页面内铺满 */}
+  }
+  function leave(){
+    if(document.fullscreenElement===fs&&document.exitFullscreen){
+      var p=document.exitFullscreen();           /* fullscreenchange 会触发 cleanup */
+      if(p&&p.catch)p.catch(function(){});
+    }else{
+      cleanup();
+    }
+  }
+  document.querySelectorAll('#ch-1-8 .case-fs').forEach(function(b){
+    b.addEventListener('click',enter);
+  });
+  fs.querySelector('.fs-exit').addEventListener('click',leave);
+  document.addEventListener('keydown',function(e){
+    if(e.key==='Escape'&&fs.classList.contains('open')&&!document.fullscreenElement)cleanup();
+  });
+  document.addEventListener('fullscreenchange',function(){
+    if(document.fullscreenElement===fs){
+      setTimeout(applyFluid,120);
+    }else if(fs.classList.contains('open')){
+      cleanup();
+    }
+  });
+  window.addEventListener('resize',function(){
+    if(fs.classList.contains('open'))applyFluid();
+  });
+  /* 工具栏代理：复用原有四个创意工具的按钮，行为完全一致 */
+  fs.querySelectorAll('.fs-tool').forEach(function(b){
+    b.addEventListener('click',function(){
+      var target=null,key=b.dataset.proxy;
+      if(key==='tk')target=document.getElementById('tk-toggle');
+      else if(key==='a11y')target=visible('#ch-1-8 .case-a11y');
+      else if(key==='asm')target=visible('#ch-1-8 .case-asm');
+      else if(key==='pins')target=visible('#ch-1-8 .case-pins');
+      if(!target)return;
+      target.click();
+      if(key==='tk'&&insp&&insp.classList.contains('open')){
+        insp.style.left=Math.max(8,window.innerWidth-insp.offsetWidth-16)+'px';
+        insp.style.top='58px';
+      }
+    });
+  });
+})();
+
+/* ============ 创意扩展 ①：Design Token 实时编辑器 ============ */
+(function(){
+  var inner=document.getElementById('case-inner');
+  if(!inner)return;
+  var teal=document.getElementById('tk-teal'),ochre=document.getElementById('tk-ochre');
+  var rad=document.getElementById('tk-radius'),sp=document.getElementById('tk-space');
+  var code=document.getElementById('tk-code');
+  var oT=document.getElementById('tk-teal-o'),oO=document.getElementById('tk-ochre-o');
+  var oR=document.getElementById('tk-radius-o'),oS=document.getElementById('tk-space-o');
+  function h2r(h){return [parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];}
+  function r2h(r,g,b){
+    function x(v){v=Math.max(0,Math.min(255,Math.round(v)));return ('0'+v.toString(16)).slice(-2);}
+    return '#'+x(r)+x(g)+x(b);
+  }
+  function darken(h,f){var c=h2r(h);return r2h(c[0]*(1-f),c[1]*(1-f),c[2]*(1-f));}
+  function tint(h,f){var c=h2r(h);return r2h(c[0]+(255-c[0])*f,c[1]+(255-c[1])*f,c[2]+(255-c[2])*f);}
+  function hsl2hex(h,s,l){
+    s/=100;l/=100;
+    var k=function(n){return (n+h/30)%12;},a=s*Math.min(l,1-l);
+    var f=function(n){return l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));};
+    return r2h(f(0)*255,f(8)*255,f(4)*255);
+  }
+  function apply(){
+    var T=teal.value,O=ochre.value,R=+rad.value,S=(+sp.value)/100;
+    inner.style.setProperty('--teal',T);
+    inner.style.setProperty('--teal-d',darken(T,.2));
+    inner.style.setProperty('--teal-t',tint(T,.9));
+    inner.style.setProperty('--ochre',O);
+    inner.style.setProperty('--ochre-d',darken(O,.2));
+    inner.style.setProperty('--ochre-t',tint(O,.88));
+    inner.style.setProperty('--tk-radius',R+'px');
+    inner.style.setProperty('--tk-space',S);
+    oT.textContent=T;oO.textContent=O;oR.textContent=R+'px';oS.textContent=S.toFixed(2)+'×';
+    code.textContent=':root{\n  --teal:'+T+';  /* 主色 */\n  --ochre:'+O+';  /* 强调 */\n  --radius:'+R+'px;\n  --space:'+S.toFixed(2)+';\n}';
+    if(window.renderA11y)window.renderA11y();
+  }
+  [teal,ochre,rad,sp].forEach(function(el){el.addEventListener('input',apply);});
+  var PRESETS={
+    forest:{t:'#0f766e',o:'#c07f22',r:7,s:100},
+    persimmon:{t:'#b4412c',o:'#d97706',r:14,s:130},
+    inkjade:{t:'#37474f',o:'#8d6e2f',r:2,s:70}
+  };
+  document.querySelectorAll('[data-tk-preset]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var p=PRESETS[b.dataset.tkPreset];
+      teal.value=p.t;ochre.value=p.o;rad.value=p.r;sp.value=p.s;apply();
+    });
+  });
+  document.getElementById('tk-rand').addEventListener('click',function(){
+    teal.value=hsl2hex(150+Math.round(Math.random()*70),55,34);
+    ochre.value=hsl2hex(15+Math.round(Math.random()*45),62,42);
+    rad.value=[0,4,7,10,16,20][Math.floor(Math.random()*6)];
+    sp.value=60+Math.round(Math.random()*14)*10;
+    apply();
+  });
+  document.getElementById('tk-reset').addEventListener('click',function(){
+    teal.value=PRESETS.forest.t;ochre.value=PRESETS.forest.o;
+    rad.value=PRESETS.forest.r;sp.value=PRESETS.forest.s;apply();
+  });
+  apply();
+  var site2=document.getElementById('case-site');
+  var devf=document.getElementById('devframe');
+  var SPOT={
+    'tk-teal':'.cs-nav,.cs-cta,.cs-btn,.cs-logo,.cs-links a',
+    'tk-ochre':'.cs-hero > div[style],.cs-img',
+    'tk-radius':'.cs-cta,.cs-btn,.cs-btn2,.cf,.cs-card,.cs-quote,.cs-img',
+    'tk-space':'.cs-nav,.cs-hero,.cs-feat,.cs-grid,.cs-footer'
+  };
+  function spotOff(){inner.querySelectorAll('.tk-hl').forEach(function(e){e.classList.remove('tk-hl');});}
+  function spotOn(id){
+    spotOff();
+    var sel=SPOT[id]; if(!sel)return;
+    var els=inner.querySelectorAll(sel);
+    for(var i=0;i<els.length;i++){els[i].classList.add('tk-hl');}
+    var first=els[0];
+    if(first){
+      var sc=parseFloat(devf.style.getPropertyValue('--s'))||1;
+      var sr=site2.getBoundingClientRect(),er=first.getBoundingClientRect();
+      var dy=(er.top-sr.top-70)/sc;
+      if(dy<0||dy+er.height/sc>site2.clientHeight){site2.scrollTop+=dy;}
+    }
+  }
+  [teal,ochre,rad,sp].forEach(function(el){
+    el.addEventListener('mouseenter',function(){spotOn(el.id);});
+    el.addEventListener('focus',function(){spotOn(el.id);});
+    el.addEventListener('input',function(){spotOn(el.id);});
+    el.addEventListener('mouseleave',function(){spotOff();});
+    el.addEventListener('blur',function(){spotOff();});
+  });
+  var insp=document.getElementById('wb-inspector');
+  var tg=document.getElementById('tk-toggle');
+  var grip=insp?insp.querySelector('.te-grip'):null;
+  var closeBtn=insp?insp.querySelector('.te-close'):null;
+  var placed=false;
+  if(insp&&tg){
+    tg.addEventListener('click',function(){
+      if(!insp.classList.contains('open')){
+        if(!placed){
+          var wr=document.querySelector('.wb-devwrap');
+          var wb=wr?wr.getBoundingClientRect():null;
+          var pw=270,ph=450;
+          var left=wb?(wb.right+12):(window.innerWidth-pw-12);
+          left=Math.max(8,Math.min(left,window.innerWidth-pw-8));
+          var top=window.innerHeight-ph-12;
+          if(wb&&wb.top+ph<window.innerHeight-12){top=wb.top+8;}
+          top=Math.max(8,top);
+          insp.style.left=left+'px';insp.style.top=top+'px';
+          placed=true;
+        }
+        insp.classList.add('open');tg.classList.add('active');
+      }else{
+        insp.classList.remove('open');tg.classList.remove('active');
+      }
+    });
+  }
+  if(insp&&grip){
+    grip.addEventListener('mousedown',function(e){
+      e.preventDefault();
+      var sx=e.clientX,sy=e.clientY;
+      var ol=parseFloat(insp.style.left)||0,ot=parseFloat(insp.style.top)||0;
+      function mv(ev){
+        insp.style.left=Math.max(8,Math.min(ev.clientX-sx+ol,window.innerWidth-insp.offsetWidth-8))+'px';
+        insp.style.top=Math.max(8,Math.min(ev.clientY-sy+ot,window.innerHeight-insp.offsetHeight-8))+'px';
+      }
+      function up(){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);}
+      document.addEventListener('mousemove',mv);
+      document.addEventListener('mouseup',up);
+    });
+  }
+  if(closeBtn){
+    /* 阻止冒泡到标题栏的拖拽 mousedown，点叉号只关闭、不拖动 */
+    closeBtn.addEventListener('mousedown',function(e){e.stopPropagation();});
+    closeBtn.addEventListener('click',function(e){
+      e.stopPropagation();
+      if(insp.classList.contains('open')&&tg)tg.click();
+    });
+  }
+})();
+
+/* ============ 创意扩展 ②：无障碍审查浮层 ============ */
+(function(){
+  var site=document.getElementById('case-site');
+  if(!site)return;
+  var inner=document.getElementById('case-inner');
+  var summary=document.getElementById('a11y-summary');
+  var btns=[].slice.call(document.querySelectorAll('.case-a11y'));
+  var on=false;
+  function parseC(s){
+    var m=/rgba?\(([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)(?:[,\s/]+([\d.]+))?\)/.exec(s);
+    return m?{r:+m[1],g:+m[2],b:+m[3],a:(m[4]===undefined)?1:+m[4]}:null;
+  }
+  function chan(v){v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4);}
+  function lum(c){return .2126*chan(c.r)+.7152*chan(c.g)+.0722*chan(c.b);}
+  function bgOf(el){
+    var n=el;
+    while(n){
+      var c=parseC(getComputedStyle(n).backgroundColor);
+      if(c&&c.a>.85)return c;
+      n=n.parentElement;
+    }
+    return {r:255,g:255,b:255,a:1};
+  }
+  function ratio(f,b){var a=lum(f),c=lum(b);return (Math.max(a,c)+.05)/(Math.min(a,c)+.05);}
+  var TEXT='.cs-logo,#cs-links a,.cs-cta,.cs-hero h3,.cs-hero p,.cs-hero div[style],.cs-btn,.cs-btn2,.cs-stats span,.cf h5,.cf p,.cs-card h5,.cs-card p,.cs-quote,.cs-footer span';
+  var REGIONS=[
+    ['.cs-nav','区域 nav 导航','region nav'],
+    ['.cs-hero','区域 hero 首屏','region hero'],
+    ['.cs-feat','区域 section 栏目','region sections'],
+    ['.cs-grid','区域 section 文章栅格','region article grid'],
+    ['.cs-quote','区域 blockquote 引言','region quote'],
+    ['.cs-footer','区域 footer 页脚','region footer']
+  ];
+  function clearAll(){
+    inner.querySelectorAll('.a11y-badge').forEach(function(b){b.remove();});
+    inner.querySelectorAll('.a11y-target,.a11y-region').forEach(function(e){
+      e.classList.remove('a11y-target');e.classList.remove('a11y-region');
+    });
+    summary.style.display='none';
+  }
+  function audit(){
+    /* 先清掉上一轮徽章，避免切语言/改 token 后重复叠加 */
+    inner.querySelectorAll('.a11y-badge').forEach(function(b){b.remove();});
+    var zh=__LC.LANG()==='zh-CN';
+    var nText=0,nPass=0,nWarn=0,nFail=0,heads=0,skips=0,prevLv=0;
+    inner.querySelectorAll(TEXT).forEach(function(el){
+      var cs=getComputedStyle(el);
+      var fg=parseC(cs.color);
+      if(!fg)return;
+      var r=ratio(fg,bgOf(el));
+      var fs=parseFloat(cs.fontSize),fw=(+cs.fontWeight)||400;
+      var large=(fs>=24)||(fs>=18.66&&fw>=700);
+      var cls=(r>=4.5)?'pass':(r>=3?'warn':'fail');
+      if(cls==='pass')nPass++;else if(cls==='warn')nWarn++;else nFail++;
+      nText++;
+      el.classList.add('a11y-target');
+      var b=document.createElement('span');
+      b.className='a11y-badge '+cls;
+      b.textContent=r.toFixed(1)+':1'+(large?(zh?' 大字':' lg'):'');
+      el.appendChild(b);
+    });
+    inner.querySelectorAll('h3,h5').forEach(function(el){
+      heads++;
+      var lv=+el.tagName[1];
+      var skip=prevLv&&(lv>prevLv+1);
+      if(skip)skips++;
+      el.classList.add('a11y-target');
+      var b=document.createElement('span');
+      b.className='a11y-badge hd '+(skip?'fail':'region');
+      b.textContent=(skip?'⚠H':'H')+lv;
+      el.appendChild(b);
+      prevLv=lv;
+    });
+    REGIONS.forEach(function(rg){
+      var el=inner.querySelector(rg[0]);
+      if(!el)return;
+      el.classList.add('a11y-region');
+      var b=document.createElement('span');
+      b.className='a11y-badge region';
+      b.textContent=zh?rg[1]:rg[2];
+      el.appendChild(b);
+    });
+    summary.style.display='block';
+    summary.innerHTML=zh
+      ?('审查结果：文字 <b>'+nText+'</b> 处 · 对比度达标 '+nPass+' / 偏低 '+nWarn+' / 不足 '+nFail+' ｜ 标题 '+heads+' 个 · 跳级 '+skips+' 处（H3→H5）｜ 橙框 = 语义区域')
+      :('Audit: <b>'+nText+'</b> text items — '+nPass+' pass / '+nWarn+' borderline / '+nFail+' fail ｜ '+heads+' headings, '+skips+' level skip (H3→H5) ｜ amber frame = semantic region');
+  }
+  window.renderA11y=function(){
+    var zh=__LC.LANG()==='zh-CN';
+    btns.forEach(function(b){
+      b.classList.toggle('active',on);
+      b.textContent=(on?'◉ ':'◎ ')+(zh?'无障碍审查':'A11y Audit');
+    });
+    if(on)audit();else clearAll();
+  };
+  btns.forEach(function(b){b.addEventListener('click',function(){on=!on;site.classList.toggle('a11y-on',on);window.renderA11y();});});
+})();
+
+/* ============ 创意扩展 ③：分步组装 ============ */
+(function(){
+  var inner=document.getElementById('case-inner');
+  if(!inner)return;
+  var btns=[].slice.call(document.querySelectorAll('.case-asm'));
+  if(!btns.length)return;
+  var st=document.getElementById('asm-status');
+  var STEPS=[
+    ['.cs-nav',['骨架 · 导航（1.1 需求 → 1.3 栅格）','Skeleton · nav (1.1 requirements → 1.3 grid)']],
+    ['.cs-hero',['层级 · 首屏（1.2 层级 + 1.4 动线）','Hierarchy · hero (1.2 + 1.4 flow)']],
+    ['.cs-feat',['亲密性 · 三栏目（1.5 间距分组）','Proximity · sections (1.5 grouping)']],
+    ['.cs-grid',['网格 · 文章卡（1.3 十二列栅格）','Grid · article cards (1.3 12-col)']],
+    ['.cs-quote',['留白 · 引言停顿（1.5 留白）','Whitespace · quote pause (1.5)']],
+    ['.cs-footer',['一致性 · 页脚（1.2 重复复用）','Consistency · footer (1.2 repetition)']]
+  ];
+  var busy=false;
+  function idleText(){
+    var zh=__LC.LANG()==='zh-CN';
+    btns.forEach(function(b){
+      b.disabled=false;b.classList.remove('active');
+      b.textContent='▶ '+(zh?'分步组装':'Build step-by-step');
+    });
+  }
+  function run(){
+    if(busy)return;
+    busy=true;
+    var zh=__LC.LANG()==='zh-CN';
+    btns.forEach(function(b){b.disabled=true;b.textContent=zh?'组装中…':'Building…';});
+    var els=STEPS.map(function(s){return inner.querySelector(s[0]);});
+    els.forEach(function(e){e.classList.add('cs-anim');e.classList.remove('cs-in');});
+    st.style.display='block';
+    var i=0;
+    (function step(){
+      if(i>=els.length){
+        els.forEach(function(e){e.classList.remove('cs-anim');e.classList.remove('cs-in');});
+        st.textContent=zh?'✓ 组装完成 —— 六个原则全部就位':'✓ Assembled — all six principles in place';
+        idleText();busy=false;
+        return;
+      }
+      els[i].classList.add('cs-in');
+      st.textContent=(zh?'第 '+(i+1)+' 步 · ':'Step '+(i+1)+' · ')+STEPS[i][1][zh?0:1];
+      i++;
+      setTimeout(step,700);
+    })();
+  }
+  btns.forEach(function(b){b.addEventListener('click',run);});
+  idleText();
+  window.renderAsm=idleText;
+})();
+
+/* ============ 创意扩展 ④：1.9 案例布局找茬 ============ */
+(function(){
+  var scene=document.getElementById('crime-scene');
+  if(!scene)return;
+  var scoreEl=document.getElementById('crime-score');
+  var banner=document.getElementById('crime-banner');
+  var log=document.getElementById('crime-log');
+  var CRIMES={
+    c1:{zh:['层级塌陷','主标题 15.5px 和正文一样大，第一眼没有落点。修复：标题 21px+ / 900 字重，建立 2–3 级字号差。'],
+        en:['Flat hierarchy','The 15.5px headline is no bigger than body text. Fix: 21px+ / weight 900; build 2–3 type levels.']},
+    c2:{zh:['对齐混乱','一段文字突然居中，打破了全站左基准线。修复：全站统一一种对齐。'],
+        en:['Broken alignment','One centered paragraph breaks the shared left baseline. Fix: lock one alignment site-wide.']},
+    c3:{zh:['对比不足','#c9d3cd 浅灰字压白底，对比度仅约 2.1:1。修复：正文 ≥4.5:1（用 1.7 的审查工具验证）。'],
+        en:['Low contrast','#c9d3cd on white is ≈2.1:1. Fix: body text ≥4.5:1 (verify with the 1.7 audit tool).']},
+    c4:{zh:['亲密性断裂','「开始阅读」离它的介绍 34px，读起来像两个组。修复：相关元素 ≤8px。'],
+        en:['Broken proximity','The CTA floats 34px below its own intro. Fix: ≤8px between related items.']},
+    c5:{zh:['留白不足','卡片内边距只有 2px，文字贴边，页面显得拥挤廉价。修复：内边距 12–16px。'],
+        en:['No whitespace','2px card padding — text hugs the edges. Fix: 12–16px padding.']},
+    c6:{zh:['一致性破坏','三个按钮三种圆角、三种颜色、三种字号。修复：一类组件一套样式，token 复用。'],
+        en:['Broken consistency','Three buttons with three radii, colors and sizes. Fix: one style per component, reuse tokens.']}
+  };
+  var ORDER=['c1','c2','c3','c4','c5','c6'];
+  var found={},wrong=0,hints=0,t0=0,done=false;
+  function zh(){return __LC.LANG()==='zh-CN';}
+  function renderLog(){
+    var z=zh(),f=ORDER.filter(function(k){return found[k];}).length;
+    scoreEl.textContent=z
+      ?('已找出 '+f+' / 6 处 · 误点 '+wrong+' 次 · 提示 '+hints+' 次')
+      :(f+' / 6 found · '+wrong+' wrong clicks · '+hints+' hints');
+    log.innerHTML=ORDER.map(function(k,i){
+      var c=CRIMES[k][z?'zh':'en'];
+      return found[k]
+        ?('<div class="crime-slot hit"><b>✕ '+(i+1)+' · '+c[0]+'</b><br>'+c[1]+'</div>')
+        :('<div class="crime-slot">'+(z?('第 '+(i+1)+' 处罪行 · 未找到'):('Crime No.'+(i+1)+' · not found'))+'</div>');
+    }).join('');
+    if(done){
+      var sec=Math.max(1,Math.round((Date.now()-t0)/1000));
+      banner.textContent=z
+        ?('全部找齐！用时 '+sec+' 秒 · 误点 '+wrong+' 次 —— 交作业前，用这六条先自查一遍。')
+        :('All six found in '+sec+'s with '+wrong+' wrong clicks — run these six checks on your own page before shipping.');
+      banner.classList.add('show');
+    }
+  }
+  window.renderCrime=renderLog;
+  scene.addEventListener('click',function(e){
+    if(done)return;
+    if(!t0)t0=Date.now();
+    var el=e.target.closest?e.target.closest('.ce'):null;
+    if(el){
+      if(!found[el.dataset.crime]){
+        found[el.dataset.crime]=true;
+        el.classList.add('found');
+        renderLog();
+        if(ORDER.every(function(k){return found[k];})){done=true;renderLog();}
+      }
+      return;
+    }
+    if(e.target.closest&&e.target.closest('.crime-page')){
+      wrong++;
+      var x=e.target;
+      x.classList.add('nope');
+      setTimeout(function(){x.classList.remove('nope');},500);
+      renderLog();
+    }
+  });
+  document.getElementById('crime-reset').addEventListener('click',function(){
+    found={};wrong=0;hints=0;t0=0;done=false;
+    scene.classList.remove('cleared');
+    scene.querySelectorAll('.ce.found').forEach(function(e){e.classList.remove('found');});
+    banner.classList.remove('show');
+    renderLog();
+  });
+  document.getElementById('crime-hint').addEventListener('click',function(){
+    if(done)return;
+    var un=ORDER.filter(function(k){return !found[k];});
+    if(!un.length)return;
+    hints++;
+    var el=scene.querySelector('[data-crime="'+un[Math.floor(Math.random()*un.length)]+'"]');
+    el.classList.add('hinting');
+    setTimeout(function(){el.classList.remove('hinting');},2100);
+    renderLog();
+  });
+  renderLog();
+})();
+
+/* ============ 初始化语言状态 ============ */
+__LC.setLang('zh-CN');
+
+</script>
+
+</body>
+</html>
+<!-- （注：内容由AI生成） -->
