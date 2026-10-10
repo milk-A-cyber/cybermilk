@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>人工智能 · 新质生产力的核心引擎</title>
+    <link rel="stylesheet" href="styles.css?v=20261010f">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@500;600;700&family=Noto+Sans+SC:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"></script>
+    <script>/* 渐进增强：JS 可用才启用滚动入场动画，否则内容默认可见 */document.documentElement.classList.add('js-reveal');</script>
+</head>
+<body>
+    <!-- 顶部导航：5 大模块 -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-logo">
+            <span class="logo-icon">AI</span>
+            <span class="logo-text">新质生产力</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="#hero" class="active">引言</a></li>
+            <li><a href="#connotation">内涵</a></li>
+            <li><a href="#roles">作用</a></li>
+            <li><a href="#significance">意义</a></li>
+            <li><a href="#future">展望</a></li>
+        </ul>
+        <div class="nav-progress"><div class="nav-progress-bar" id="navProgressBar"></div></div>
+    </nav>
+
+    <!-- 右侧叙事进度 dots -->
+    <div class="side-dots" id="sideDots">
+        <a href="#hero" class="sd active" data-label="引言 · 时代命题"><span class="sd-dot"></span></a>
+        <a href="#connotation" class="sd" data-label="核心内涵 · 新在何处"><span class="sd-dot"></span></a>
+        <a href="#roles" class="sd" data-label="核心作用 · 四大力量"><span class="sd-dot"></span></a>
+        <a href="#significance" class="sd" data-label="时代意义 · 战略制高点"><span class="sd-dot"></span></a>
+        <a href="#future" class="sd" data-label="未来展望 · 人工智能+"><span class="sd-dot"></span></a>
+    </div>
+
+    <!-- ========== 模块 1 · 开篇引言（首屏） ========== -->
+    <section id="hero" class="hero-section">
+        <canvas id="particleCanvas"></canvas>
+        <div class="hero-bg-gradient"></div>
+        <div class="hero-content">
+            <div class="hero-tag"><span class="tag-pulse"></span>2026 · 深入实施「人工智能+」行动</div>
+            <h1 class="hero-title">
+                <span class="title-line line-1 gradient-text">人工智能</span>
+                <span class="title-line line-2">是新时代<span class="grad-inline">新质生产力</span>的核心引擎</span>
+            </h1>
+            <p class="hero-subtitle">国家深入实施「人工智能+」行动 —— AI 正在重塑生产、生活与竞争格局</p>
+            <div class="hero-typing" id="heroTyping"></div>
+
+            <div class="hero-stats">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="15000" data-suffix="亿">0</div>
+                    <div class="stat-label">2030年AI市场规模(美元)</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="40" data-suffix="%">0</div>
+                    <div class="stat-label">全球GDP贡献潜力</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="97" data-suffix="万">0</div>
+                    <div class="stat-label">新增高质量就业岗位</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="10" data-suffix="×">0</div>
+                    <div class="stat-label">科研效率提升倍数</div>
+                </div>
+            </div>
+            <div class="scroll-indicator">
+                <div class="mouse"><div class="wheel"></div></div>
+                <span>是什么 → 新在哪 → 有何用 → 为何重要 → 走向何方</span>
+            </div>
+        </div>
+        <!-- 数据跑马灯（首屏底部） -->
+        <div class="ticker hero-ticker"><div class="ticker-track" id="tickerTrack"></div></div>
+    </section>
+
+    <!-- ========== 模块 2 · 核心内涵（三新） ========== -->
+    <section id="connotation" class="narrative-section">
+        <div class="section-header">
+            <h2 class="section-title">AI 新质生产力<span class="accent">「三新」</span></h2>
+            <p class="section-desc">技术革命性突破、生产要素创新性配置、产业深度转型升级，共同催生当代先进生产力</p>
+        </div>
+
+        <div class="definition-grid tri-grid">
+            <div class="def-card" data-card="1">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="card-icon">🧠</div>
+                        <h3>技术新</h3>
+                        <p>大模型、大数据、先进算法与智能硬件构成核心技术群</p>
+                    </div>
+                    <div class="card-back">
+                        <div class="card-icon">⚡</div>
+                        <h3>智能涌现</h3>
+                        <p>大模型从感知走向认知与生成，具身智能让 AI 走出屏幕、作用于物理世界</p>
+                    </div>
+                </div>
+            </div>
+            <div class="def-card" data-card="2">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="card-icon">💾</div>
+                        <h3>要素新</h3>
+                        <p>数据成为继土地、劳动、资本、技术之后的全新生产要素</p>
+                    </div>
+                    <div class="card-back">
+                        <div class="card-icon">📊</div>
+                        <h3>数据石油</h3>
+                        <p>数据可复制、非稀缺、越用越增值，与算力、算法融合裂变出乘数效应</p>
+                    </div>
+                </div>
+            </div>
+            <div class="def-card" data-card="3">
+                <div class="card-inner">
+                    <div class="card-front">
+                        <div class="card-icon">🌱</div>
+                        <h3>模式新</h3>
+                        <p>智能化、高效化、绿色化、创新驱动的发展新模式</p>
+                    </div>
+                    <div class="card-back">
+                        <div class="card-icon">♻️</div>
+                        <h3>范式跃迁</h3>
+                        <p>数据驱动替代经验决策，AI 优化能源与碳排，创新从线性走向指数</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 三角底座：与"技术新"呼应 -->
+        <div class="triangle-caption reveal">智能生产力的三角底座 —— 三大支点缺一不可，悬停查看</div>
+        <div class="definition-triangle">
+            <div class="triangle-node" data-tip="算力 · 新基础设施">算力</div>
+            <div class="triangle-node" data-tip="算法 · 新生产工具">算法</div>
+            <div class="triangle-node" data-tip="数据 · 新生产要素">数据</div>
+            <div class="triangle-center">新质生产力</div>
+        </div>
+
+        <!-- 传统 vs 新质 对比面板 -->
+        <div class="vs-panel reveal">
+            <div class="vs-col vs-old">
+                <h4>传统生产力</h4>
+                <ul>
+                    <li>要素：土地、劳动力、资本</li>
+                    <li>动力：蒸汽、电力、化石能源</li>
+                    <li>工艺：机械化、标准化流水线</li>
+                    <li>增长：规模扩张、线性增长</li>
+                    <li>特征：高投入、高消耗、高排放</li>
+                </ul>
+            </div>
+            <div class="vs-mid"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+            <div class="vs-col vs-new">
+                <h4>新质生产力</h4>
+                <ul>
+                    <li>要素：<b>数据、知识、算法</b><span>数据成为新型生产要素</span></li>
+                    <li>动力：<b>算力 + 清洁能源</b><span>智算成为新型基础设施</span></li>
+                    <li>工艺：<b>智能模型、自动化决策</b><span>算法即新型工艺</span></li>
+                    <li>增长：<b>指数扩张、跃迁式</b><span>网络效应与涌现能力</span></li>
+                    <li>特征：<b>低边际成本、强外部性</b><span>赋能千行百业</span></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- 词云 + 备案增长 -->
+        <div class="cloud-models-row">
+            <div class="chart-card reveal">
+                <div class="ch-title">关键词云 · 新质生产力图谱</div>
+                <div id="cloudChart" class="chart-box" style="height:360px"></div>
+            </div>
+            <div class="chart-card reveal">
+                <div class="ch-title">生成式 AI 服务备案增长</div>
+                <div class="ch-sub">2024 年末 → 2025 年末 · 累计 748 款</div>
+                <div id="modelsChart" class="chart-box" style="height:360px"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== 模块 3 · 核心作用（四大作用 · 纵向章节） ========== -->
+    <section id="roles" class="narrative-section">
+        <div class="section-header">
+            <h2 class="section-title">重塑生产与生活的<span class="accent">四大力量</span></h2>
+            <p class="section-desc">每个论点之下，都挂着可查证的数据证据 —— 这不是口号，而是正在发生的事实</p>
+        </div>
+
+        <!-- 作用 ① 赋能产业升级 -->
+        <div class="role-chapter reveal" data-role="01">
+            <div class="role-head">
+                <div class="role-no">01</div>
+                <div class="role-heading">
+                    <h3>赋能产业升级</h3>
+                    <p class="claim">改造传统产业、催生新业态、提升生产效率 —— 从车间到田间，没有一个行业置身事外</p>
+                </div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 1·1</span><h4>产业体量：万亿级市场高速扩张</h4></div>
+                <div class="market-container">
+                    <div class="market-controls">
+                        <button class="ctrl-btn active" data-view="global">全球市场</button>
+                        <button class="ctrl-btn" data-view="china">中国市场</button>
+                        <button class="ctrl-btn" data-view="investment">投资规模</button>
+                    </div>
+                    <div id="marketChart" class="chart-box" style="height:520px"></div>
+                    <div class="market-insight">
+                        <div class="insight-card">
+                            <div class="insight-value" id="cagrValue">38.1%</div>
+                            <div class="insight-label">年复合增长率(CAGR)</div>
+                        </div>
+                        <div class="insight-card">
+                            <div class="insight-value" id="multiplierValue">50×</div>
+                            <div class="insight-label">10年增长倍数</div>
+                        </div>
+                        <div class="insight-card">
+                            <div class="insight-value" id="peakValue">$1.5T</div>
+                            <div class="insight-label">2030预测规模</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 1·2</span><h4>渗透广度：六大行业深度重构（点击行业切换雷达）</h4></div>
+                <div class="industry-layout">
+                    <div class="industry-list">
+                        <div class="industry-item active" data-industry="manufacturing">
+                            <span class="ind-icon">🏭</span>
+                            <div class="ind-info">
+                                <h4>智能制造</h4>
+                                <p>预测性维护、质检自动化、柔性生产</p>
+                            </div>
+                            <div class="ind-stat">效率+45%</div>
+                        </div>
+                        <div class="industry-item" data-industry="healthcare">
+                            <span class="ind-icon">⚕️</span>
+                            <div class="ind-info">
+                                <h4>智慧医疗</h4>
+                                <p>影像诊断、药物研发、个性化治疗</p>
+                            </div>
+                            <div class="ind-stat">诊断+35%</div>
+                        </div>
+                        <div class="industry-item" data-industry="finance">
+                            <span class="ind-icon">💰</span>
+                            <div class="ind-info">
+                                <h4>智能金融</h4>
+                                <p>风控建模、量化交易、智能投顾</p>
+                            </div>
+                            <div class="ind-stat">成本-50%</div>
+                        </div>
+                        <div class="industry-item" data-industry="agriculture">
+                            <span class="ind-icon">🌾</span>
+                            <div class="ind-info">
+                                <h4>智慧农业</h4>
+                                <p>精准种植、病虫害识别、产量预测</p>
+                            </div>
+                            <div class="ind-stat">产量+30%</div>
+                        </div>
+                        <div class="industry-item" data-industry="education">
+                            <span class="ind-icon">📚</span>
+                            <div class="ind-info">
+                                <h4>智能教育</h4>
+                                <p>个性化学习、智能批改、知识图谱</p>
+                            </div>
+                            <div class="ind-stat">效率+60%</div>
+                        </div>
+                        <div class="industry-item" data-industry="transport">
+                            <span class="ind-icon">🚛</span>
+                            <div class="ind-info">
+                                <h4>智慧交通</h4>
+                                <p>自动驾驶、路径优化、智能调度</p>
+                            </div>
+                            <div class="ind-stat">事故-70%</div>
+                        </div>
+                    </div>
+                    <div id="radarChart" class="chart-box" style="height:600px"></div>
+                </div>
+                <div class="tab-sub">实线＝该行业 AI 赋能后的能力水平 · 虚线＝无 AI 的传统模式基准</div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 1·3</span><h4>技术→产业映射：六大技术如何流向八大行业（点击桑基产业节点联动热力图）</h4></div>
+                <div class="tab-bar">
+                    <button class="tab-btn active" data-tab="sankey">技术→产业桑基</button>
+                    <button class="tab-btn" data-tab="heat">行业×职能热力</button>
+                    <button class="tab-btn" data-tab="eff">效率/成本对比</button>
+                </div>
+                <div class="tab-pane on" id="tab-sankey">
+                    <div id="techSankey" class="chart-box" style="height:460px"></div>
+                    <div class="tab-sub" id="sankeySub">点击桑基图产业节点 → 联动右侧热力图</div>
+                </div>
+                <div class="tab-pane" id="tab-heat">
+                    <div id="heatChart" class="chart-box" style="height:460px"></div>
+                    <div class="tab-sub">纵轴=行业 · 横轴=职能 · 颜色深浅=渗透率</div>
+                </div>
+                <div class="tab-pane" id="tab-eff">
+                    <div class="eff-dual">
+                        <div id="effChart" class="chart-box" style="height:400px"></div>
+                        <div id="costChart" class="chart-box" style="height:400px"></div>
+                    </div>
+                    <div class="tab-sub">左：生产效率提升 % · 右：运营成本下降 %（虚线=均值）</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 作用 ② 重塑生产要素 -->
+        <div class="role-chapter reveal" data-role="02">
+            <div class="role-head">
+                <div class="role-no">02</div>
+                <div class="role-heading">
+                    <h3>重塑生产要素</h3>
+                    <p class="claim">数据驱动决策、算力重构基础、全要素生产率跃升 —— 突破传统增长的资源与人力瓶颈</p>
+                </div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 2·1</span><h4>生产要素的演进：数据登上历史舞台</h4></div>
+                <div class="factor-evolution">
+                    <div class="factor-era"><span class="fe-name">农业时代</span><span class="fe-item">土地</span><span class="fe-item">劳动</span></div>
+                    <div class="factor-arrow">→</div>
+                    <div class="factor-era"><span class="fe-name">工业时代</span><span class="fe-item">资本</span><span class="fe-item">技术</span></div>
+                    <div class="factor-arrow">→</div>
+                    <div class="factor-era factor-now"><span class="fe-name">智能时代</span><span class="fe-item fe-highlight">数据 × 算力 × 算法</span></div>
+                </div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 2·2</span><h4>算力即新石油：AI 算力需求的指数级膨胀（对数轴）</h4></div>
+                <div class="compute-layout">
+                    <div id="computeChart" class="chart-box" style="height:480px"></div>
+                    <div class="compute-info">
+                        <h3>算力三定律</h3>
+                        <div class="law-item">
+                            <div class="law-num">01</div>
+                            <div class="law-text">
+                                <h4>规模定律</h4>
+                                <p>算力、数据、参数呈规模扩展，能力涌现质变</p>
+                            </div>
+                        </div>
+                        <div class="law-item">
+                            <div class="law-num">02</div>
+                            <div class="law-text">
+                                <h4>能源定律</h4>
+                                <p>算力即电力，AI发展与新能源深度耦合</p>
+                            </div>
+                        </div>
+                        <div class="law-item">
+                            <div class="law-num">03</div>
+                            <div class="law-text">
+                                <h4>主权定律</h4>
+                                <p>算力主权即国家主权，万卡集群成战略资产</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 2·3</span><h4>东数西算：八大枢纽的算力调度版图</h4></div>
+                <div class="map-gauge-row">
+                    <div id="chinaMap" class="chart-box" style="height:460px"></div>
+                    <div id="mapFallback" class="chart-box" style="height:460px;display:none"></div>
+                    <div id="gaugeChart" class="chart-box" style="height:460px"></div>
+                </div>
+                <div class="tfp-cards">
+                    <div class="tfp-card"><div class="tfp-num">159<span>万PFlops</span></div><div class="tfp-lbl">2025 年底中国智能算力</div><p>全球第二 · 八大枢纽集聚 80%+</p></div>
+                    <div class="tfp-card"><div class="tfp-num">748<span>款</span></div><div class="tfp-lbl">生成式 AI 服务备案</div><p>2025 年末累计 · 同比 +147%</p></div>
+                    <div class="tfp-card"><div class="tfp-num">5.15<span>亿人</span></div><div class="tfp-lbl">生成式 AI 用户规模</div><p>从工具到伙伴 · 普惠渗透</p></div>
+                </div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 2·4</span><h4>要素×产业关系网络：数据、算力、算法、人才如何赋能八大行业（可拖动 · 点击产业节点高亮下方对比）</h4></div>
+                <div id="forceChart" class="chart-box" style="height:520px"></div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 2·5</span><h4>全要素生产率：八行业多维度平行对比（框选 brush 筛选）</h4></div>
+                <div id="parallelChart" class="chart-box" style="height:440px"></div>
+                <div class="tab-sub" id="parallelSub">每条线=一个行业 · 点击上方关系网络的产业节点可高亮 · 拖拽框选可筛选 · 悬停查看明细</div>
+            </div>
+        </div>
+
+        <!-- 作用 ③ 守护发展安全（新建可视化） -->
+        <div class="role-chapter reveal" data-role="03">
+            <div class="role-head">
+                <div class="role-no">03</div>
+                <div class="role-heading">
+                    <h3>守护发展安全</h3>
+                    <p class="claim">增强产业链供应链韧性、筑牢数据安全防线 —— 统筹发展和安全，行稳方能致远</p>
+                </div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 3·1</span><h4>韧性之辨：同一场外部冲击下，两种供应链的恢复曲线</h4></div>
+                <div id="securityChart" class="chart-box" style="height:460px"></div>
+                <div class="security-stats">
+                    <div class="sec-stat">
+                        <div class="sec-num">90<span class="sec-unit">天</span></div>
+                        <div class="sec-label">产业链风险智能预警提前期</div>
+                        <p>多源数据推演断点风险，从"事后补救"到"事前布局"</p>
+                    </div>
+                    <div class="sec-stat">
+                        <div class="sec-num">99.9<span class="sec-unit">%</span></div>
+                        <div class="sec-label">关键基础设施攻击拦截率</div>
+                        <p>AI 威胁感知 7×24 小时值守，毫秒级识别异常流量</p>
+                    </div>
+                    <div class="sec-stat">
+                        <div class="sec-num">-65<span class="sec-unit">%</span></div>
+                        <div class="sec-label">数据安全事件响应时长</div>
+                        <p>自动化溯源与处置，把损失锁定在萌芽阶段</p>
+                    </div>
+                    <div class="sec-stat">
+                        <div class="sec-num">4<span class="sec-unit">道防线</span></div>
+                        <div class="sec-label">芯片 · 网络 · 产业链 · 数据</div>
+                        <p>自主可控与智能防护叠加，构建国家安全新屏障</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 作用 ④ 服务社会民生 -->
+        <div class="role-chapter reveal" data-role="04">
+            <div class="role-head">
+                <div class="role-no">04</div>
+                <div class="role-heading">
+                    <h3>服务社会民生</h3>
+                    <p class="claim">智慧教育、智慧医疗、智慧治理、乡村振兴 —— 让技术红利跨越山海，促进公平普惠</p>
+                </div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 4·1</span><h4>民生四境：AI 抵达的每个日常</h4></div>
+                <div class="livelihood-grid">
+                    <div class="live-card">
+                        <div class="live-icon">📚</div>
+                        <h4>智慧教育</h4>
+                        <p>AI 导师因材施教，优质课程通过一块屏幕抵达偏远课堂</p>
+                        <div class="live-num">5 亿+ 学习者受益</div>
+                    </div>
+                    <div class="live-card">
+                        <div class="live-icon">🏥</div>
+                        <h4>智慧医疗</h4>
+                        <p>AI 辅助影像诊断下沉县域医院，基层也有"三甲水平"</p>
+                        <div class="live-num">影像筛查准确率 95%+</div>
+                    </div>
+                    <div class="live-card">
+                        <div class="live-icon">🏙</div>
+                        <h4>智慧治理</h4>
+                        <p>城市运行"一网统管"，交通、能耗、应急实时联动</p>
+                        <div class="live-num">事件处置效率 +80%</div>
+                    </div>
+                    <div class="live-card">
+                        <div class="live-icon">🌾</div>
+                        <h4>乡村振兴</h4>
+                        <p>智能农机、病虫害识别与电商助农，培育"数字新农人"</p>
+                        <div class="live-num">示范田单产 +30%</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="evidence">
+                <div class="ev-title"><span class="ev-tag">证据 4·2</span><h4>就业是最大的民生：旧岗位转型、新岗位涌现的流向（悬停查看流量）</h4></div>
+                <div id="sankeyChart" class="chart-box" style="height:560px"></div>
+                <div class="jobs-stats">
+                    <div class="job-stat card-red">
+                        <div class="job-number">8500万</div>
+                        <div class="job-label">被替代岗位</div>
+                        <div class="job-detail">主要为重复性、规则化工作</div>
+                    </div>
+                    <div class="job-stat card-green">
+                        <div class="job-number">9700万</div>
+                        <div class="job-label">新增岗位</div>
+                        <div class="job-detail">AI训练师、伦理专家、提示工程师等</div>
+                    </div>
+                    <div class="job-stat card-blue">
+                        <div class="job-number">+1200万</div>
+                        <div class="job-label">净增就业</div>
+                        <div class="job-detail">高质量、高技能岗位占主体</div>
+                    </div>
+                    <div class="job-stat card-gold">
+                        <div class="job-number">44%</div>
+                        <div class="job-label">技能重塑比例</div>
+                        <div class="job-detail">未来5年核心技能将发生变化</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== 模块 4 · 时代意义（四重升华） ========== -->
+    <section id="significance" class="narrative-section">
+        <div class="section-header">
+            <h2 class="section-title">为什么说它是<span class="accent">战略制高点</span></h2>
+            <p class="section-desc">AI 新质生产力的意义不止于经济账本，更关乎科技命运、大国位势与现代化道路</p>
+        </div>
+
+        <!-- 意义 1 · 经济 -->
+        <div class="sig-block reveal" data-sig="01">
+            <div class="sig-head"><span class="sig-no">壹</span><h3>经济意义 · 新旧动能转换</h3></div>
+            <p class="sig-text">人工智能撬动高质量发展：传统要素驱动的老路让位于创新驱动的新途，数字经济成为经济增长的主引擎。</p>
+            <div class="kinetic-wrap">
+                <div class="kinetic-row">
+                    <span class="kr-label">数字经济占 GDP 比重</span>
+                    <div class="kr-bars">
+                        <div class="kr-bar"><div class="bar-fill old" data-width="38%"></div><span>2020 · 38%</span></div>
+                        <div class="kr-bar"><div class="bar-fill" data-width="52%"></div><span>2025 · 超 50%</span></div>
+                    </div>
+                </div>
+                <div class="kinetic-row">
+                    <span class="kr-label">高技术制造业占规模以上工业</span>
+                    <div class="kr-bars">
+                        <div class="kr-bar"><div class="bar-fill old" data-width="15%"></div><span>2020 · 15%</span></div>
+                        <div class="kr-bar"><div class="bar-fill" data-width="20%"></div><span>2025 · 20%</span></div>
+                    </div>
+                </div>
+                <div class="kinetic-row">
+                    <span class="kr-label">战略性新兴产业增加值占比</span>
+                    <div class="kr-bars">
+                        <div class="kr-bar"><div class="bar-fill old" data-width="12%"></div><span>2020 · 约 12%</span></div>
+                        <div class="kr-bar"><div class="bar-fill" data-width="17%"></div><span>2025 · 约 17%</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card reveal" style="margin-top:24px">
+                <div class="ch-title">2030 年 AI 对各区域 GDP 增量贡献</div>
+                <div class="ch-sub">单位：万亿美元 · 虚线=全球合计 15.7 万亿</div>
+                <div id="gdpChart" class="chart-box" style="height:380px"></div>
+            </div>
+        </div>
+
+        <!-- 意义 2 · 科技 -->
+        <div class="sig-block reveal" data-sig="02">
+            <div class="sig-head"><span class="sig-no">贰</span><h3>科技意义 · 实现高水平科技自立自强</h3></div>
+            <p class="sig-text">七十年 AI 征程提示我们：核心技术等不来、买不来。抢占人工智能这个科技制高点，就是把创新主动权握在自己手里。</p>
+            <div class="timeline-container">
+                <div class="timeline-line"></div>
+                <div class="timeline-item left" data-year="1956">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-year">1956</span>
+                        <h3>达特茅斯会议</h3>
+                        <p>"人工智能"一词首次提出，AI作为独立学科诞生</p>
+                    </div>
+                </div>
+                <div class="timeline-item right" data-year="1997">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-year">1997</span>
+                        <h3>深蓝胜卡斯帕罗夫</h3>
+                        <p>IBM深蓝击败国际象棋世界冠军，符号AI巅峰</p>
+                    </div>
+                </div>
+                <div class="timeline-item left" data-year="2012">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-year">2012</span>
+                        <h3>AlexNet革命</h3>
+                        <p>深度学习在ImageNet大赛中以巨大优势夺冠，开启DL时代</p>
+                    </div>
+                </div>
+                <div class="timeline-item right" data-year="2016">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-year">2016</span>
+                        <h3>AlphaGo胜李世石</h3>
+                        <p>强化学习突破复杂决策，AI首次在围棋领域击败人类顶尖选手</p>
+                    </div>
+                </div>
+                <div class="timeline-item left" data-year="2020">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-year">2020</span>
+                        <h3>GPT-3发布</h3>
+                        <p>1750亿参数大模型登场，开启大模型时代序幕</p>
+                    </div>
+                </div>
+                <div class="timeline-item right" data-year="2022">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-year">2022</span>
+                        <h3>ChatGPT发布</h3>
+                        <p>生成式AI走向大众，5天破百万用户，创历史增速</p>
+                    </div>
+                </div>
+                <div class="timeline-item left" data-year="2024">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-content">
+                        <span class="timeline-year">2024</span>
+                        <h3>Sora & 多模态</h3>
+                        <p>视频生成模型问世，AI从理解世界走向"模拟"世界</p>
+                    </div>
+                </div>
+                <div class="timeline-item right" data-year="2026">
+                    <div class="timeline-dot glowing"></div>
+                    <div class="timeline-content highlight">
+                        <span class="timeline-year">2026</span>
+                        <h3>新质生产力元年</h3>
+                        <p>AI从工具进化为生产力主体，重塑社会经济结构</p>
+                    </div>
+                </div>
+                <div class="timeline-item left" data-year="2030+">
+                    <div class="timeline-dot glowing"></div>
+                    <div class="timeline-content highlight">
+                        <span class="timeline-year">2030+</span>
+                        <h3>通向AGI</h3>
+                        <p>通用人工智能曙光初现，人类与智能体共生时代</p>
+                    </div>
+                </div>
+            </div>
+            <div class="chart-card reveal" style="margin-top:24px">
+                <div class="ch-title">AI 能力跃迁 · 2020 vs 2024 vs 人类基准</div>
+                <div class="ch-sub">六大维度 · 虚线=人类水平(100) · 满分 110</div>
+                <div id="aiRadarChart" class="chart-box" style="height:420px"></div>
+            </div>
+        </div>
+
+        <!-- 意义 3 · 国家战略 -->
+        <div class="sig-block reveal" data-sig="03">
+            <div class="sig-head"><span class="sig-no">叁</span><h3>国家战略意义 · 塑造国际竞争新优势</h3></div>
+            <p class="sig-text">全球主要经济体纷纷把 AI 上升为国家战略。投资、论文、算力、人才的版图，就是未来国力的版图（气泡大小＝综合得分，悬停查看）。</p>
+            <div class="global-container">
+                <div id="globalChart" class="chart-box" style="height:600px"></div>
+                <div class="global-ranking">
+                    <h3>AI综合实力榜单</h3>
+                    <div class="ranking-list" id="rankingList"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ========== 模块 5 · 未来展望 ========== -->
+    <section id="future" class="narrative-section future-section">
+        <div class="section-header">
+            <h2 class="section-title">立足<span class="accent">「人工智能+」</span>，走向 2030</h2>
+            <p class="section-desc">抢抓科技革命机遇，以四大支柱持续壮大新质生产力</p>
+        </div>
+
+        <div class="future-grid">
+            <div class="future-card">
+                <div class="future-year">2027</div>
+                <h3>具身智能普及</h3>
+                <p>人形机器人进入工厂、家庭，物理世界劳动力被重塑</p>
+                <div class="future-progress"><div class="fp-bar" style="--w:30%"></div></div>
+            </div>
+            <div class="future-card">
+                <div class="future-year">2028</div>
+                <h3>科学发现加速</h3>
+                <p>AI科学家独立完成诺奖级研究，论文产出呈指数增长</p>
+                <div class="future-progress"><div class="fp-bar" style="--w:50%"></div></div>
+            </div>
+            <div class="future-card">
+                <div class="future-year">2029</div>
+                <h3>个性化教育普及</h3>
+                <p>AI导师实现真正因材施教，教育公平性质变</p>
+                <div class="future-progress"><div class="fp-bar" style="--w:70%"></div></div>
+            </div>
+            <div class="future-card">
+                <div class="future-year">2030</div>
+                <h3>新质生产力成型</h3>
+                <p>AI+绿色+生物科技融合，全球GDP贡献超15万亿美元</p>
+                <div class="future-progress"><div class="fp-bar" style="--w:90%"></div></div>
+            </div>
+        </div>
+
+        <h3 class="pillars-title reveal">「人工智能+」行动 · 四大支柱</h3>
+        <div class="pillars-grid">
+            <div class="pillar-card reveal">
+                <div class="pillar-icon">🏗</div>
+                <h4>构建智能产业生态</h4>
+                <p>培育大模型产业集群，开放千行百业应用场景，让大模型与实体经济深度结合。</p>
+            </div>
+            <div class="pillar-card reveal">
+                <div class="pillar-icon">🔄</div>
+                <h4>完善数据要素市场</h4>
+                <p>推进数据确权、流通与定价，建设全国一体化数据市场，把数据优势转为发展胜势。</p>
+            </div>
+            <div class="pillar-card reveal">
+                <div class="pillar-icon">🎓</div>
+                <h4>培育新型人才队伍</h4>
+                <p>建设"AI+学科"，推进全民数字素养与技能培训，让人跟得上技术、驾驭得了技术。</p>
+            </div>
+            <div class="pillar-card reveal">
+                <div class="pillar-icon">⚖</div>
+                <h4>规范治理与监管</h4>
+                <p>健全伦理治理与安全法治，守住安全底线，让 AI 在法治轨道上健康、负责任地发展。</p>
+            </div>
+        </div>
+
+        <!-- 产业构成旭日 + 中国产业规模柱 -->
+        <div class="sun-cn-row">
+            <div class="chart-card reveal">
+                <div class="ch-title">2024 中国 AI 产业构成（旭日图）</div>
+                <div class="ch-sub">单位：亿元 · 点击扇区下钻</div>
+                <div id="sunburstChart" class="chart-box" style="height:420px"></div>
+            </div>
+            <div class="chart-card reveal">
+                <div class="ch-title">中国 AI 核心产业规模增长</div>
+                <div class="ch-sub">2022 → 2025E · 虚线=预测 · 单位：亿元</div>
+                <div id="cnScaleChart" class="chart-box" style="height:420px"></div>
+            </div>
+        </div>
+
+        <div class="future-cta">
+            <h2 class="cta-title">人工智能不是替代人类<br>而是<span class="gradient-text">放大人类</span></h2>
+            <p class="cta-desc">新质生产力的终极指向，是让每个人都拥有更强大的"心智杠杆"</p>
+            <div class="cta-counter">
+                <div class="cta-stat">
+                    <div class="cta-number" data-target="100">0</div>
+                    <div class="cta-label">倍心智杠杆</div>
+                </div>
+                <div class="cta-divider"></div>
+                <div class="cta-stat">
+                    <div class="cta-number" data-target="15">0</div>
+                    <div class="cta-label">万亿美元价值</div>
+                </div>
+                <div class="cta-divider"></div>
+                <div class="cta-stat">
+                    <div class="cta-number" data-target="80">0</div>
+                    <div class="cta-label">亿人受益</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer">
+        <div class="footer-content">
+            <div class="footer-brand">
+                <h2>AI · 新质生产力</h2>
+                <p>人工智能是新质生产力的核心载体与核心动力，正在重塑人类社会的生产方式、生活方式与竞争格局。</p>
+            </div>
+            <div class="footer-links">
+                <div class="footer-col">
+                    <h4>叙事脉络</h4>
+                    <a href="#hero">开篇引言</a>
+                    <a href="#connotation">核心内涵</a>
+                    <a href="#roles">核心作用</a>
+                    <a href="#significance">时代意义</a>
+                </div>
+                <div class="footer-col">
+                    <h4>四大作用</h4>
+                    <a href="#roles">赋能产业升级</a>
+                    <a href="#roles">重塑生产要素</a>
+                    <a href="#roles">守护发展安全</a>
+                    <a href="#roles">服务社会民生</a>
+                </div>
+                <div class="footer-col">
+                    <h4>数据来源</h4>
+                    <a href="https://www.mckinsey.com">麦肯锡全球研究院</a>
+                    <a href="https://www.weforum.org">世界经济论坛</a>
+                    <a href="https://www.statista.com">Statista</a>
+                    <a href="https://www.idc.com">IDC</a>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 人工智能与新质生产力可视化报告 · 数据为公开来源综合整理 · 仅用于教学演示</p>
+        </div>
+    </footer>
+
+    <button id="backToTop" aria-label="回到顶部">↑</button>
+
+    <script src="script.js?v=20261010n"></script>
+</body>
+</html>
