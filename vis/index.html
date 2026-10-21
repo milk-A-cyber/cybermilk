@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title data-i18n="hero.h1">《可视化导论》</title>
+<meta name="description" content="从数据到图表：JavaScript + D3.js 实战课程 · 中国石油大学（华东）">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%230a5751'/%3E%3Cpath d='M6 22l4-9 4 6 3-4 3 7z' fill='none' stroke='%23e2f1ef' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3Ccircle cx='24' cy='9' r='2.4' fill='%23e0932f'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="https://miaoda.feishu.cn/fonts/css2?family=Noto+Serif+SC:wght@500;600;700;900&family=Noto+Sans+SC:wght@400;500;700&family=JetBrains+Mono:wght@400;600&display=swap">
+<style>
+/* ============================================================
+   《可视化导论》· 课程门户（单文件自包含）
+   视觉语言：教学讲义 × 可视化图纸（青绿 / 赭黄 · 纸面浅底）
+   ============================================================ */
+:root{
+  --paper:#f6f8f6; --card:#ffffff; --ink:#16261f; --ink-2:#3c4a44; --mut:#6d7b75;
+  --line:#dfe6e2; --frame:#9db3ab;
+  --teal:#0f766e; --teal-d:#0a5751; --teal-dd:#063f3b; --teal-t:#e2f1ef;
+  --ochre:#c07f22; --ochre-d:#9c6417; --ochre-t:#f7ecd9;
+  --red:#b4412c; --red-t:#f9e8e3;
+  --radius:12px; --radius-s:8px;
+  --shadow:0 1px 2px rgba(18,38,31,.05),0 10px 28px -14px rgba(18,38,31,.16);
+  --shadow-h:0 2px 4px rgba(18,38,31,.06),0 18px 40px -16px rgba(10,87,81,.28);
+  --serif:"Noto Serif SC","Songti SC","SimSun",serif;
+  --sans:"Noto Sans SC","PingFang SC","Microsoft YaHei",sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Consolas,monospace;
+  --nav-h:58px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  font-family:var(--sans); font-size:15.5px; line-height:1.75; color:var(--ink);
+  background:
+    repeating-linear-gradient(0deg,rgba(15,118,110,.028) 0 1px,transparent 1px 48px),
+    repeating-linear-gradient(90deg,rgba(15,118,110,.028) 0 1px,transparent 1px 48px),
+    var(--paper);
+  -webkit-font-smoothing:antialiased;
+}
+a{color:var(--teal-d);text-decoration:none}
+a:hover{text-decoration:none}
+::selection{background:var(--ochre-t)}
+:focus-visible{outline:2px solid var(--ochre);outline-offset:2px;border-radius:4px}
+
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+section{scroll-margin-top:calc(var(--nav-h) + 14px)}
+
+/* ---------- 滚动显现 ---------- */
+.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease,transform .6s ease}
+.reveal.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.reveal{opacity:1;transform:none;transition:none}}
+
+/* ---------- 顶部导航 ---------- */
+.navbar{
+  position:sticky;top:0;z-index:100;height:var(--nav-h);
+  background:rgba(246,248,246,.86);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--line);
+}
+.nav-inner{max-width:1080px;margin:0 auto;padding:0 22px;height:var(--nav-h);display:flex;align-items:center;gap:6px}
+.brand{display:flex;align-items:center;gap:9px;margin-right:14px;flex-shrink:0}
+.brand-mark{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,var(--teal) 0%,var(--teal-dd) 100%);display:grid;place-items:center;color:#e2f1ef;box-shadow:var(--shadow)}
+.brand-name{font-family:var(--serif);font-weight:700;font-size:16px;letter-spacing:.5px}
+.nav-links{display:flex;gap:2px;align-items:center;overflow-x:auto;scrollbar-width:none;flex:1}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-link{
+  display:flex;align-items:center;gap:6px;padding:7px 11px;border-radius:9px;white-space:nowrap;
+  color:var(--ink-2);font-size:14px;font-weight:500;transition:background .2s,color .2s;
+}
+.nav-link svg{width:16px;height:16px;flex-shrink:0}
+.nav-link:hover{background:var(--teal-t);color:var(--teal-d)}
+.nav-link.active{background:var(--teal);color:#eef7f5}
+.nav-progress{position:absolute;left:0;bottom:-1px;height:2px;width:0;background:linear-gradient(90deg,var(--teal),var(--ochre));transition:width .1s linear;z-index:101}
+.lang-switch{display:flex;border:1px solid var(--line);border-radius:9px;overflow:hidden;flex-shrink:0;margin-left:8px}
+.lang-btn{border:0;background:transparent;padding:5px 12px;font-family:var(--sans);font-size:13px;font-weight:700;color:var(--ink-2);cursor:pointer;transition:background .2s,color .2s}
+.lang-btn.active{background:var(--teal);color:#eef7f5}
+
+/* ---------- Hero ---------- */
+.hero{position:relative;min-height:calc(100vh - var(--nav-h));display:flex;align-items:center;padding:60px 0;overflow:hidden;background-image:radial-gradient(900px 420px at 12% -12%,rgba(15,118,110,.10),transparent 62%),radial-gradient(700px 380px at 94% 118%,rgba(192,127,34,.07),transparent 60%),radial-gradient(rgba(15,118,110,.055) 1px,transparent 1.4px);background-size:auto,auto,26px 26px}
+.hero-inner{max-width:1080px;margin:0 auto;padding:0 22px;position:relative;z-index:2;text-align:center;width:100%}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--mono);font-size:12px;letter-spacing:.22em;color:var(--teal-d);background:var(--teal-t);border:1px solid #cfe6e1;padding:5px 12px;border-radius:999px;margin-bottom:28px}
+.hero-tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--ochre);box-shadow:0 0 0 3px var(--ochre-t)}
+.hero h1{
+  position:relative;display:inline-block;
+  font-family:var(--serif);font-size:92px;font-weight:900;letter-spacing:10px;line-height:1.12;
+  margin-bottom:24px;padding:32px 68px 38px;
+  background:linear-gradient(135deg,#063f3b 0%,#0a5751 55%,#0f766e 100%);
+  color:#ffffff;
+  text-shadow:0 2px 10px rgba(0,0,0,.22);
+  border-radius:18px;
+  box-shadow:0 22px 50px -16px rgba(6,63,59,.55), inset 0 1px 0 rgba(255,255,255,.14);
+  animation:heroIn .9s cubic-bezier(.2,.7,.2,1) both;
+}
+@keyframes heroIn{from{transform:translateY(28px) scale(.96)}to{transform:none}}
+.hero h1::after{content:"";display:block;width:150px;height:6px;border-radius:3px;margin:28px auto 0;background:linear-gradient(90deg,#e0932f,#f0b45a)}
+@media (max-width:760px){.hero h1{font-size:46px;letter-spacing:3px;padding:18px 30px 24px}}
+.hero-subtitle{font-size:17px;color:var(--ink-2);margin-top:8px;margin-bottom:10px;letter-spacing:.05em}
+.hero-meta{color:var(--mut);font-size:13.5px}
+.teacher-link{color:var(--teal-d);font-weight:600;border-bottom:1px dashed var(--teal)}
+.hero-cta{display:flex;gap:14px;justify-content:center;margin-top:30px;flex-wrap:wrap}
+.cta-primary{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:var(--teal-d);color:#fff;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;box-shadow:0 10px 24px -8px rgba(10,87,81,.5);transition:transform .2s,box-shadow .2s}
+.cta-primary:hover{transform:translateY(-2px);box-shadow:0 14px 30px -8px rgba(10,87,81,.55)}
+.cta-ghost{display:inline-flex;align-items:center;padding:13px 28px;background:transparent;color:var(--teal-d);border:1.5px solid var(--teal);border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;transition:background .2s}
+.cta-ghost:hover{background:var(--teal-t)}
+.hero-scroll{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:30px;color:var(--mut);font-size:13px}
+.hero-stats{display:flex;justify-content:center;gap:14px;margin:34px 0 20px;flex-wrap:wrap}
+.stat{background:rgba(255,255,255,.72);border:1px solid var(--line);border-radius:12px;padding:12px 24px;min-width:118px;box-shadow:0 4px 14px -8px rgba(18,38,31,.14)}
+.stat b{display:block;font-family:var(--mono);font-size:24px;font-weight:700;color:var(--teal);line-height:1.15}
+.stat span{font-size:12px;color:var(--mut)}
+.hero-right{position:relative}
+.fig-card{position:relative;background:#fff;border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:14px 16px 8px;animation:heroIn .9s cubic-bezier(.2,.7,.2,1) both}
+.fig-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+.fig-no{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--ochre);letter-spacing:.08em}
+.fig-title{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;color:var(--mut)}
+.fig-card svg{display:block}
+.grid line{stroke:#eef2f0;stroke-width:1}
+.axis-x{stroke:#cbd5d1;stroke-width:1.2}
+.axis-labels text{font-family:var(--mono);font-size:9px;fill:#9aa8a2;text-anchor:end}
+.axis-labels text[x="60"],.axis-labels text[x="132"],.axis-labels text[x="204"],.axis-labels text[x="276"],.axis-labels text[x="348"],.axis-labels text[x="410"]{text-anchor:middle}
+.fbar{fill:var(--teal-t);stroke:var(--teal);stroke-width:1.1;animation:rise 2.6s ease-in-out infinite alternate}
+.fline{stroke:var(--ochre);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:640;stroke-dashoffset:640;animation:draw 3.6s ease-in-out infinite}
+.fdots circle{fill:var(--ochre);opacity:.85;animation:pulse 2.4s ease-in-out infinite}
+.fig-foot{display:flex;justify-content:space-between;font-family:var(--mono);font-size:10px;color:var(--mut);border-top:1px dashed var(--line);margin-top:6px;padding-top:8px}
+.float-tag{position:absolute;font-family:var(--mono);font-size:10.5px;color:var(--ink2);background:#fff;border:1px solid var(--line);border-radius:999px;padding:4px 11px;box-shadow:0 4px 12px -4px rgba(18,38,31,.18);animation:hop 3s ease-in-out infinite}
+.tag-1{top:38px;right:12px}
+.tag-2{bottom:34px;left:-16px;animation-delay:1.2s}
+@keyframes draw{0%{stroke-dashoffset:640}55%,80%{stroke-dashoffset:0}100%{stroke-dashoffset:-640}}
+@keyframes pulse{0%,100%{transform:scale(1);opacity:.85}50%{transform:scale(1.45);opacity:1}}
+.hero-right{position:absolute;right:26px;bottom:22px;width:360px;z-index:1}
+@media(max-width:1360px){.hero-right{display:none}}
+.hero-scroll .arrow{animation:hop 1.6s ease infinite}
+@keyframes hop{0%,100%{transform:translateY(0)}50%{transform:translateY(5px)}}
+.hero-viz .bar{fill:var(--teal-t);stroke:var(--teal);stroke-width:1;animation:rise 2.4s ease-in-out infinite alternate}
+.hero-viz .bar.hot{fill:var(--ochre-t);stroke:var(--ochre)}
+@keyframes rise{from{transform:scaleY(.82);transform-origin:bottom}to{transform:scaleY(1.06);transform-origin:bottom}}
+@media (max-width:760px){.hero-viz{display:none}}
+
+/* ---------- 通用节标题 ---------- */
+.section{padding:44px 0 52px}
+.sec-head{display:flex;align-items:baseline;gap:12px;margin-bottom:6px}
+.sec-icon{width:30px;height:30px;border-radius:8px;display:grid;place-items:center;background:var(--teal);color:#eef7f5;flex-shrink:0;transform:translateY(4px)}
+.sec-icon svg{width:17px;height:17px}
+.sec-title{font-family:var(--serif);font-size:26px;font-weight:700;letter-spacing:.5px}
+.sec-lead{color:var(--mut);font-size:14.5px;margin-bottom:22px}
+.sec-num{font-family:var(--mono);color:var(--ochre);font-size:14px;margin-left:auto;align-self:flex-end;padding-bottom:5px}
+
+/* ---------- ① 学习路径图 ---------- */
+.path-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:26px 24px 24px;box-shadow:var(--shadow)}
+.path-caption{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;color:var(--mut);font-size:13px}
+.path-legend{display:flex;gap:18px;flex-wrap:wrap}
+.path-legend span{display:inline-flex;align-items:center;gap:6px}
+.path-legend i{width:26px;height:0;border-top:2px solid}
+.path-legend .lm{border-color:var(--teal)}
+.path-legend .ls{border-color:var(--ochre);border-style:dashed}
+.path-map{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;position:relative}
+.n-node{
+  position:relative;display:flex;flex-direction:column;gap:2px;padding:14px 14px 12px;
+  background:linear-gradient(180deg,#fff,var(--teal-t));border:1.5px solid #cfe6e1;border-radius:var(--radius-s);
+  color:var(--ink);transition:transform .2s,box-shadow .2s,border-color .2s;min-width:0;
+}
+.n-node:hover{transform:translateY(-4px);box-shadow:var(--shadow-h);border-color:var(--teal)}
+.n-num{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--teal);letter-spacing:.08em}
+.n-title{font-family:var(--serif);font-size:16.5px;font-weight:700;line-height:1.35}
+.n-desc{font-size:12.5px;color:var(--ink-2);line-height:1.55;opacity:.92}
+.n-pill{position:absolute;top:-11px;right:8px;font-size:11px;font-weight:700;color:var(--ochre-d);background:var(--ochre-t);border:1px solid #ecd9ae;padding:1px 8px;border-radius:999px;white-space:nowrap}
+/* 主线箭头 */
+.n-node:not(:last-child)::after{
+  content:"→";position:absolute;right:-19px;top:50%;transform:translateY(-50%);
+  font-family:var(--mono);color:var(--teal);font-size:17px;font-weight:600;z-index:2;pointer-events:none;
+}
+/* 分支：第 3 章独立专题 */
+.n-branch{grid-column:2;grid-row:2;border-color:#ecd9ae;background:linear-gradient(180deg,#fff,var(--ochre-t))}
+.n-branch::before{
+  content:"";position:absolute;left:50%;top:-30px;transform:translateX(-50%);
+  width:0;height:14px;border-left:2px dashed var(--ochre);pointer-events:none;
+}
+.n-branch:hover{border-color:var(--ochre)}
+.n-branch .n-num{color:var(--ochre-d)}
+@media (max-width:900px){
+  .path-map{grid-template-columns:1fr;gap:26px}
+  .n-node:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-23px;transform:translateX(-50%)}
+  .n-branch{grid-column:1;grid-row:auto}
+  .n-branch::before{display:none}
+  .path-map .n-node:nth-child(4)::after{content:"↓"} /* n5 也向下 */
+  .path-map .n-node:last-child::after{content:""}
+}
+
+/* ---------- ② 章节卡片 ---------- */
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(440px,1fr));gap:18px}
+@media (min-width:760px){
+  .card[data-c="5"]{
+    grid-column:1/-1;display:grid;align-content:start;column-gap:32px;
+    grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
+    grid-template-areas:"top top" "title title" "en en" "desc learn" "cta cta" "source source";
+  }
+  .card[data-c="5"] .card-top{grid-area:top}
+  .card[data-c="5"] h3{grid-area:title}
+  .card[data-c="5"] .card-en{grid-area:en}
+  .card[data-c="5"] .card-desc{grid-area:desc}
+  .card[data-c="5"] .card-learn{grid-area:learn}
+  .card[data-c="5"] .card-cta{grid-area:cta}
+  .card[data-c="5"] .card-source{grid-area:source}
+}
+.card{
+  position:relative;display:flex;flex-direction:column;gap:8px;padding:20px 20px 16px;
+  background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+  box-shadow:var(--shadow);transition:transform .2s,box-shadow .2s,border-color .2s;overflow:hidden;
+}
+.card::before{content:"";position:absolute;inset:0 0 auto 0;height:4px;background:var(--cac,var(--teal));opacity:.85}
+.card[data-c="1"]{--cac:#0f766e}.card[data-c="2"]{--cac:#0284c7}.card[data-c="3"]{--cac:#c07f22}
+.card[data-c="4"]{--cac:#7c3aed}.card[data-c="5"]{--cac:#b4412c}
+.card:hover{transform:translateY(-5px);box-shadow:var(--shadow-h);border-color:var(--frame)}
+.card-top{display:flex;align-items:center;gap:8px}
+.card-status{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--ok,#0f9d76);background:#e6f6f0;border:1px solid #bfe6d6;padding:2px 10px;border-radius:999px}
+.card-status::before{content:"";width:7px;height:7px;border-radius:50%;background:#10b981;box-shadow:0 0 0 3px rgba(16,185,129,.18)}
+.card-num{font-family:var(--mono);font-size:12px;font-weight:600;color:var(--mut);letter-spacing:.06em;margin-left:auto}
+.card h3{font-family:var(--serif);font-size:20px;font-weight:700}
+.card .card-en{font-size:12px;color:var(--mut);letter-spacing:.04em;margin-top:-4px}
+.card-desc{font-size:13.5px;color:var(--ink-2);line-height:1.7;flex:1}
+.card-learn{list-style:none;display:flex;flex-direction:column;gap:5px;margin-top:2px}
+.card-learn li{display:flex;gap:8px;font-size:13px;color:var(--ink);align-items:flex-start}
+.card-learn li::before{content:"✓";font-family:var(--mono);font-weight:700;color:var(--teal);flex-shrink:0;line-height:1.6}
+.card-cta{display:inline-flex;align-items:center;gap:6px;font-size:13.5px;font-weight:600;color:var(--teal-d);transition:gap .2s}
+.card:hover .card-cta{gap:10px}
+.card-source{font-size:12px;color:var(--mut);border-top:1px dashed var(--line);padding-top:8px}
+.card-source strong{color:var(--ink-2)}
+
+/* ---------- ③ 知识图谱 ---------- */
+.graph-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 18px 16px}
+.graph-flex{display:flex;gap:18px;align-items:stretch}
+.graph-svg{flex:1;min-width:0}
+.graph-svg svg{width:100%;height:auto;display:block}
+.graph-side{width:190px;flex-shrink:0;display:flex;flex-direction:column;gap:8px}
+.graph-cap{background:var(--teal-t);border:1px solid #cfe6e1;border-radius:var(--radius-s);padding:12px;font-size:13px;line-height:1.6;color:var(--ink-2);flex:1}
+.graph-tip{font-size:12px;color:var(--mut)}
+.g-node{cursor:pointer;transition:opacity .18s}
+.g-node rect{transition:stroke .2s,stroke-width .2s}
+.g-node:hover rect{stroke:var(--ochre);stroke-width:2.2}
+.g-edge{stroke:var(--frame);stroke-width:1.3;fill:none;transition:opacity .18s,stroke .2s}
+.g-edge.hot{stroke:var(--ochre);stroke-width:2}
+.g-label{font-size:12px;fill:var(--ink);font-family:var(--sans);font-weight:600;pointer-events:none;text-anchor:middle}
+.g-coltitle{font-family:var(--mono);font-size:11px;letter-spacing:.14em;fill:var(--mut);text-anchor:middle}
+@media (max-width:860px){.graph-flex{flex-direction:column}.graph-side{width:auto;order:2}}
+
+/* ---------- ④ 雷达图（纯 SVG） ---------- */
+.radar-wrap{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 18px 6px}
+#radar{width:100%}
+#radar svg{width:100%;height:auto;display:block;margin:0 auto;max-width:540px}
+.r-grid{fill:none;stroke:var(--line);stroke-width:1}
+.r-grid.last{stroke:var(--frame)}
+.r-spoke{stroke:var(--line);stroke-width:1}
+.r-area{fill:rgba(15,118,110,.16);stroke:var(--teal);stroke-width:2.2;stroke-linejoin:round;transition:opacity .2s}
+.r-vtx{cursor:pointer}
+.r-vtx circle{fill:var(--teal-d);stroke:#fff;stroke-width:1.6}
+.r-vtx:hover circle,.r-vtx.hot circle{fill:var(--ochre)}
+.r-vtx text{font-family:var(--mono);font-size:11px;fill:var(--ochre-d);opacity:0;transition:opacity .2s;pointer-events:none}
+.r-vtx.hot text{opacity:1}
+.r-label{font-size:12.5px;font-weight:600;fill:var(--ink-2);font-family:var(--sans)}
+.radar-note{color:var(--mut);font-size:12.5px;padding:6px 12px 14px}
+
+/* ---------- ⑤ 知识点微型演示 ---------- */
+.demo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:18px}
+@media (max-width:900px){.demo-grid{grid-template-columns:1fr}}
+.demo-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 18px 16px;display:flex;flex-direction:column;gap:10px}
+.demo-card h3{font-family:var(--serif);font-size:17.5px;font-weight:700;display:flex;align-items:center;gap:8px}
+.demo-card h3::before{content:"";width:9px;height:9px;border-radius:3px;background:var(--teal);flex-shrink:0}
+.demo-body{display:flex;gap:14px;align-items:stretch;flex:1}
+@media (max-width:560px){.demo-body{flex-direction:column}}
+.demo-side{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px}
+.demo-cap{background:var(--teal-t);border:1px solid #cfe6e1;border-radius:var(--radius-s);padding:11px;font-size:13px;line-height:1.6;color:var(--ink-2);flex:1}
+.demo-cap.alt{background:var(--ochre-t);border-color:#ecd9ae}
+.demo-keys{display:flex;flex-wrap:wrap;gap:6px}
+.k-btn{border:1px solid var(--line);background:#fff;border-radius:999px;padding:3px 11px;font-family:var(--sans);font-size:12.5px;color:var(--ink-2);cursor:pointer;transition:all .18s}
+.k-btn:hover{border-color:var(--teal);color:var(--teal-d)}
+.k-btn.active{background:var(--teal);border-color:var(--teal);color:#eef7f5}
+.demo-cap b{color:var(--teal-dd);font-weight:600}
+.demo-cap.alt b{color:var(--ochre-d)}
+
+/* DIKW */
+.dikw-svg{width:220px;height:auto;flex-shrink:0;align-self:center}
+.dikw-layer{cursor:pointer;transition:opacity .15s}
+.dikw-layer:hover{opacity:.82}
+.dikw-layer.active{stroke:var(--ochre);stroke-width:2.2;stroke-dasharray:5 3}
+.dikw-txt{fill:#fff;font-family:var(--sans);font-weight:700;pointer-events:none;text-anchor:middle}
+.dikw-txt.dark{fill:#063f3b}
+
+/* Stevens */
+.st-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;flex:1;min-width:0}
+.st-cell{background:#fbfcfb;border:1px solid var(--line);border-radius:7px;padding:7px 6px;font-size:12.5px;color:var(--ink-2);display:flex;flex-direction:column;align-items:center;gap:2px;text-align:center;cursor:pointer;transition:all .18s}
+.st-cell:hover{border-color:var(--teal)}
+.st-cell.active{background:var(--teal-t);border-color:var(--teal);color:var(--teal-dd)}
+.st-cell.head{background:#fff;border-color:var(--frame);font-weight:600;color:var(--ink);cursor:default}
+.st-cell.head:hover{border-color:var(--frame)}
+.st-cell .v{font-family:var(--mono);font-size:13px;font-weight:700}
+.st-cell .v.yes{color:#0f9d76}.st-cell .v.no{color:#b4412c}
+.st-cell .lbl{font-size:11px;color:var(--mut);line-height:1.3}
+.st-row-label{font-size:12px;color:var(--mut);grid-column:1 / -1;margin-top:4px}
+@media (max-width:560px){.st-grid{grid-template-columns:repeat(4,1fr)}}
+
+/* Mackinlay */
+.mk-bars{flex:1;display:flex;flex-direction:column;gap:8px;min-width:0}
+.mk-row{display:grid;grid-template-columns:70px 1fr 40px;align-items:center;gap:10px;cursor:pointer}
+.mk-name{font-size:13px;font-weight:600;color:var(--ink)}
+.mk-track{height:16px;background:var(--line);border-radius:99px;overflow:hidden;position:relative}
+.mk-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--teal),#14b8a6);transition:width .5s ease;width:0}
+.mk-row.active .mk-fill{background:linear-gradient(90deg,var(--ochre),var(--ochre-d))}
+.mk-val{font-family:var(--mono);font-size:12.5px;color:var(--mut);text-align:right}
+.mk-row:hover .mk-name{color:var(--teal-d)}
+
+/* Card 数据流 */
+.cd-flow{flex:1;display:flex;flex-direction:column;gap:10px;min-width:0}
+.cd-stages{display:flex;align-items:center;gap:4px;flex-wrap:wrap}
+.cd-stage{flex:1;min-width:88px;text-align:center;background:#fbfcfb;border:1px solid var(--line);border-radius:8px;padding:9px 6px;cursor:pointer;transition:all .18s}
+.cd-stage:hover,.cd-stage.active{border-color:var(--teal);background:var(--teal-t)}
+.cd-stage b{display:block;font-size:13px;color:var(--ink);font-weight:600}
+.cd-stage span{font-size:10.5px;color:var(--mut)}
+.cd-arrow{font-family:var(--mono);color:var(--teal);font-size:14px;flex-shrink:0;transform:translateY(-8px)}
+.cd-trans{display:flex;gap:8px;flex-wrap:wrap;padding-left:6px}
+.cd-t{padding:3px 10px;border-radius:999px;background:var(--ochre-t);border:1px solid #ecd9ae;color:var(--ochre-d);font-size:12px;cursor:pointer;transition:all .18s}
+.cd-t:hover,.cd-t.active{background:var(--ochre);color:#fff;border-color:var(--ochre)}
+
+/* ---------- ⑥ 使用方式 / ⑦ 关于 ---------- */
+.howto-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.howto-card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px 18px 16px}
+.howto-card h3{display:flex;align-items:center;gap:8px;font-family:var(--serif);font-size:16px;font-weight:700;margin-bottom:8px}
+.howto-card h3 svg{width:17px;height:17px;color:var(--teal)}
+.howto-card p{font-size:13.5px;color:var(--ink-2);line-height:1.75}
+.about{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px}
+.about-item{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:18px}
+.about-item h4{font-family:var(--serif);font-size:16px;font-weight:700;color:var(--teal-dd);margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.about-item p{font-size:13.5px;color:var(--ink-2)}
+
+/* ---------- footer / 回顶 ---------- */
+footer{border-top:1px solid var(--line);background:#fff;padding:26px 0 30px;margin-top:10px}
+.footer-inner{max-width:1080px;margin:0 auto;padding:0 22px;display:flex;flex-direction:column;gap:6px}
+.footer-meta{color:var(--mut);font-size:12.5px}
+#totop{
+  position:fixed;right:22px;bottom:26px;width:44px;height:44px;border-radius:12px;border:1px solid var(--frame);
+  background:#fff;color:var(--teal-d);cursor:pointer;display:grid;place-items:center;box-shadow:var(--shadow-h);
+  opacity:0;visibility:hidden;transform:translateY(8px);transition:all .25s;z-index:90;
+}
+#totop.show{opacity:1;visibility:visible;transform:none}
+#totop:hover{background:var(--teal);color:#fff}
+</style>
+</head>
+<body>
+
+<!-- ========== 顶部导航 ========== -->
+<nav class="navbar" id="navbar">
+  <div class="nav-inner">
+    <a class="brand" href="#top" aria-label="首页">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l4.5-9 3.8 5.6 2.4-3.2L20 18"/><circle cx="20.5" cy="6.5" r="1.8"/></svg>
+      </span>
+      <span class="brand-name">可视化导论</span>
+    </a>
+    <div class="nav-links">
+      <a class="nav-link" href="#path"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h6l4-10h6M14 7h6"/><circle cx="4" cy="17" r="1.6"/><circle cx="20" cy="7" r="1.6"/></svg><span data-i18n="nav.map">学习路径</span></a>
+      <a class="nav-link" href="#chapters"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg><span data-i18n="nav.chapters">章节</span></a>
+      <a class="nav-link" href="#graph"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="17" cy="14" r="2"/><path d="M6.8 7.4 8.3 16M17.4 7.7 8.6 16.7M19 8v4M5 8v8"/></svg><span data-i18n="nav.graph">知识图谱</span></a>
+      <a class="nav-link" href="#radar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 21 8v8l-9 5-9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg><span data-i18n="nav.radar">能力概览</span></a>
+      <a class="nav-link" href="#demo"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6L4.5 15a2 2 0 0 0 1.7 3h11.6a2 2 0 0 0 1.7-3L15 9V3"/><path d="M9 21h6"/></svg><span data-i18n="nav.demo">知识点</span></a>
+      <a class="nav-link" href="#howto"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 1 10-10"/><path d="M12 7v5l3 3"/><path d="M18 18v3M21 19.5v0"/></svg><span data-i18n="nav.howto">使用方式</span></a>
+      <a class="nav-link" href="#about"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg><span data-i18n="nav.about">关于</span></a>
+    </div>
+    <div class="lang-switch" role="group" aria-label="切换语言">
+      <button type="button" class="lang-btn active" data-lang="zh">中</button>
+      <button type="button" class="lang-btn" data-lang="en">EN</button>
+    </div>
+  </div>
+  <div class="nav-progress" id="navProgress"></div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-inner">
+    <div class="hero-left">
+      <p class="hero-tag" data-i18n="hero.tag">VISUALIZATION · INTRODUCTION</p>
+      <h1 data-i18n="hero.h1">《可视化导论》</h1>
+      <p class="hero-subtitle" data-i18n="hero.subtitle">从数据到图表：JavaScript + D3.js 实战课程</p>
+      <div class="hero-cta">
+        <a class="cta-primary" href="#chapters"><span data-i18n="hero.cta1">开始学习</span><span class="arr">→</span></a>
+        <a class="cta-ghost" href="#path" data-i18n="hero.cta2">学习路径</a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat"><b>5</b><span data-i18n="hero.stat1">大章节</span></div>
+        <div class="stat"><b>27</b><span data-i18n="hero.stat2">个交互演示</span></div>
+        <div class="stat"><b>2</b><span data-i18n="hero.stat3">种语言</span></div>
+        <div class="stat"><b>0</b><span data-i18n="hero.stat4">第三方依赖</span></div>
+      </div>
+      <p class="hero-meta" data-i18n-html="hero.meta">中国石油大学（华东）· 授课教师：<a href="https://cinger007.github.io/" target="_blank" rel="noopener" class="teacher-link">李昕</a> · 主要参考教材：陈为《可视化导论》</p>
+    </div>
+    <div class="hero-right">
+      <div class="fig-card">
+        <div class="fig-head"><span class="fig-no">Fig. 01</span><span class="fig-title">DATA → MAPPING → VISUAL</span></div>
+        <svg viewBox="0 0 440 280" width="100%" role="img" aria-label="course visual">
+          <g class="grid">
+            <line x1="34" y1="30"  x2="424" y2="30"/>
+            <line x1="34" y1="78"  x2="424" y2="78"/>
+            <line x1="34" y1="126" x2="424" y2="126"/>
+            <line x1="34" y1="174" x2="424" y2="174"/>
+            <line x1="34" y1="222" x2="424" y2="222"/>
+          </g>
+          <g class="axis-labels">
+            <text x="28" y="34">40</text><text x="28" y="82">30</text><text x="28" y="130">20</text><text x="28" y="178">10</text><text x="28" y="226">0</text>
+            <text x="60"  y="252">01</text><text x="132" y="252">02</text><text x="204" y="252">03</text><text x="276" y="252">04</text><text x="348" y="252">05</text><text x="410" y="252">06</text>
+          </g>
+          <line x1="34" y1="222" x2="424" y2="222" class="axis-x"/>
+          <g class="fig-bars">
+            <rect class="fbar" x="52"  y="96"  width="30" height="126" rx="4" style="animation-delay:0s"/>
+            <rect class="fbar" x="124" y="66"  width="30" height="156" rx="4" style="animation-delay:.18s"/>
+            <rect class="fbar" x="196" y="118" width="30" height="104" rx="4" style="animation-delay:.36s"/>
+            <rect class="fbar" x="268" y="46"  width="30" height="176" rx="4" style="animation-delay:.54s"/>
+            <rect class="fbar" x="340" y="86"  width="30" height="136" rx="4" style="animation-delay:.72s"/>
+            <rect class="fbar" x="404" y="128" width="16" height="94"  rx="4" style="animation-delay:.9s"/>
+          </g>
+          <path class="fline" d="M67,120 L139,88 L211,132 L283,58 L355,96 L412,110" fill="none"/>
+          <g class="fdots">
+            <circle cx="67"  cy="120" r="4.5" style="animation-delay:0s"/>
+            <circle cx="139" cy="88"  r="4.5" style="animation-delay:.22s"/>
+            <circle cx="211" cy="132" r="4.5" style="animation-delay:.44s"/>
+            <circle cx="283" cy="58"  r="4.5" style="animation-delay:.66s"/>
+            <circle cx="355" cy="96"  r="4.5" style="animation-delay:.88s"/>
+            <circle cx="412" cy="110" r="4.5" style="animation-delay:1.1s"/>
+          </g>
+        </svg>
+        <div class="fig-foot"><span>n = 5 chapters</span><span>D3.js v7 · vanilla JS</span></div>
+        <span class="float-tag tag-1">r² = 0.97</span>
+        <span class="float-tag tag-2">Δt = 16 ms</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll"><span data-i18n="hero.scroll">向下滚动，从学习路径开始</span><span class="arrow">↓</span></div>
+</header>
+
+<main class="wrap">
+
+  <!-- ========== ① 课程学习路径图 ========== -->
+  <section id="path" class="section">
+    <div class="sec-head">
+      <span class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 17h6l4-10h6M14 7h6"/><circle cx="4" cy="17" r="1.6"/><circle cx="20" cy="7" r="1.6"/></svg></span>
+      <h2 class="sec-title" data-i18n="path.title">课程学习路径图</h2>
+      <span class="sec-num">01</span>
+    </div>
+    <p class="sec-lead reveal" data-i18n="path.lead">建议按主线顺序学习；色彩专题是独立内容，可与主线并行。</p>
+
+    <div class="path-wrap reveal">
+      <div class="path-caption">
+        <div class="path-legend">
+          <span><i class="lm"></i><span data-i18n="path.main">主线</span></span>
+          <span><i class="ls"></i><span data-i18n="path.side">独立专题 · 可并行</span></span>
+        </div>
+      </div>
+      <div class="path-map">
+        <a class="n-node" href="lesson-01/">
+          <span class="n-num">01</span>
+          <span class="n-title" data-i18n="path.n1.title">数据</span>
+          <span class="n-desc" data-i18n="path.n1.desc">DIKW 金字塔、Stevens 测量尺度、Mackinlay 视觉通道、D3 变换与 Selection 三态</span>
+        </a>
+        <a class="n-node" href="lesson-02/">
+          <span class="n-num">02</span>
+          <span class="n-title" data-i18n="path.n2.title">数据可视化流程</span>
+          <span class="n-desc" data-i18n="path.n2.desc">Card 数据流模型：原始数据如何一步步变成图表</span>
+        </a>
+        <a class="n-node" href="lesson-04/">
+          <span class="n-num">04</span>
+          <span class="n-title" data-i18n="path.n4.title">低维数据可视化</span>
+          <span class="n-desc" data-i18n="path.n4.desc">坐标变换、10 种曲线拟合、Cleveland 45° 与 Marching Squares</span>
+        </a>
+        <a class="n-node" href="lesson-05/">
+          <span class="n-num">05</span>
+          <span class="n-title" data-i18n="path.n5.title">时序数据可视化</span>
+          <span class="n-desc" data-i18n="path.n5.desc">时间分解、日历热图、阿基米德螺旋日历与 Storyline 故事线</span>
+        </a>
+        <a class="n-node n-branch" href="lesson-03/">
+          <span class="n-pill" data-i18n="path.side">独立专题</span>
+          <span class="n-num">03</span>
+          <span class="n-title" data-i18n="path.n3.title">色彩专题</span>
+          <span class="n-desc" data-i18n="path.n3.desc">颜色模型、colormap、科研配色与 CVD 色觉安全</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== ② 章节卡片 ========== -->
+  <section id="chapters" class="section">
+    <div class="sec-head">
+      <span class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/><path d="M4 19.5A2.5 2.5 0 0 0 6.5 22H20v-5"/></svg></span>
+      <h2 class="sec-title" data-i18n="chapters.title">课程章节</h2>
+      <span class="sec-num">02</span>
+    </div>
+    <p class="sec-lead reveal" data-i18n="chapters.lead">点击卡片进入对应章节，每章含「讲解 / 代码 / 演示」三个 Tab。</p>
+
+    <div class="cards">
+      <a class="card reveal" data-c="1" href="lesson-01/">
+        <div class="card-top">
+          <span class="card-status" data-i18n="common.live">已上线</span>
+          <span class="card-num" data-i18n="card-01.num">第 1 章</span>
+        </div>
+        <h3 data-i18n="card-01.title">数据</h3>
+        <span class="card-en" data-i18n="card-01.en">Data</span>
+        <p class="card-desc" data-i18n="card-01.desc">从 DeepSeek 合成新生数据出发，展开数据生成、DIKW、Stevens 测量尺度、Mackinlay 视觉通道、D3 数据变换与 Data-Join 三态。</p>
+        <ul class="card-learn">
+          <li data-i18n="card-01.l1">区分 数据 / 信息 / 知识 / 智慧（DIKW）</li>
+          <li data-i18n="card-01.l2">识别 Stevens 四种测量尺度</li>
+          <li data-i18n="card-01.l3">用 Mackinlay 视觉通道挑选编码</li>
+          <li data-i18n="card-01.l4">理解 D3 变换函数与 Selection 三态</li>
+        </ul>
+        <div class="card-cta"><span data-i18n="common.enter">进入章节 →</span></div>
+        <p class="card-source" data-i18n-html="card-01.source"><strong>3. 数据</strong></p>
+      </a>
+
+      <a class="card reveal" data-c="2" href="lesson-02/">
+        <div class="card-top">
+          <span class="card-status" data-i18n="common.live">已上线</span>
+          <span class="card-num" data-i18n="card-02.num">第 2 章</span>
+        </div>
+        <h3 data-i18n="card-02.title">数据可视化流程</h3>
+        <span class="card-en" data-i18n="card-02.en">The Visualization Pipeline</span>
+        <p class="card-desc" data-i18n="card-02.desc">Card 数据流模型、新生数据 → 分类树 → 树形列表的完整链路，Reingold-Tilford 布局、DOM 事件机制。</p>
+        <ul class="card-learn">
+          <li data-i18n="card-02.l1">走通 Card 数据流模型的完整链路</li>
+          <li data-i18n="card-02.l2">用 d3.rollup 聚合分组数据</li>
+          <li data-i18n="card-02.l3">理解 Reingold-Tilford 树布局</li>
+          <li data-i18n="card-02.l4">用事件委托处理大量 DOM 节点</li>
+        </ul>
+        <div class="card-cta"><span data-i18n="common.enter">进入章节 →</span></div>
+        <p class="card-source" data-i18n-html="card-02.source"><strong>4. 数据可视化流程</strong></p>
+      </a>
+
+      <a class="card reveal" data-c="3" href="lesson-03/">
+        <div class="card-top">
+          <span class="card-status" data-i18n="common.live">已上线</span>
+          <span class="card-num" data-i18n="card-03.num">第 3 章</span>
+        </div>
+        <h3 data-i18n="card-03.title">色彩专题</h3>
+        <span class="card-en" data-i18n="card-03.en">Color Special Topic</span>
+        <p class="card-desc" data-i18n="card-03.desc">独立专题：颜色模型 + colormap + Lab 色域 + 5 大色系 + 经典科研配色 + 对错案例 + CVD 论文图测，配色一站式。</p>
+        <ul class="card-learn">
+          <li data-i18n="card-03.l1">理解 4 种颜色空间与 Lab 色域</li>
+          <li data-i18n="card-03.l2">掌握 5 大色系规则</li>
+          <li data-i18n="card-03.l3">应用 Wong / Paul Tol 科研配色</li>
+          <li data-i18n="card-03.l4">避开 CVD 色觉障碍陷阱</li>
+        </ul>
+        <div class="card-cta"><span data-i18n="common.enter">进入章节 →</span></div>
+        <p class="card-source" data-i18n-html="card-03.source"><strong>独立专题</strong></p>
+      </a>
+
+      <a class="card reveal" data-c="4" href="lesson-04/">
+        <div class="card-top">
+          <span class="card-status" data-i18n="common.live">已上线</span>
+          <span class="card-num" data-i18n="card-04.num">第 4 章</span>
+        </div>
+        <h3 data-i18n="card-04.title">低维数据可视化</h3>
+        <span class="card-en" data-i18n="card-04.en">Low-Dimensional Data</span>
+        <p class="card-desc" data-i18n="card-04.desc">Crime 数据坐标变换、10 种曲线拟合、Cleveland 45° 倾角、Marching Squares 等值线。</p>
+        <ul class="card-learn">
+          <li data-i18n="card-04.l1">掌握三层坐标变换</li>
+          <li data-i18n="card-04.l2">对比 10 种曲线拟合方法</li>
+          <li data-i18n="card-04.l3">用 Cleveland 45° 判断图表优劣</li>
+          <li data-i18n="card-04.l4">理解 Marching Squares 等值线</li>
+        </ul>
+        <div class="card-cta"><span data-i18n="common.enter">进入章节 →</span></div>
+        <p class="card-source" data-i18n-html="card-04.source"><strong>5. 低维数据可视化</strong></p>
+      </a>
+
+      <a class="card reveal" data-c="5" href="lesson-05/">
+        <div class="card-top">
+          <span class="card-status" data-i18n="common.live">已上线</span>
+          <span class="card-num" data-i18n="card-05.num">第 5 章</span>
+        </div>
+        <h3 data-i18n="card-05.title">时序数据可视化</h3>
+        <span class="card-en" data-i18n="card-05.en">Time-Series Data</span>
+        <p class="card-desc" data-i18n="card-05.desc">5 个时间属性、法国人名时间序列、van Wijk 日历热图、阿基米德螺旋日历、Storyline 故事线（《侏罗纪公园》案例）。</p>
+        <ul class="card-learn">
+          <li data-i18n="card-05.l1">分解时间的 5 个属性</li>
+          <li data-i18n="card-05.l2">用日历热图 colormap 展示分布</li>
+          <li data-i18n="card-05.l3">用极坐标做阿基米德螺旋日历</li>
+          <li data-i18n="card-05.l4">用 Storyline 讲清故事线</li>
+        </ul>
+        <div class="card-cta"><span data-i18n="common.enter">进入章节 →</span></div>
+        <p class="card-source" data-i18n-html="card-05.source"><strong>6. 时序数据可视化</strong></p>
+      </a>
+    </div>
+  </section>
+
+  <!-- ========== ③ 课程知识图谱 ========== -->
+  <section id="graph" class="section">
+    <div class="sec-head">
+      <span class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="5" cy="6" r="2"/><circle cx="19" cy="6" r="2"/><circle cx="9" cy="18" r="2"/><circle cx="17" cy="14" r="2"/><path d="M6.8 7.4 8.3 16M17.4 7.7 8.6 16.7M19 8v4M5 8v8"/></svg></span>
+      <h2 class="sec-title" data-i18n="graph.title">课程知识图谱</h2>
+      <span class="sec-num">03</span>
+    </div>
+    <p class="sec-lead reveal" data-i18n="graph.lead">理论奠基 → 核心概念 → 章节技术。悬停任意节点，查看它与前后概念的关联。</p>
+
+    <div class="graph-wrap reveal">
+      <div class="graph-flex">
+        <div class="graph-svg" id="graphSvg"></div>
+        <div class="graph-side">
+          <div class="graph-cap" id="graphCap" data-i18n="graph.caption-default">悬停节点探索课程的知识网络</div>
+          <div class="graph-tip" data-i18n="graph.tip">悬停 / 点击节点查看说明</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== ④ 章节能力雷达图 ========== -->
+  <section id="radar" class="section">
+    <div class="sec-head">
+      <span class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 21 8v8l-9 5-9-5V8z"/><path d="M3 8l9 5 9-5M12 13v8"/></svg></span>
+      <h2 class="sec-title" data-i18n="radar.title">课程能力概览</h2>
+      <span class="sec-num">04</span>
+    </div>
+    <p class="sec-lead reveal" data-i18n="radar.lead">五个维度衡量课程的知识覆盖度，让学习目标一目了然。</p>
+
+    <div class="radar-wrap reveal">
+      <div id="radar"></div>
+      <p class="radar-note" data-i18n="radar.note">数值为课程内容覆盖度的相对评估</p>
+    </div>
+  </section>
+
+  <!-- ========== ⑤ 关键知识点微型演示 ========== -->
+  <section id="demo" class="section">
+    <div class="sec-head">
+      <span class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 3v6L4.5 15a2 2 0 0 0 1.7 3h11.6a2 2 0 0 0 1.7-3L15 9V3"/><path d="M9 21h6"/></svg></span>
+      <h2 class="sec-title" data-i18n="demo.title">关键知识点速览</h2>
+      <span class="sec-num">05</span>
+    </div>
+    <p class="sec-lead reveal" data-i18n="demo.lead">四个微型演示，点开即学。</p>
+
+    <div class="demo-grid">
+
+      <!-- DIKW -->
+      <div class="demo-card reveal">
+        <h3 data-i18n="demo.di.title">DIKW 金字塔</h3>
+        <div class="demo-body">
+          <svg class="dikw-svg" id="dikwSvg" viewBox="0 0 260 320" aria-hidden="true"></svg>
+          <div class="demo-side">
+            <div class="demo-cap" id="diCap" data-i18n="demo.di.hint">点击任意一层查看释义</div>
+            <div class="demo-keys" id="diKeys"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Stevens -->
+      <div class="demo-card reveal">
+        <h3 data-i18n="demo.st.title">Stevens 测量尺度</h3>
+        <div class="demo-body">
+          <div class="st-grid" id="stGrid"></div>
+          <div class="demo-side">
+            <div class="demo-cap" id="stCap" data-i18n="demo.st.hint">点击某列查看该尺度的能力边界</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mackinlay -->
+      <div class="demo-card reveal">
+        <h3 data-i18n="demo.mk.title">视觉通道的精确度</h3>
+        <div class="demo-body">
+          <div class="mk-bars" id="mkBars"></div>
+          <div class="demo-side">
+            <div class="demo-cap" id="mkCap" data-i18n="demo.mk.hint">悬停 / 点击色条查看该通道的典型用途</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Card 数据流 -->
+      <div class="demo-card reveal">
+        <h3 data-i18n="demo.cd.title">Card 数据流模型</h3>
+        <div class="demo-body">
+          <div class="cd-flow">
+            <div class="cd-stages" id="cdStages"></div>
+            <div class="cd-trans" id="cdTrans"></div>
+          </div>
+          <div class="demo-side">
+            <div class="demo-cap" id="cdCap" data-i18n="demo.cd.hint">点击环节查看它在管道中的角色</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========== ⑥ 使用方式 ========== -->
+  <section id="howto" class="section">
+    <div class="sec-head">
+      <span class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22a10 10 0 1 1 10-10"/><path d="M12 7v5l3 3"/><path d="M18 18v3M21 19.5v0"/></svg></span>
+      <h2 class="sec-title" data-i18n="howto.title">使用方式</h2>
+      <span class="sec-num">06</span>
+    </div>
+    <div class="howto-grid">
+      <div class="howto-card reveal">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 6h20M2 10h20M2 14h20M2 18h20"/></svg><span data-i18n="usage.classroom.title">课堂讲解</span></h3>
+        <p data-i18n="usage.classroom.desc">打开任一章节后，左侧选小节，顶部切换「讲解 / 代码 / 演示」三个 Tab，一边讲解、一边实时运行。</p>
+      </div>
+      <div class="howto-card reveal">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg><span data-i18n="usage.student.title">学生自学</span></h3>
+        <p data-i18n="usage.student.desc">按章节顺序过完所有关键点，每个关键点配有「为什么这么写」与「有什么坑」两段说明。</p>
+      </div>
+      <div class="howto-card reveal">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4v2"/><circle cx="10" cy="7" r="3.6"/><path d="M21 14v3M21 20h.01"/></svg><span data-i18n="usage.teacher.title">教师备课时</span></h3>
+        <p data-i18n="usage.teacher.desc">每个章节有独立的 demo/ 子目录，可单独运行、单独修改、单独打包给学生。</p>
+      </div>
+      <div class="howto-card reveal">
+        <h3><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M2 21h20M7 3v14M13 3v7M19 3v7"/></svg><span data-i18n="usage.lan.title">局域网使用</span></h3>
+        <p data-i18n="usage.lan.desc">若公网不通，可在本机运行 <code>python -m http.server 8080</code>，学生连同一 WiFi 即可访问。</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== ⑦ 关于本课程 ========== -->
+  <section id="about" class="section">
+    <div class="sec-head">
+      <span class="sec-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1"/></svg></span>
+      <h2 class="sec-title" data-i18n="about.title">关于本课程</h2>
+      <span class="sec-num">07</span>
+    </div>
+    <div class="about">
+      <div class="about-item reveal">
+        <h4><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V4H6.5A2.5 2.5 0 0 0 4 6.5z"/></svg><span data-i18n="about.theory">理论来源</span></h4>
+        <p data-i18n="about.theory.desc">陈为《可视化导论》、Mackinlay 1986、Stevens 1946、Cleveland 1984、Bostock D3 官方文档、Card 1999 数据流模型。</p>
+      </div>
+      <div class="about-item reveal">
+        <h4><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 9l-4 4 1 6-5-3-5 3 1-6-4-4 5.5-.5z"/></svg><span data-i18n="about.principle">设计原则</span></h4>
+        <p data-i18n="about.principle.desc">案例为中心，而非理论为中心。每个知识点都嵌入到实践案例里，配关键点解释与可运行演示。</p>
+      </div>
+      <div class="about-item reveal">
+        <h4><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h3M16 3h3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-3M12 3v18"/></svg><span data-i18n="about.stack">技术栈</span></h4>
+        <p data-i18n="about.stack.desc">零依赖：纯 HTML + CSS + ES modules + D3.js v7（CDN）。一条命令 python -m http.server 启动，无需 npm。</p>
+      </div>
+      <div class="about-item reveal">
+        <h4><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7.5" ry="3"/><path d="M4.5 6v12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3V6"/><path d="M4.5 12c0 1.7 3.4 3 7.5 3s7.5-1.3 7.5-3"/></svg><span data-i18n="about.data">数据集</span></h4>
+        <p data-i18n="about.data.desc">新生数据 CSV 与 Crime 数据等已打包进 data/ 目录，浏览器 fetch 加载，离线可用。</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="footer-inner">
+    <p data-i18n-html="footer.copyright">© 2026 《可视化导论》课程 · 中国石油大学（华东）· 授课教师：<a href="https://cinger007.github.io/" target="_blank" rel="noopener" class="teacher-link">李昕</a> · 主要参考教材：陈为《可视化导论》</p>
+    <p class="footer-meta" data-i18n="footer.meta">零依赖 · D3.js v7 · 单文件部署 · 无视频 · 无额外存储</p>
+  </div>
+</footer>
+
+<button id="totop" type="button" aria-label="回到顶部" title="回到顶部">
+  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5M5 12l7-7 7 7"/></svg>
+</button>
+
+<script>
+/* ============================================================
+   《可视化导论》门户脚本：i18n + 4 个可视化 + 页面交互
+   ============================================================ */
+(function(){
+"use strict";
+
+/* ---------- 双语字典 ---------- */
+var I18N = {
+zh: {
+  "nav.map":"学习路径","nav.chapters":"章节","nav.graph":"知识图谱","nav.radar":"能力概览","nav.demo":"知识点","nav.howto":"使用方式","nav.about":"关于",
+  "hero.tag":"VISUALIZATION · INTRODUCTION",
+  "hero.h1":"《可视化导论》",
+  "hero.subtitle":"从数据到图表：JavaScript + D3.js 实战课程",
+  "hero.meta":"中国石油大学（华东）· 授课教师：<a href=\"https://cinger007.github.io/\" target=\"_blank\" rel=\"noopener\" class=\"teacher-link\">李昕</a> · 主要参考教材：陈为《可视化导论》",
+  "hero.scroll":"向下滚动，从学习路径开始",
+  "hero.cta1":"开始学习","hero.cta2":"学习路径","hero.stat1":"大章节","hero.stat2":"个交互演示","hero.stat3":"种语言","hero.stat4":"第三方依赖",
+  "path.title":"课程学习路径图","path.lead":"建议按主线顺序学习；色彩专题是独立内容，可与主线并行。","path.main":"主线","path.side":"独立专题 · 可并行",
+  "path.n1.title":"数据","path.n1.desc":"DIKW 金字塔、Stevens 测量尺度、Mackinlay 视觉通道、D3 变换与 Selection 三态",
+  "path.n2.title":"数据可视化流程","path.n2.desc":"Card 数据流模型：原始数据如何一步步变成图表",
+  "path.n3.title":"色彩专题","path.n3.desc":"颜色模型、colormap、科研配色与 CVD 色觉安全",
+  "path.n4.title":"低维数据可视化","path.n4.desc":"坐标变换、10 种曲线拟合、Cleveland 45° 与 Marching Squares",
+  "path.n5.title":"时序数据可视化","path.n5.desc":"时间分解、日历热图、阿基米德螺旋日历与 Storyline 故事线",
+  "chapters.title":"课程章节","chapters.lead":"点击卡片进入对应章节，每章含「讲解 / 代码 / 演示」三个 Tab。",
+  "common.live":"已上线","common.master":"你将掌握","common.enter":"进入章节 →","common.maps-to":"对应你的文档：",
+  "card-01.num":"第 1 章","card-01.title":"数据","card-01.en":"Data",
+  "card-01.desc":"从 DeepSeek 合成新生数据出发，展开数据生成、DIKW、Stevens 测量尺度、Mackinlay 视觉通道、D3 数据变换与 Data-Join 三态。",
+  "card-01.l1":"区分 数据 / 信息 / 知识 / 智慧（DIKW）","card-01.l2":"识别 Stevens 四种测量尺度","card-01.l3":"用 Mackinlay 视觉通道挑选编码","card-01.l4":"理解 D3 变换函数与 Selection 三态",
+  "card-01.source":"<strong>3. 数据</strong>",
+  "card-02.num":"第 2 章","card-02.title":"数据可视化流程","card-02.en":"The Visualization Pipeline",
+  "card-02.desc":"Card 数据流模型、新生数据 → 分类树 → 树形列表的完整链路，Reingold-Tilford 布局、DOM 事件机制。",
+  "card-02.l1":"走通 Card 数据流模型的完整链路","card-02.l2":"用 d3.rollup 聚合分组数据","card-02.l3":"理解 Reingold-Tilford 树布局","card-02.l4":"用事件委托处理大量 DOM 节点",
+  "card-02.source":"<strong>4. 数据可视化流程</strong>",
+  "card-03.num":"第 3 章","card-03.title":"色彩专题","card-03.en":"Color Special Topic",
+  "card-03.desc":"独立专题：颜色模型 + colormap + Lab 色域 + 5 大色系 + 经典科研配色 + 对错案例 + CVD 论文图测，配色一站式。",
+  "card-03.l1":"理解 4 种颜色空间与 Lab 色域","card-03.l2":"掌握 5 大色系规则","card-03.l3":"应用 Wong / Paul Tol 科研配色","card-03.l4":"避开 CVD 色觉障碍陷阱",
+  "card-03.source":"<strong>独立专题</strong>",
+  "card-04.num":"第 4 章","card-04.title":"低维数据可视化","card-04.en":"Low-Dimensional Data",
+  "card-04.desc":"Crime 数据坐标变换、10 种曲线拟合、Cleveland 45° 倾角、Marching Squares 等值线。",
+  "card-04.l1":"掌握三层坐标变换","card-04.l2":"对比 10 种曲线拟合方法","card-04.l3":"用 Cleveland 45° 判断图表优劣","card-04.l4":"理解 Marching Squares 等值线",
+  "card-04.source":"<strong>5. 低维数据可视化</strong>",
+  "card-05.num":"第 5 章","card-05.title":"时序数据可视化","card-05.en":"Time-Series Data",
+  "card-05.desc":"5 个时间属性、法国人名时间序列、van Wijk 日历热图、阿基米德螺旋日历、Storyline 故事线（《侏罗纪公园》案例）。",
+  "card-05.l1":"分解时间的 5 个属性","card-05.l2":"用日历热图 colormap 展示分布","card-05.l3":"用极坐标做阿基米德螺旋日历","card-05.l4":"用 Storyline 讲清故事线",
+  "card-05.source":"<strong>6. 时序数据可视化</strong>",
+  "graph.title":"课程知识图谱","graph.lead":"理论奠基 → 核心概念 → 章节技术。悬停任意节点，查看它与前后概念的关联。",
+  "graph.caption-default":"悬停节点探索课程的知识网络","graph.tip":"悬停 / 点击节点查看说明",
+  "radar.title":"课程能力概览","radar.lead":"五个维度衡量课程的知识覆盖度，让学习目标一目了然。","radar.note":"数值为课程内容覆盖度的相对评估",
+  "radar.i1":"数据","radar.i2":"流程","radar.i3":"色彩","radar.i4":"低维方法","radar.i5":"时序方法",
+  "demo.title":"关键知识点速览","demo.lead":"四个微型演示，点开即学。",
+  "demo.di.title":"DIKW 金字塔","demo.di.hint":"点击任意一层查看释义",
+  "demo.st.title":"Stevens 测量尺度","demo.st.hint":"点击某列查看该尺度的能力边界",
+  "demo.mk.title":"视觉通道的精确度","demo.mk.hint":"悬停 / 点击色条查看该通道的典型用途",
+  "demo.cd.title":"Card 数据流模型","demo.cd.hint":"点击环节查看它在管道中的角色",
+  "howto.title":"使用方式",
+  "usage.classroom.title":"课堂讲解","usage.classroom.desc":"打开任一章节后，左侧选小节，顶部切换「讲解 / 代码 / 演示」三个 Tab，一边讲解、一边实时运行。",
+  "usage.student.title":"学生自学","usage.student.desc":"按章节顺序过完所有关键点，每个关键点配有「为什么这么写」与「有什么坑」两段说明。",
+  "usage.teacher.title":"教师备课时","usage.teacher.desc":"每个章节有独立的 demo/ 子目录，可单独运行、单独修改、单独打包给学生。",
+  "usage.lan.title":"局域网使用","usage.lan.desc":"若公网不通，可在本机运行 python -m http.server 8080，学生连同一 WiFi 即可访问。",
+  "about.title":"关于本课程","about.theory":"理论来源","about.theory.desc":"陈为《可视化导论》、Mackinlay 1986、Stevens 1946、Cleveland 1984、Bostock D3 官方文档、Card 1999 数据流模型。",
+  "about.principle":"设计原则","about.principle.desc":"案例为中心，而非理论为中心。每个知识点都嵌入到实践案例里，配关键点解释与可运行演示。",
+  "about.stack":"技术栈","about.stack.desc":"零依赖：纯 HTML + CSS + ES modules + D3.js v7（CDN）。一条命令 python -m http.server 启动，无需 npm。",
+  "about.data":"数据集","about.data.desc":"新生数据 CSV 与 Crime 数据等已打包进 data/ 目录，浏览器 fetch 加载，离线可用。",
+  "footer.copyright":"© 2026 《可视化导论》课程 · 中国石油大学（华东）· 授课教师：<a href=\"https://cinger007.github.io/\" target=\"_blank\" rel=\"noopener\" class=\"teacher-link\">李昕</a> · 主要参考教材：陈为《可视化导论》",
+  "footer.meta":"零依赖 · D3.js v7 · 单文件部署 · 无视频 · 无额外存储",
+  "ui.totop":"回到顶部"
+},
+en: {
+  "nav.map":"Path","nav.chapters":"Chapters","nav.graph":"Map","nav.radar":"Coverage","nav.demo":"Ideas","nav.howto":"Guide","nav.about":"About",
+  "hero.tag":"VISUALIZATION · INTRODUCTION",
+  "hero.h1":"Introduction to Visualization",
+  "hero.subtitle":"From data to charts: a hands-on course with JavaScript + D3.js",
+  "hero.meta":"China University of Petroleum (East China) · Instructor: <a href=\"https://cinger007.github.io/\" target=\"_blank\" rel=\"noopener\" class=\"teacher-link\">Li Xin</a> · Textbook: <i>Introduction to Visualization</i> by Wei Chen",
+  "hero.scroll":"Scroll down and start with the learning path",
+  "hero.cta1":"Start Learning","hero.cta2":"Learning Path","hero.stat1":"Chapters","hero.stat2":"Interactive Demos","hero.stat3":"Languages","hero.stat4":"Dependencies",
+  "path.title":"Learning Path","path.lead":"Follow the main line in order. The color special topic is standalone and can be taken in parallel.","path.main":"Main line","path.side":"Standalone · parallel",
+  "path.n1.title":"Data","path.n1.desc":"DIKW pyramid, Stevens' scales, Mackinlay channels, D3 transforms and Selection states",
+  "path.n2.title":"Visualization Pipeline","path.n2.desc":"Card's data-flow model: how raw data becomes charts step by step",
+  "path.n3.title":"Color Special Topic","path.n3.desc":"Color models, colormaps, scientific palettes and CVD-safe design",
+  "path.n4.title":"Low-Dimensional Data","path.n4.desc":"Coordinate transforms, 10 curve fits, Cleveland 45° and Marching Squares",
+  "path.n5.title":"Time-Series Data","path.n5.desc":"Time decomposition, calendar heatmaps, spiral calendars and storylines",
+  "chapters.title":"Chapters","chapters.lead":"Click a card to open the chapter. Each chapter has three tabs: Explain / Code / Demo.",
+  "common.live":"Live","common.master":"You will learn","common.enter":"Open chapter →","common.maps-to":"Maps to your doc:",
+  "card-01.num":"Chapter 1","card-01.title":"Data","card-01.en":"Data",
+  "card-01.desc":"Starting from synthetic freshman data, the chapter covers data generation, DIKW, Stevens' scales, Mackinlay channels, D3 transforms and the three Data-Join states.",
+  "card-01.l1":"Distinguish data / information / knowledge / wisdom (DIKW)","card-01.l2":"Identify Stevens' four measurement scales","card-01.l3":"Pick encodings with Mackinlay's channels","card-01.l4":"Understand D3 transforms and Selection states",
+  "card-01.source":"<strong>3. Data</strong>",
+  "card-02.num":"Chapter 2","card-02.title":"The Visualization Pipeline","card-02.en":"The Visualization Pipeline",
+  "card-02.desc":"Card's data-flow model, the full path from freshman data to a classification tree to a tree list, Reingold-Tilford layout and the DOM event system.",
+  "card-02.l1":"Walk through Card's five-step data flow","card-02.l2":"Aggregate and group data with d3.rollup","card-02.l3":"Understand the Reingold-Tilford tree layout","card-02.l4":"Use event delegation for many DOM nodes",
+  "card-02.source":"<strong>4. The Visualization Pipeline</strong>",
+  "card-03.num":"Chapter 3","card-03.title":"Color Special Topic","card-03.en":"Color Special Topic",
+  "card-03.desc":"A standalone topic: color models + colormaps + Lab gamut + 5 palette rules + classic scientific palettes + right/wrong cases + a CVD paper-figure tester.",
+  "card-03.l1":"Understand 4 color spaces and the Lab gamut","card-03.l2":"Master the 5 palette rules","card-03.l3":"Apply Wong / Paul Tol scientific palettes","card-03.l4":"Avoid CVD color-vision traps",
+  "card-03.source":"<strong>Standalone topic</strong>",
+  "card-04.num":"Chapter 4","card-04.title":"Low-Dimensional Data","card-04.en":"Low-Dimensional Data",
+  "card-04.desc":"Coordinate transforms on the Crime dataset, 10 curve fits, the Cleveland 45° rule and Marching Squares isolines.",
+  "card-04.l1":"Master the three-layer coordinate transforms","card-04.l2":"Compare 10 curve-fitting methods","card-04.l3":"Judge charts with the Cleveland 45° rule","card-04.l4":"Understand Marching Squares isolines",
+  "card-04.source":"<strong>5. Low-Dimensional Data</strong>",
+  "card-05.num":"Chapter 5","card-05.title":"Time-Series Data","card-05.en":"Time-Series Data",
+  "card-05.desc":"Five time attributes, a French-name time series, van Wijk's calendar heatmap, Archimedean spiral calendars and a Storyline (Jurassic Park case).",
+  "card-05.l1":"Decompose the five attributes of time","card-05.l2":"Show distributions with calendar colormaps","card-05.l3":"Build Archimedean spiral calendars in polar coordinates","card-05.l4":"Tell stories with Storyline",
+  "card-05.source":"<strong>6. Time-Series Data</strong>",
+  "graph.title":"Knowledge Map","graph.lead":"Foundations → core concepts → techniques. Hover a node to see how it connects.",
+  "graph.caption-default":"Hover a node to explore the knowledge network","graph.tip":"Hover / click a node for details",
+  "radar.title":"Course Coverage","radar.lead":"Five dimensions of coverage, so learning goals are clear at a glance.","radar.note":"Values are relative estimates of course coverage",
+  "radar.i1":"Data","radar.i2":"Pipeline","radar.i3":"Color","radar.i4":"Low-dim","radar.i5":"Time series",
+  "demo.title":"Key Ideas at a Glance","demo.lead":"Four mini demos — click to learn.",
+  "demo.di.title":"DIKW Pyramid","demo.di.hint":"Click a layer for its meaning",
+  "demo.st.title":"Stevens' Scales","demo.st.hint":"Click a column to see what that scale allows",
+  "demo.mk.title":"Channel Precision","demo.mk.hint":"Hover / click a bar to see how that channel is used",
+  "demo.cd.title":"Card's Data-Flow","demo.cd.hint":"Click a stage to see its role in the pipeline",
+  "howto.title":"How to Use",
+  "usage.classroom.title":"In Class","usage.classroom.desc":"Open a chapter, pick a subsection on the left, switch between the Explain / Code / Demo tabs on top — explain and run in real time.",
+  "usage.student.title":"Self-Study","usage.student.desc":"Go through all key points in chapter order; each point has a \"why it is written this way\" and a \"common pitfalls\" note.",
+  "usage.teacher.title":"Lesson Prep","usage.teacher.desc":"Each chapter ships with an independent demo/ folder that can be run, edited and zipped for students separately.",
+  "usage.lan.title":"On a LAN","usage.lan.desc":"If the public network is down, run python -m http.server 8080 on your machine and students on the same WiFi can connect.",
+  "about.title":"About","about.theory":"Foundations","about.theory.desc":"Textbook by Wei Chen, Mackinlay 1986, Stevens 1946, Cleveland 1984, Bostock's D3 docs, and Card's 1999 data-flow model.",
+  "about.principle":"Principles","about.principle.desc":"Case-centered, not theory-centered. Every concept is embedded in a practical example with key-point notes and a runnable demo.",
+  "about.stack":"Tech Stack","about.stack.desc":"Zero dependencies: plain HTML + CSS + ES modules + D3.js v7 (CDN). Start with one command, no npm needed.",
+  "about.data":"Datasets","about.data.desc":"The freshman-data CSV and the Crime dataset ship in the data/ folder, loaded via fetch and fully offline-capable.",
+  "footer.copyright":"© 2026 Intro to Visualization · China University of Petroleum (East China) · Instructor: <a href=\"https://cinger007.github.io/\" target=\"_blank\" rel=\"noopener\" class=\"teacher-link\">Li Xin</a> · Textbook: <i>Introduction to Visualization</i> by Wei Chen",
+  "footer.meta":"Zero-dependency · D3.js v7 · single-file deploy · no videos · no extra storage",
+  "ui.totop":"Back to top"
+}
+};
+
+/* 演示类内容字典（JS 渲染使用） */
+var D = {
+zh: {
+  "di.l":["数据","信息","知识","智慧"],
+  "di.d":["原始事实与数值，未经解释。","回答「谁 / 什么 / 何时 / 何地」的有组织数据。","回答「如何做」的模式、规则与经验。","回答「为何」的判断与决策能力。"],
+  "di.e":["Data","Information","Knowledge","Wisdom"],
+  "st.head":["尺度","定类","定序","定距","定比"],
+  "st.ex":["例子","院系、性别","排名、等级","温度、年份","身高、收入"],
+  "st.ops":["计数","排序","加减","乘除"],
+  "st.d":["定类：仅可分类与计数。","定序：可分大小，但差值无意义。","定距：差值有意义，无绝对零点。","定比：有绝对零点，可乘除比较。"],
+  "st.yes":"✓","st.no":"✗",
+  "mk.name":["位置","长度","角度","面积","颜色","形状"],
+  "mk.d":["位置：散点图坐标，人眼判读最准。","长度：柱状图高度，可精细比较。","角度：饼图扇区，判断需谨慎。","面积：气泡大小，感知非线性。","颜色：色相 / 亮度，适合分类与渐变。","形状：点形等，精确度最低。"],
+  "cd.stage":["原始数据","数据表格","可视化形式","视图"],
+  "cd.sub":["Raw data","Data tables","Visual form","View"],
+  "cd.d":["第一手数据：CSV、日志、API 返回。","行列结构化的数据，经 d3.rollup 等变换得到。","数据被映射为图形元素：位置、颜色、大小。","人最终看到的图表：含布局、变换与交互。"],
+  "cd.t":["数据变换","视觉映射","视图变换"],
+  "cd.td":["数据变换：筛选、聚合、派生新字段。","视觉映射：把字段映射到视觉通道。","视图变换：聚焦、缩放、刷选等交互。"]
+},
+en: {
+  "di.l":["Data","Information","Knowledge","Wisdom"],
+  "di.d":["Raw facts and numbers, uninterpreted.","Data organized to answer who / what / when / where.","Patterns, rules and experience answering \"how\".","Judgment and decision-making answering \"why\"."],
+  "di.e":["Data","Information","Knowledge","Wisdom"],
+  "st.head":["Scale","Nominal","Ordinal","Interval","Ratio"],
+  "st.ex":["Example","Dept., gender","Rank, grade","Temp., year","Height, income"],
+  "st.ops":["Count","Order","Add/Sub","Mul/Div"],
+  "st.d":["Nominal: categories and counts only.","Ordinal: order matters, differences don't.","Interval: differences meaningful, no true zero.","Ratio: true zero, ratios comparable."],
+  "st.yes":"✓","st.no":"✗",
+  "mk.name":["Position","Length","Angle","Area","Color","Shape"],
+  "mk.d":["Position: scatterplot coordinates — the most precise.","Length: bar height, good for fine comparison.","Angle: pie slices, judge with care.","Area: bubble size, perceived non-linearly.","Color: hue / lightness, for categories and gradients.","Shape: point markers, the least precise."],
+  "cd.stage":["Raw data","Data tables","Visual form","View"],
+  "cd.sub":["Raw data","Data tables","Visual form","View"],
+  "cd.d":["Source data: CSV, logs, API responses.","Tabular data, structured by transforms like d3.rollup.","Data mapped to marks: position, color, size.","The final chart the human sees: layout, transforms, interaction."],
+  "cd.t":["Data transforms","Visual mapping","View transforms"],
+  "cd.td":["Data transforms: filter, aggregate, derive fields.","Visual mapping: map fields to visual channels.","View transforms: focus, zoom, brush interactions."]
+}
+};
+
+/* 知识图谱数据 */
+var G = {
+  colX:[120,340,560], colW:[150,140,150],
+  rows:{theory:5, core:4, tech:6},
+  nodes:[
+    {id:"t1",col:0,row:0,zh:"陈为《导论》",en:"Chen's textbook"},
+    {id:"t2",col:0,row:1,zh:"Stevens 1946",en:"Stevens 1946"},
+    {id:"t3",col:0,row:2,zh:"Mackinlay 1986",en:"Mackinlay 1986"},
+    {id:"t4",col:0,row:3,zh:"Cleveland 1984",en:"Cleveland 1984"},
+    {id:"t5",col:0,row:4,zh:"Card 1999",en:"Card 1999"},
+    {id:"c1",col:1,row:0,zh:"DIKW 金字塔",en:"DIKW pyramid"},
+    {id:"c2",col:1,row:1,zh:"测量尺度",en:"Scales"},
+    {id:"c3",col:1,row:2,zh:"视觉通道",en:"Channels"},
+    {id:"c4",col:1,row:3,zh:"数据流模型",en:"Data-flow"},
+    {id:"k1",col:2,row:0,zh:"D3 变换·三态",en:"D3 transforms"},
+    {id:"k2",col:2,row:1,zh:"R-T 树布局",en:"R-T layout"},
+    {id:"k3",col:2,row:2,zh:"colormap·色系",en:"colormaps"},
+    {id:"k4",col:2,row:3,zh:"曲线拟合",en:"curve fit"},
+    {id:"k5",col:2,row:4,zh:"等值线",en:"isolines"},
+    {id:"k6",col:2,row:5,zh:"日历·故事线",en:"calendar·storyline"}
+  ],
+  edges:[
+    ["t1","c1"],["t2","c2"],["t3","c3"],["t5","c4"],
+    ["t4","k4"],["t4","k5"],
+    ["c1","k1"],["c2","k2"],["c3","k3"],["c3","k4"],["c3","k6"],["c4","k1"],["c4","k6"]
+  ],
+  cap:{
+    t1:["理论基础：陈为《可视化导论》为本课程的纲目依据。","Foundation: the textbook by Wei Chen frames the whole course."],
+    t2:["Stevens 1946：四种测量尺度定义数据可用的运算。","Stevens 1946: four measurement scales define what operations are allowed."],
+    t3:["Mackinlay 1986：视觉通道按精确度排序，指导编码选择。","Mackinlay 1986: channels ranked by precision to guide encodings."],
+    t4:["Cleveland 1984：图形感知原则，如 45° 倾角准则。","Cleveland 1984: principles of graphical perception, e.g. the 45° rule."],
+    t5:["Card 1999：数据流模型描述可视化管道。","Card 1999: the data-flow model describes the visualization pipeline."],
+    c1:["DIKW：从数据到智慧的四层提炼，第 1 章核心。","DIKW: four levels from data to wisdom — the core of Chapter 1."],
+    c2:["测量尺度：定类 / 定序 / 定距 / 定比。","Scales: nominal / ordinal / interval / ratio."],
+    c3:["视觉通道：位置、长度、颜色、形状等编码通道。","Channels: position, length, color, shape encodings."],
+    c4:["数据流模型：原始数据 → 表格 → 形式 → 视图。","Data-flow: raw data → tables → form → view."],
+    k1:["D3 的 data()/join() 与 Selection 三态（enter/update/exit）。","D3's data()/join() and the three Selection states (enter/update/exit)."],
+    k2:["Reingold-Tilford：整齐紧凑的树布局算法。","Reingold-Tilford: a tidy, compact tree layout algorithm."],
+    k3:["colormap 与 5 大色系规则，Wong / Paul Tol 配色。","Colormaps and the 5 palette rules, Wong / Paul Tol schemes."],
+    k4:["曲线拟合：10 种方法在 Crime 数据上的对比。","Curve fitting: 10 methods compared on the Crime dataset."],
+    k5:["Marching Squares：从网格数据提取等值线。","Marching Squares: extracting isolines from grid data."],
+    k6:["日历热图与 Storyline：时序数据的叙事手法。","Calendar heatmaps and Storyline: narrative techniques for time."]
+  }
+};
+
+var CUR = "zh";
+
+function t(key){ return (I18N[CUR] && I18N[CUR][key] != null) ? I18N[CUR][key] : key; }
+function dt(key, i){ var a = D[CUR][key]; return a[i % a.length]; }
+
+/* ---------- 语言切换 ---------- */
+function saveLang(){ try{ localStorage.setItem("vis-intro-lang", CUR); }catch(e){} }
+function loadLang(){ try{ var v = localStorage.getItem("vis-intro-lang"); if(v==="zh"||v==="en") return v; }catch(e){} return "zh"; }
+function applyLang(lang){
+  CUR = lang;
+  document.documentElement.lang = (lang === "zh") ? "zh-CN" : "en";
+  var els = document.querySelectorAll("[data-i18n]");
+  for (var i=0;i<els.length;i++){ els[i].textContent = t(els[i].getAttribute("data-i18n")); }
+  els = document.querySelectorAll("[data-i18n-html]");
+  for (i=0;i<els.length;i++){ els[i].innerHTML = t(els[i].getAttribute("data-i18n-html")); }
+  document.title = t("hero.h1");
+  var btns = document.querySelectorAll(".lang-btn");
+  for (i=0;i<btns.length;i++){ btns[i].classList.toggle("active", btns[i].getAttribute("data-lang") === lang); }
+  renderGraph();
+  renderRadar();
+  initDemos();
+  saveLang();
+}
+
+/* ---------- 导航：进度条 / 回顶 / 滚动显现 / scroll-spy ---------- */
+var navProgress = document.getElementById("navProgress");
+var totop = document.getElementById("totop");
+function onScroll(){
+  var h = document.documentElement;
+  var max = h.scrollHeight - h.clientHeight;
+  var p = max > 0 ? (h.scrollTop / max * 100) : 0;
+  navProgress.style.width = p + "%";
+  totop.classList.toggle("show", h.scrollTop > 600);
+}
+window.addEventListener("scroll", onScroll, {passive:true});
+onScroll();
+totop.addEventListener("click", function(){ window.scrollTo({top:0, behavior:"smooth"}); });
+
+if ("IntersectionObserver" in window){
+  var revObs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add("in"); revObs.unobserve(en.target); } });
+  }, {threshold:.12});
+  var rv = document.querySelectorAll(".reveal");
+  for (var i=0;i<rv.length;i++) revObs.observe(rv[i]);
+
+  var spy = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting){
+        var id = en.target.id;
+        var links = document.querySelectorAll(".nav-link");
+        for (var j=0;j<links.length;j++) links[j].classList.toggle("active", links[j].getAttribute("href") === "#" + id);
+      }
+    });
+  }, {rootMargin:"-30% 0px -60% 0px"});
+  var secs = document.querySelectorAll("main section");
+  for (i=0;i<secs.length;i++) spy.observe(secs[i]);
+} else {
+  var rv2 = document.querySelectorAll(".reveal");
+  for (i=0;i<rv2.length;i++) rv2[i].classList.add("in");
+}
+
+/* ---------- ① 学习路径图：纯 CSS（HTML 静态），无需 JS ---------- */
+
+/* ---------- ③ 知识图谱 ---------- */
+var graphSvgEl = document.getElementById("graphSvg");
+var graphCap = document.getElementById("graphCap");
+function renderGraph(){
+  var VBW = 700, VBH = 560;
+  var ng = G.nodes.length;
+  var nodeH = 46;
+  var yFor = function(col, row){
+    var n = G.rows[col===0?"theory":(col===1?"core":"tech")];
+    var span = VBH - 130;
+    var top = 60;
+    var ys = [];
+    for (var i=0;i<n;i++) ys.push(top + span * i / (n - 1));
+    return ys[row] || top;
+  };
+  var pos = {};
+  for (var i=0;i<ng;i++){
+    var nd = G.nodes[i];
+    pos[nd.id] = { x: G.colX[nd.col], y: yFor(nd.col, nd.row) };
+  }
+  var adj = {};
+  for (i=0;i<ng;i++) adj[G.nodes[i].id] = {};
+  for (i=0;i<G.edges.length;i++){
+    adj[G.edges[i][0]][G.edges[i][1]] = 1;
+    adj[G.edges[i][1]][G.edges[i][0]] = 1;
+  }
+  var ns = "http://www.w3.org/2000/svg";
+  var svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 " + VBW + " " + VBH);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", t("graph.title"));
+  var lab = CUR === "zh" ? "zh" : "en";
+
+  /* 列标题 */
+  var colTitles = CUR === "zh" ? ["理论来源","核心概念","章节技术"] : ["Foundations","Core concepts","Techniques"];
+  for (i=0;i<3;i++){
+    var tx = document.createElementNS(ns, "text");
+    tx.setAttribute("x", G.colX[i]); tx.setAttribute("y", 34);
+    tx.setAttribute("class", "g-coltitle");
+    tx.textContent = colTitles[i];
+    svg.appendChild(tx);
+  }
+
+  /* 边 */
+  for (i=0;i<G.edges.length;i++){
+    var e = G.edges[i];
+    var p1 = pos[e[0]], p2 = pos[e[1]];
+    var line = document.createElementNS(ns, "line");
+    line.setAttribute("x1", p1.x); line.setAttribute("y1", p1.y);
+    line.setAttribute("x2", p2.x); line.setAttribute("y2", p2.y);
+    line.setAttribute("data-from", e[0]); line.setAttribute("data-to", e[1]);
+    line.setAttribute("class", "g-edge");
+    line.style.opacity = .55;
+    svg.appendChild(line);
+  }
+
+  /* 节点 */
+  for (i=0;i<ng;i++){
+    var n = G.nodes[i];
+    var p = pos[n.id];
+    var g = document.createElementNS(ns, "g");
+    g.setAttribute("class", "g-node");
+    g.setAttribute("data-id", n.id);
+    var rect = document.createElementNS(ns, "rect");
+    var w = G.colW[n.col];
+    rect.setAttribute("x", p.x - w/2); rect.setAttribute("y", p.y - nodeH/2);
+    rect.setAttribute("width", w); rect.setAttribute("height", nodeH);
+    rect.setAttribute("rx", 10);
+    rect.setAttribute("fill", n.col === 2 ? "#fff8ec" : (n.col === 1 ? "#eef5f4" : "#eef7f5"));
+    rect.setAttribute("stroke", n.col === 2 ? "#e5c98f" : (n.col === 1 ? "#9db3ab" : "#7fb3a9"));
+    g.appendChild(rect);
+    var t1 = document.createElementNS(ns, "text");
+    t1.setAttribute("x", p.x); t1.setAttribute("y", p.y + 4);
+    t1.setAttribute("class", "g-label");
+    t1.textContent = n[lab];
+    g.appendChild(t1);
+    g.addEventListener("mouseenter", (function(id){
+      return function(){
+        highlight(id);
+        var capText = G.cap[id][CUR === "zh" ? 0 : 1];
+        var sep = CUR === "zh" ? "：" : ": ";
+        var parts = capText.split(sep);
+        var label = parts[0], rest = parts.slice(1).join(sep);
+        graphCap.innerHTML = "<b>" + label + sep + "</b>" + rest;
+      };
+    })(n.id));
+    g.addEventListener("click", (function(id){
+      return function(){ highlight(id, true); };
+    })(n.id));
+    svg.appendChild(g);
+  }
+
+  function highlight(id, click){
+    var nodes = svg.querySelectorAll(".g-node");
+    var edges = svg.querySelectorAll(".g-edge");
+    var isAdj = function(a, b){ return adj[a][b] === 1; };
+    for (var i=0;i<nodes.length;i++){
+      var nid = nodes[i].getAttribute("data-id");
+      nodes[i].style.opacity = (nid === id || isAdj(id, nid)) ? 1 : .3;
+    }
+    for (i=0;i<edges.length;i++){
+      var from = edges[i].getAttribute("data-from");
+      var to = edges[i].getAttribute("data-to");
+      var isHot = from === id || to === id;
+      edges[i].classList.toggle("hot", isHot);
+      edges[i].style.opacity = isHot ? 1 : .25;
+    }
+    if (click){
+      (function(nodes, edges){
+        setTimeout(function(){
+          for (var i=0;i<nodes.length;i++) nodes[i].style.opacity = 1;
+          for (i=0;i<edges.length;i++){ edges[i].classList.remove("hot"); edges[i].style.opacity = .55; }
+        }, 1400);
+      })(nodes, edges);
+    }
+  }
+  graphSvgEl.innerHTML = "";
+  graphSvgEl.appendChild(svg);
+  graphCap.innerHTML = t("graph.caption-default");
+}
+graphSvgEl.addEventListener("mouseleave", function(){
+  var nodes = graphSvgEl.querySelectorAll(".g-node");
+  var edges = graphSvgEl.querySelectorAll(".g-edge");
+  for (var i=0;i<nodes.length;i++) nodes[i].style.opacity = 1;
+  for (i=0;i<edges.length;i++){ edges[i].classList.remove("hot"); edges[i].style.opacity = .55; }
+  graphCap.innerHTML = t("graph.caption-default");
+});
+
+/* ---------- ④ 能力雷达图（纯 SVG，零依赖，无 CDN） ---------- */
+var RADAR_VALUES = [96, 92, 85, 90, 82];
+function renderRadar(){
+  var host = document.getElementById("radar");
+  var ns = "http://www.w3.org/2000/svg";
+  var W = 320, H = 272, cx = 160, cy = 134, R = 92;
+  var angles = [0,1,2,3,4].map(function(i){ return (-90 + i * 72) * Math.PI / 180; });
+  var pt = function(r, i){
+    return { x: Math.round((cx + r * Math.cos(angles[i])) * 10) / 10,
+             y: Math.round((cy + r * Math.sin(angles[i])) * 10) / 10 };
+  };
+  var svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", "0 0 " + W + " " + H);
+  svg.setAttribute("role", "img");
+  svg.setAttribute("aria-label", t("radar.title"));
+
+  /* 网格：4 层同心多边形 + 辐条 */
+  for (var g = 1; g <= 4; g++){
+    var pts = [0,1,2,3,4].map(function(i){ var p = pt(R * g / 4, i); return p.x + "," + p.y; }).join(" ");
+    var poly = document.createElementNS(ns, "polygon");
+    poly.setAttribute("points", pts);
+    poly.setAttribute("class", "r-grid" + (g === 4 ? " last" : ""));
+    svg.appendChild(poly);
+  }
+  for (var i = 0; i < 5; i++){
+    var sp = document.createElementNS(ns, "line");
+    sp.setAttribute("x1", cx); sp.setAttribute("y1", cy);
+    var p = pt(R, i);
+    sp.setAttribute("x2", p.x); sp.setAttribute("y2", p.y);
+    sp.setAttribute("class", "r-spoke");
+    svg.appendChild(sp);
+  }
+
+  /* 数值多边形 */
+  var vPts = [0,1,2,3,4].map(function(i){ var p = pt(R * RADAR_VALUES[i] / 100, i); return p.x + "," + p.y; }).join(" ");
+  var area = document.createElementNS(ns, "polygon");
+  area.setAttribute("points", vPts);
+  area.setAttribute("class", "r-area");
+  svg.appendChild(area);
+
+  /* 顶点圆点：悬停显示数值与含义 */
+  for (i = 0; i < 5; i++){
+    var vp = pt(R * RADAR_VALUES[i] / 100, i);
+    var gv = document.createElementNS(ns, "g");
+    gv.setAttribute("class", "r-vtx");
+    gv.setAttribute("data-i", i);
+    var dot = document.createElementNS(ns, "circle");
+    dot.setAttribute("cx", vp.x); dot.setAttribute("cy", vp.y); dot.setAttribute("r", 4.5);
+    gv.appendChild(dot);
+    var tt = document.createElementNS(ns, "title");
+    tt.textContent = t("radar.i" + (i + 1)) + "：" + RADAR_VALUES[i];
+    gv.appendChild(tt);
+    var vv = document.createElementNS(ns, "text");
+    vv.setAttribute("x", vp.x); vv.setAttribute("y", vp.y - 8);
+    vv.setAttribute("text-anchor", "middle");
+    vv.textContent = RADAR_VALUES[i];
+    gv.appendChild(vv);
+    gv.addEventListener("mouseenter", function(){ this.classList.add("hot"); });
+    gv.addEventListener("mouseleave", function(){ this.classList.remove("hot"); });
+    gv.addEventListener("pointerenter", function(){ this.classList.add("hot"); });
+    gv.addEventListener("pointerleave", function(){ this.classList.remove("hot"); });
+    svg.appendChild(gv);
+  }
+
+  /* 轴标签 */
+  var anchors = ["middle","start","start","end","end"];
+  for (i = 0; i < 5; i++){
+    var lp = pt(R + 22, i);
+    var tx = document.createElementNS(ns, "text");
+    tx.setAttribute("x", i === 0 ? cx : lp.x);
+    tx.setAttribute("y", i === 0 ? cy - R - 10 : lp.y + 5);
+    tx.setAttribute("text-anchor", anchors[i]);
+    tx.setAttribute("class", "r-label");
+    tx.textContent = t("radar.i" + (i + 1));
+    svg.appendChild(tx);
+  }
+  host.innerHTML = "";
+  host.appendChild(svg);
+}
+
+/* ---------- ⑤ 微型演示 ---------- */
+function initDemos(){
+  /* DIKW 金字塔 */
+  var svg = document.getElementById("dikwSvg");
+  var cap = document.getElementById("diCap");
+  svg.innerHTML = "";
+  var ns = "http://www.w3.org/2000/svg";
+  var VBW = 260, VBH = 320;
+  var layers = [0,1,2,3]; /* 底 → 顶：数据,信息,知识,智慧 */
+  var bands = [{y0:212,y1:282},{y0:142,y1:212},{y0:72,y1:142},{y0:14,y1:72}];
+  var colors = ["#a9d6cf","#66b5a9","#0f766e","#0a5751"];
+  var W = function(y){ return 28 + 200 * (y - 14) / 268; };
+  var sel = {};
+  for (var i=0;i<4;i++){
+    var ly = document.createElementNS(ns, "g");
+    ly.setAttribute("class", "dikw-layer");
+    ly.setAttribute("data-i", i);
+    var y0 = bands[i].y0, y1 = bands[i].y1;
+    var w0 = W(y0), w1 = W(y1);
+    var poly = document.createElementNS(ns, "polygon");
+    var pts = (130-w0)+","+y0+" "+(130+w0)+","+y0+" "+(130+w1)+","+y1+" "+(130-w1)+","+y1;
+    poly.setAttribute("points", pts);
+    poly.setAttribute("fill", colors[i]);
+    poly.setAttribute("stroke", "#fff"); poly.setAttribute("stroke-width", "1.4");
+    ly.appendChild(poly);
+    var tt = document.createElementNS(ns, "text");
+    tt.setAttribute("x", 130); tt.setAttribute("y", (y0+y1)/2 + 4);
+    tt.setAttribute("class", "dikw-txt" + (i < 2 ? " dark" : ""));
+    tt.textContent = dt("di.l", 3 - i);
+    ly.appendChild(tt);
+    ly.addEventListener("click", function(){
+      var idx = parseInt(this.getAttribute("data-i"), 10);
+      for (var k=0;k<4;k++) svg.querySelectorAll(".dikw-layer")[k].classList.toggle("active", k === idx);
+      cap.innerHTML = "<b>" + dt("di.l", 3 - idx) + " · " + dt("di.e", 3 - idx) + "：</b>" + dt("di.d", 3 - idx);
+      cap.classList.add("alt");
+    });
+    svg.appendChild(ly);
+  }
+  var keys = document.getElementById("diKeys");
+  keys.innerHTML = "";
+  for (i=0;i<4;i++){
+    var b = document.createElement("button");
+    b.type = "button"; b.className = "k-btn";
+    b.textContent = dt("di.l", 3 - i) + " " + dt("di.e", 3 - i);
+    b.addEventListener("click", (function(idx){ return function(){
+      svg.querySelectorAll(".dikw-layer")[idx].dispatchEvent(new MouseEvent("click"));
+    }; })(i));
+    keys.appendChild(b);
+  }
+  /* 默认提示 */
+  cap.innerHTML = t("demo.di.hint"); cap.classList.remove("alt");
+  var ls = svg.querySelectorAll(".dikw-layer");
+  for (i=0;i<ls.length;i++) ls[i].classList.remove("active");
+
+  /* Stevens 尺度表 */
+  var grid = document.getElementById("stGrid");
+  var cap2 = document.getElementById("stCap");
+  grid.innerHTML = "";
+  var head = ["", "st.head.1","st.head.2","st.head.3","st.head.4"];
+  var opsMatrix = [
+    /* 计数 */ [1,1,1,1],
+    /* 排序 */ [0,1,1,1],
+    /* 加减 */ [0,0,1,1],
+    /* 乘除 */ [0,0,0,1]
+  ];
+  /* 表头 */
+  for (var s=0;s<4;s++){
+    var hc = document.createElement("div");
+    hc.className = "st-cell head";
+    hc.textContent = D[CUR]["st.head"][s+1];
+    grid.appendChild(hc);
+  }
+  /* 操作行 */
+  for (var r=0;r<4;r++){
+    var rl = document.createElement("div");
+    rl.className = "st-cell head";
+    rl.textContent = D[CUR]["st.ops"][r];
+    grid.appendChild(rl);
+    for (s=0;s<4;s++){
+      var c = document.createElement("div");
+      c.className = "st-cell";
+      c.setAttribute("data-s", s);
+      var v = document.createElement("span");
+      v.className = "v " + (opsMatrix[r][s] ? "yes" : "no");
+      v.textContent = opsMatrix[r][s] ? D[CUR]["st.yes"] : D[CUR]["st.no"];
+      var l = document.createElement("span"); l.className = "lbl";
+      if (r === 0) l.textContent = D[CUR]["st.ex"][s+1];
+      c.appendChild(v); c.appendChild(l);
+      c.addEventListener("click", function(){
+        var sIdx = parseInt(this.getAttribute("data-s"), 10);
+        var cells = grid.querySelectorAll(".st-cell[data-s]");
+        for (var k=0;k<cells.length;k++) cells[k].classList.toggle("active", parseInt(cells[k].getAttribute("data-s"),10) === sIdx);
+        cap2.innerHTML = "<b>" + D[CUR]["st.head"][sIdx+1] + "：</b>" + D[CUR]["st.d"][sIdx];
+        cap2.classList.add("alt");
+      });
+      grid.appendChild(c);
+    }
+  }
+  cap2.innerHTML = t("demo.st.hint"); cap2.classList.remove("alt");
+
+  /* Mackinlay 通道 */
+  var bars = document.getElementById("mkBars");
+  var cap3 = document.getElementById("mkCap");
+  bars.innerHTML = "";
+  var mkScore = [97, 90, 83, 65, 61, 35];
+  for (i=0;i<6;i++){
+    var row = document.createElement("div");
+    row.className = "mk-row";
+    row.setAttribute("data-i", i);
+    var nm = document.createElement("span"); nm.className = "mk-name"; nm.textContent = D[CUR]["mk.name"][i];
+    var track = document.createElement("div"); track.className = "mk-track";
+    var fill = document.createElement("div"); fill.className = "mk-fill"; fill.style.width = mkScore[i] + "%";
+    track.appendChild(fill);
+    var val = document.createElement("span"); val.className = "mk-val"; val.textContent = mkScore[i];
+    row.appendChild(nm); row.appendChild(track); row.appendChild(val);
+    (function(idx, el){
+      var act = function(){
+        var rows = bars.querySelectorAll(".mk-row");
+        for (var k=0;k<rows.length;k++) rows[k].classList.toggle("active", k === idx);
+        cap3.innerHTML = "<b>" + D[CUR]["mk.name"][idx] + "：</b>" + D[CUR]["mk.d"][idx];
+        cap3.classList.add("alt");
+      };
+      el.addEventListener("mouseenter", act);
+      el.addEventListener("click", act);
+    })(i, row);
+    bars.appendChild(row);
+  }
+  /* 入场动画 */
+  setTimeout(function(){
+    var fills = bars.querySelectorAll(".mk-fill");
+    for (i=0;i<fills.length;i++) fills[i].style.width = mkScore[i] + "%";
+  }, 80);
+  cap3.innerHTML = t("demo.mk.hint"); cap3.classList.remove("alt");
+
+  /* Card 数据流 */
+  var stages = document.getElementById("cdStages");
+  var trans = document.getElementById("cdTrans");
+  var cap4 = document.getElementById("cdCap");
+  stages.innerHTML = ""; trans.innerHTML = "";
+  var stKeys = ["cd.stage.0","cd.stage.1","cd.stage.2","cd.stage.3"];
+  for (i=0;i<4;i++){
+    var st = document.createElement("div");
+    st.className = "cd-stage";
+    st.setAttribute("data-i", i);
+    var b = document.createElement("b"); b.textContent = D[CUR]["cd.stage"][i];
+    var s = document.createElement("span"); s.textContent = D[CUR]["cd.sub"][i];
+    st.appendChild(b); st.appendChild(s);
+    st.addEventListener("click", function(){
+      var idx = parseInt(this.getAttribute("data-i"), 10);
+      var all = stages.querySelectorAll(".cd-stage");
+      for (var k=0;k<all.length;k++) all[k].classList.toggle("active", k === idx);
+      var ts = trans.querySelectorAll(".cd-t");
+      for (k=0;k<ts.length;k++) ts[k].classList.remove("active");
+      cap4.innerHTML = "<b>" + D[CUR]["cd.stage"][idx] + "：</b>" + D[CUR]["cd.d"][idx];
+      cap4.classList.add("alt");
+    });
+    stages.appendChild(st);
+    if (i < 3){
+      var ar = document.createElement("span"); ar.className = "cd-arrow"; ar.textContent = "→";
+      stages.appendChild(ar);
+    }
+  }
+  for (i=0;i<3;i++){
+    var tp = document.createElement("button");
+    tp.type = "button"; tp.className = "cd-t";
+    tp.textContent = D[CUR]["cd.t"][i];
+    tp.addEventListener("click", (function(idx){ return function(){
+      var ts = trans.querySelectorAll(".cd-t");
+      for (var k=0;k<ts.length;k++) ts[k].classList.toggle("active", k === idx);
+      var all = stages.querySelectorAll(".cd-stage");
+      for (k=0;k<all.length;k++) all[k].classList.remove("active");
+      cap4.innerHTML = "<b>" + D[CUR]["cd.t"][idx] + "：</b>" + D[CUR]["cd.td"][idx];
+      cap4.classList.add("alt");
+    }; })(i));
+    trans.appendChild(tp);
+  }
+  cap4.innerHTML = t("demo.cd.hint"); cap4.classList.remove("alt");
+}
+
+/* ---------- 启动 ---------- */
+var langBtns = document.querySelectorAll(".lang-btn");
+for (var i=0;i<langBtns.length;i++){
+  langBtns[i].addEventListener("click", function(){ applyLang(this.getAttribute("data-lang")); });
+}
+CUR = loadLang();
+applyLang(CUR);
+})();
+</script>
+<script>
+/* file:// 下目录式链接（lesson-01/）改写为 index.html，本地双击也能跳转 */
+if(location.protocol === 'file:'){
+  var L = {'lesson-01/':'lesson-01/index.html','lesson-02/':'lesson-02/index.html','lesson-03/':'lesson-03/index.html','lesson-04/':'lesson-04/index.html','lesson-05/':'lesson-05/index.html'};
+  document.querySelectorAll('a[href]').forEach(function(a){
+    var h = a.getAttribute('href');
+    if(h && L[h]){ a.setAttribute('href', L[h]); }
+  });
+}
+</script>
+</body>
+</html>
