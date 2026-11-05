@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示范：井下复杂事故前兆预警</title>
+<link rel="stylesheet" href="demo.css?v=20261105a">
+<link rel="stylesheet" href="aflow.css?v=20261105a">
+<link rel="stylesheet" href="aiq.css?v=20261105a">
+<style>
+#ctlDrawer{position:fixed;right:0;top:70px;width:268px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid #e9e4d8;border-radius:10px;box-shadow:0 6px 24px -8px rgba(0,0,0,.15);z-index:90;transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+#ctlDrawer.open{transform:translateX(0);opacity:1;pointer-events:auto}
+@media (max-width:760px){#ctlDrawer{width:calc(100vw - 20px);right:10px;top:auto;bottom:10px;max-height:45vh}}
+.review-list{font-size:13px;border:1px solid #e9e4d8;border-radius:8px;overflow:hidden;margin-top:8px}
+.review-list .row{display:flex;align-items:center;padding:7px 12px;border-bottom:1px solid #f0ece2}
+.review-list .row:last-child{border-bottom:none}
+.review-list .row span{flex:1;color:#4d565b}
+.review-list .row b{width:180px;color:#24333a;font-weight:700}
+.review-list .row em{color:#2f7d6b;font-style:normal;font-weight:700;font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <span class="kicker">CASE DEMO · 钻井工程 / 井下复杂事故前兆预警</span>
+  <h1>从「单通道阈值 · 误报一堆」到「多变量异常 + 可解释预警」</h1>
+  <p class="sub">三个实验：Q1 看懂异常检测、Q2 不均衡处理、Q3 可解释预警。</p>
+</header>
+
+<!-- ================= 算法解剖 · 事故预警全流程 ================= -->
+<section class="sec" id="sec0">
+  <div class="qa">
+    <span class="qa-q">深入 · 想逐帧看就往下</span>
+    <p class="qa-a">不是「多通道 → 黑盒 → 报警」，而是<b>逐段展开</b>：数据接入 → 异常标注 → 异常检测 → 不均衡处理 → 可解释预警 → 复核回流，每一步都能看见中间量</p>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">可选深入 · 对应流程 STEP 3—5</span>
+    <h2>把「多通道 → 事故前兆预警」一步步拆开看</h2>
+    <p class="leadline">下面这段动画跑的是<b>真代码</b>（与实验 1—3 同一份模型）。自动播放，也可点阶段名跳步、拖速度。改事故类型、异常强度、阈值，这里的每一步都会同步重算。</p>
+  </div>
+  <div id="flowMount"></div>
+  <details class="more">
+    <summary>这段动画与后面三个实验是什么关系</summary>
+    <div class="more-body">
+      <p>实验 1—3 给出的是<b>结果</b>（异常分数、不均衡效果、可解释预警）；这段动画给出的是<b>过程</b>——同一份 <code>demo.js</code> 里的 <code>detectAnomaly / balanceTrain / explainAlert</code> 被拆成 6 个阶段依次放慢演给你看。</p>
+      <p>刻意做的两处细节：<b>①</b> 第 2 步用红框标出异常前兆段，看得见「极少异常样本」的对象；<b>②</b> 第 5 步把各通道的贡献度条形画出来，看得见预警「为什么」触发。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 1 · 多变量异常检测 ================= -->
+<section class="sec" id="sec1">
+  <div class="qa">
+    <span class="qa-q">Q1 · 为什么需要智能算法</span>
+    <p class="qa-a">单通道阈值误报高；多变量异常检测抓组合前兆</p>
+    <button class="qa-go">开始实验 1</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 1 · 对应流程 STEP 3</span>
+    <h2>多变量异常检测：10+ 通道 → 综合异常分数</h2>
+    <p class="leadline">切事故类型与强度，拖阈值，看多通道时序怎么被压成综合异常分数、触发预警。</p>
+  </div>
+  <div class="ctl" id="detCtl">
+    <div class="sl">
+      <label>事故类型<output id="outFault">卡钻</output></label>
+      <input type="range" id="inFault" min="0" max="2" step="1" value="0">
+    </div>
+    <div class="sl">
+      <label>前兆强度<output id="outStr">0.70</output></label>
+      <input type="range" id="inStr" min="0.2" max="1" step="0.05" value="0.7">
+    </div>
+    <div class="sl">
+      <label>预警阈值<output id="outThr">0.50</output></label>
+      <input type="range" id="inThr" min="0.2" max="0.9" step="0.05" value="0.5">
+    </div>
+  </div>
+  <svg id="chanChart" viewBox="0 0 400 200" role="img" aria-label="多通道时序"></svg>
+  <svg id="scoreChart" viewBox="0 0 400 200" role="img" aria-label="综合异常分数"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">事故类型</span><b id="roFault">卡钻</b></div>
+    <div class="ro"><span class="k">预警事件</span><b id="roEvts" class="good">—</b></div>
+  </div>
+  <p class="tip" id="detTip">三种事故前兆形态不同：卡钻是扭矩↑立压↑流量↓、井漏是流量↑立压↓、溢流是立压↑流量↑。多变量异常检测把它们联合建模，比单通道阈值更能抓「组合前兆」。阈值越高误报越少但漏报越多。</p>
+</section>
+
+<!-- ================= 实验 2 · 不均衡处理 ================= -->
+<section class="sec" id="sec2">
+  <div class="qa">
+    <span class="qa-q">Q2 · 智能算法是什么</span>
+    <p class="qa-a"><b>不均衡处理</b>：异常样本极少 → 重采样 / SMOTE 补少数类<span class="qa-algo">多变量异常检测 · 不均衡</span></p>
+    <button class="qa-go">开始实验 2</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 2 · 对应流程 STEP 4</span>
+    <h2>不均衡处理：异常样本极少怎么办</h2>
+    <p class="leadline">事故本身少，异常前兆样本 ≈ 1%。切处理方法与异常比例，看召回与误报怎么变。</p>
+  </div>
+  <div class="ctl" id="balCtl">
+    <div class="sl">
+      <label>处理方法<output id="outMethod">重采样</output></label>
+      <input type="range" id="inMethod" min="0" max="2" step="1" value="1">
+    </div>
+    <div class="sl">
+      <label>异常比例<output id="outRatio">0.010</output></label>
+      <input type="range" id="inRatio" min="0.005" max="0.2" step="0.005" value="0.01">
+    </div>
+  </div>
+  <svg id="balChart" viewBox="0 0 430 240" role="img" aria-label="不均衡处理对比"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">方法</span><b id="roBalMethod" class="good">—</b></div>
+    <div class="ro"><span class="k">召回</span><b id="roRecall">—</b></div>
+  </div>
+  <p class="tip" id="balTip">不处理时模型偏向多数类（正常），异常前兆被淹没、召回低；重采样把少数异常类补上来、SMOTE 合成更多异常样本，召回提升。但合成异常太假会学到「合成异常」而非真前兆，真事故照漏。</p>
+</section>
+
+<!-- ================= 实验 3 · 可解释预警 ================= -->
+<section class="sec" id="sec3">
+  <div class="qa">
+    <span class="qa-q">Q3 · 它怎么工作</span>
+    <p class="qa-a">异常分数超阈值 → <b>可解释</b>（哪通道、哪时刻）→ 人敢处置 → 复核回流</p>
+    <button class="qa-go">开始实验 3</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 3 · 对应流程 STEP 5—6</span>
+    <h2>可解释预警：说清「为什么」才敢处置</h2>
+    <p class="leadline">黑盒报警现场不敢信。拖实验 1 的事故类型/强度/阈值，看预警解释了哪几个通道、哪一段时序触发。</p>
+  </div>
+  <svg id="explChart" viewBox="0 0 440 200" role="img" aria-label="可解释预警"></svg>
+  <div class="rrow ro1">
+    <div class="ro"><span class="k">预警解释</span><b id="roExplain" class="good">—</b></div>
+  </div>
+  <div class="review-list" id="reviewList"></div>
+  <p class="tip" id="explTip">预警不仅报「有异常」，还说清哪几个通道贡献大（主因）、哪一段时序触发。现场据此定位处置；每次复核结果回流模型，误报率持续下降。可解释若是事后贴标签而非真实判断依据，会误导处置。</p>
+</section>
+
+<footer>
+  <div class="map">
+    <div><b>实验 1 → STEP 3</b><br>多变量异常检测。</div>
+    <div><b>实验 2 → STEP 4</b><br>不均衡处理补少数类。</div>
+    <div><b>实验 3 → STEP 5</b><br>可解释预警 + 复核回流。</div>
+  </div>
+  <p class="note">纯前端教学演示：随钻多通道时序由「正常基线 + 注入事故前兆」合成，事故点已知、仅供对比；多变量异常检测、不均衡处理与可解释预警均在浏览器实时计算。</p>
+</footer>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+/* 算法解剖：把 6 个阶段挂到 AFlow 引擎上 */
+(function () {
+  if (!window.AFlow || !window.RemoteFlow) return;
+  var F = window.RemoteFlow;
+  window.RemoteFlowApi = window.AFlow.create({
+    mount: document.getElementById('flowMount'),
+    title: '算法解剖',
+    subtitle: '自动播放：多通道怎么一步步变成事故前兆预警',
+    stages: [
+      { name: '数据接入', tag: '工况标注', dur: 4000, draw: function (t, g) { return F.stage1(t); } },
+      { name: '异常标注', tag: '前兆段', dur: 4200, draw: function (t, g) { return F.stage2(t); } },
+      { name: '异常检测', tag: '异常分数', dur: 4800, draw: function (t, g) { return F.stage3(t); } },
+      { name: '不均衡处理', tag: '补少数类', dur: 4400, draw: function (t, g) { return F.stage4(t); } },
+      { name: '可解释预警', tag: '通道贡献', dur: 4600, draw: function (t, g) { return F.stage5(t); } },
+      { name: '复核与回流', tag: '误报下降', dur: 4200, draw: function (t, g) { return F.stage6(t); } }
+    ]
+  });
+})();
+</script>
+<script src="aiq.js?v=20261105a"></script>
+</body>
+</html>

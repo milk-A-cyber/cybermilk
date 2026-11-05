@@ -1,0 +1,9 @@
+# 开发期临时产物与冗余副本，不进公开仓库
+tools/_tmp/
+tools/_bak/
+tools/_orig/
+__probe_*.html
+.workbuddy/
+
+# 案例压缩包（案例源目录才是唯一真源，zip 可随时重新打包）
+*.zip

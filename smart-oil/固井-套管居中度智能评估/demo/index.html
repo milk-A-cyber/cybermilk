@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>套管居中度智能评估 · 几何计算 + 组合优化</title>
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="aflow.css">
+<style>
+  .qa{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:18px 20px;margin-bottom:20px;font-size:14px;line-height:1.75;color:#3a4348;}
+  .qa b{color:#242b2e;}
+  .sec{border:1px solid #e9e4d8;border-radius:14px;padding:20px;margin-bottom:20px;background:#fff;}
+  .sec>h3{margin:0 0 4px;font-size:18px;color:#242b2e;}
+  .sec>p.sub{color:#79828a;font-size:13px;margin:0 0 14px;}
+  .chart{width:100%;height:auto;display:block;background:#fff;border:1px solid #f0ece2;border-radius:8px;}
+  .ctl{background:#fbfaf6;border:1px dashed #d9cbb3;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13px;color:#4d565b;}
+  .ctl label{display:block;margin-bottom:4px;}
+  .ctl input[type=range]{width:100%;}
+  .rrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .rrow .chip{background:#e6f1ec;border:1px solid #b9d8cb;color:#22604f;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;}
+  .rvbox{background:#f8f7f3;border:1px solid #e9e4d8;border-radius:8px;padding:10px 14px;margin-top:12px;font-size:13px;}
+  .rvbox .rvrow{display:flex;justify-content:space-between;padding:3px 0;color:#4d565b;border-bottom:1px dashed #e6e0d3;}
+  .rvbox .rvrow:last-child{border-bottom:none;}
+  .rvbox .rvrow b{color:#22604f;}
+  .tip{background:#f8ecdf;border-left:3px solid #b26a39;border-radius:6px;padding:10px 14px;margin-top:12px;font-size:13px;color:#6b4a35;line-height:1.6;}
+  .tip b{color:#8a4f27;}
+  .flowblock{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:16px;margin-top:20px;}
+</style>
+</head>
+<body>
+
+<header class="demo-head">
+  <div class="badge">环节6 · 固井</div>
+  <h1>套管居中度智能评估</h1>
+  <p>从井径与井斜计算居中度曲线 · 优化扶正器安放位置与间距 · 几何计算为主，AI 用于优化安放方案</p>
+  <div class="hdmeta">
+    <span>数据形态：井径+井斜</span><span>方法：opt</span><span>验收：居中度改善 × CBL 评级</span>
+  </div>
+</header>
+
+<section class="section">
+  <div class="sec">
+    <h3>算法解剖</h3>
+    <p class="sub">把「套管居中度评估」拆成 6 步，每一步都跑真代码，滑块可调间距。</p>
+    <div id="flowMount"></div>
+    <div class="qa">
+      <b>怎么做对：</b>套管居中度直接影响固井质量，偏心过大导致水泥环厚度不均。居中度计算靠人工逐段查表，扶正器安放靠经验间距，难以在整井上全局优化。用几何计算从井径与井斜算居中度曲线，用组合优化优化扶正器安放位置与间距。
+      <div id="more"><a href="#" onclick="return false">更多</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec1">
+    <h3>屏 1 · 井径与井斜剖面</h3>
+    <p class="sub">看全井段井径起伏与井斜狗腿。</p>
+    <div class="qa">井径（蓝）含缩径段，井斜（橙）含狗腿段，两者驱动偏心。</div>
+    <svg id="geoChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">井段数：<span id="roGeoLen">—</span></span><span class="chip">最大井斜：<span id="roGeoDog">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换井径/井斜生成（genCasingGeo），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec2">
+    <h3>屏 2 · 居中度曲线</h3>
+    <p class="sub">对比无扶正与有扶正的居中度。</p>
+    <div class="qa">灰线为无扶正基线，绿线为有扶正。橙虚线为优段阈值 0.8。</div>
+    <svg id="soChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">无扶正平均：<span id="roSoAvg0">—</span></span><span class="chip">有扶正平均：<span id="roSoAvg1">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换扶正器安放（centralizerOpt），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec3">
+    <h3>屏 3 · 扶正器安放优化</h3>
+    <p class="sub">调间距，看扶正器安放位置与居中度改善。</p>
+    <div class="qa">绿线为有扶正居中度，红竖线为扶正器位置。间距越小越密，低居中度段优先加密。</div>
+    <div id="optCtl" class="ctl">
+      <label>扶正器间距 <b id="outSpacing">25 m</b></label>
+      <input id="inSpacing" type="range" min="10" max="50" step="5" value="25">
+    </div>
+    <svg id="optChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">扶正器数：<span id="roOptN">—</span></span><span class="chip">平均居中度改善：<span id="roOptImpr">—</span></span></div>
+    <div id="reviewList" class="rvbox"></div>
+    <div class="tip"><b>想改成你自己的：</b>换 CBL 评级验证（standoffEval），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<div class="flowblock">
+  <h3>示范说明</h3>
+  <p style="color:#4d565b;font-size:13px;line-height:1.7;margin:8px 0 0">合成全井段 120 段的井径与井斜，演示从井径与井斜计算居中度曲线、优化扶正器安放位置与间距、用 CBL 评级验证的套管居中度评估链路。所有数字都是浏览器里算出来的，没有后端。</p>
+</div>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+(function () {
+  var mount = document.getElementById('flowMount');
+  var flow = window.RemoteFlow;
+  var AFlow = window.AFlow;
+  if (!flow || !mount || !AFlow) return;
+  var ui = AFlow.create(mount, {
+    title: '套管居中度智能评估 · 几何计算 + 组合优化',
+    captions: { prev: '上一步', next: '下一步', close: '收起' }
+  });
+  ui.setSteps([
+    { name: '井段接入', desc: '井径+井斜' },
+    { name: '居中度计算', desc: '几何' },
+    { name: '无扶正基线', desc: '偏心' },
+    { name: '扶正器安放', desc: '组合优化' },
+    { name: '居中度改善', desc: '对比' },
+    { name: 'CBL 验证', desc: '评级回流' }
+  ]);
+  ui.onRender = function (i) {
+    var out = flow['stage' + (i + 1)](ui.progress());
+    if (out) {
+      ui.setSvg(out.svg);
+      ui.setStats(out.stats || []);
+      ui.setNote(out.note || '');
+    }
+  };
+  ui.render();
+})();
+</script>
+<script src="aiq.js"></script>
+</body>
+</html>

@@ -1,0 +1,133 @@
+{
+  "id": "d2-hazard-warn",
+  "sceneId": "d2",
+  "methods": ["ts"],
+  "title": "井下复杂事故前兆预警：不均衡样本 + 可解释预警",
+  "version": "1.0.0",
+  "updated": "2026-11-05",
+
+  "tabs": {
+    "background": {
+      "label": "专业背景",
+      "lede": "卡钻、井漏、溢流等井下复杂事故前，扭矩、立压、流量等随钻参数会出现异常前兆。传统靠经验阈值报警，误报漏报都高。智能方法用多变量异常检测从 10+ 通道抓前兆，但异常样本极少（类不均衡），且误报代价高、必须可解释。",
+      "judge": [
+        { "label": "数据形态", "value": "多通道时序", "desc": "扭矩/立压/流量/转速 10+" },
+        { "label": "标注成本", "value": "高", "desc": "异常样本极少、类不均衡" },
+        { "label": "可见收益", "value": "事故前兆预警", "desc": "提前处置、降低误报" },
+        { "label": "难度", "value": "高", "desc": "不均衡 + 可解释" }
+      ],
+      "sections": [
+        {
+          "no": 1,
+          "en": "PROBLEM",
+          "title": "当前做法与问题",
+          "html": "<p>井下复杂事故（卡钻、井漏、溢流）爆发前，<b>扭矩、立压、流量、转速</b>这些随钻参数往往已有异常前兆。传统靠<b>经验阈值</b>报警——单通道超阈值就响，结果误报一堆、真事故又漏报。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>阈值报警误报高</b>——单通道超阈值，正常波动也触发，现场疲于应付</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>真前兆难抓</b>——事故前兆是多通道<b>组合</b>变化，单通道看不出</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>代价高</b>——漏报一次可能卡钻/井漏，损失巨大</span></div></div><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"阈值报警的问题\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">阈值报警：单通道超阈值 → 误报高、真前兆漏</text><rect x=\"20\" y=\"36\" width=\"280\" height=\"176\" rx=\"8\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"160\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">经验阈值报警</text><rect x=\"36\" y=\"70\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"96\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#2b4a72\">盯单通道</text><rect x=\"180\" y=\"70\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"230\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">超阈值报警</text><rect x=\"36\" y=\"112\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"96\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">正常波动也触发</text><rect x=\"180\" y=\"112\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"230\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">真前兆看不出</text><text x=\"160\" y=\"180\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#b26a39\" font-weight=\"700\">误报一堆 · 真事故漏报</text><text x=\"160\" y=\"198\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#79828a\">现场疲于应付</text><rect x=\"316\" y=\"36\" width=\"284\" height=\"176\" rx=\"8\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"458\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">为什么难</text><text x=\"332\" y=\"82\" font-size=\"9.5\" fill=\"#4d565b\">· 前兆是多通道组合变化</text><text x=\"332\" y=\"104\" font-size=\"9.5\" fill=\"#4d565b\">· 单通道阈值抓不住组合</text><text x=\"332\" y=\"126\" font-size=\"9.5\" fill=\"#4d565b\">· 漏报一次损失巨大</text><rect x=\"332\" y=\"150\" width=\"252\" height=\"46\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"344\" y=\"170\" font-size=\"8.5\" fill=\"#79828a\">卡钻/井漏/溢流</text><text x=\"344\" y=\"186\" font-size=\"8.5\" fill=\"#b26a39\" font-weight=\"700\">真事故漏报代价极高</text></svg></div>"
+        },
+        {
+          "no": 2,
+          "en": "INTERVENTION",
+          "title": "AI 能做什么",
+          "html": "<p>把「单通道阈值」换成「<b>多变量异常检测</b>」：从扭矩、立压、流量、转速等 <b>10+ 通道</b>抓异常前兆，输出一个综合异常分数；再处理<b>类不均衡</b>（异常样本极少），并给出<b>可解释</b>预警——哪几个通道、哪一段时序在报警。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>多变量异常检测</b>——多通道联合建模，抓组合前兆，替代单通道阈值</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>不均衡处理</b>——异常样本极少，用重采样/合成异常补少数类</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>可解释预警</b>——说明哪些通道/时刻触发，人才能信、敢处置</span></div></div><p>落地形态：事故前兆提前预警、误报降低，且每次报警都能说清「为什么」。</p><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"多变量异常检测流程\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">多变量异常检测 + 不均衡 + 可解释</text><rect x=\"20\" y=\"40\" width=\"120\" height=\"120\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"80\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#242b2e\" font-weight=\"600\">10+ 通道</text><path d=\"M36 78 C60 62 90 76 116 68\" fill=\"none\" stroke=\"#7a8a9a\" stroke-width=\"2.6\"/><text x=\"80\" y=\"130\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">扭矩/立压/流量/转速</text><path d=\"M144 100 L168 100\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"172\" y=\"40\" width=\"130\" height=\"120\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"237\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">多变量异常检测</text><text x=\"237\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">异常分数</text><text x=\"237\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">抓组合前兆</text><path d=\"M306 100 L330 100\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"334\" y=\"40\" width=\"130\" height=\"120\" rx=\"6\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"399\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#2b4a72\" font-weight=\"600\">不均衡处理</text><text x=\"399\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">重采样/合成</text><text x=\"399\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">补少数类</text><path d=\"M468 100 L492 100\" stroke=\"#2b4a72\" stroke-width=\"1.6\"/><rect x=\"496\" y=\"40\" width=\"104\" height=\"120\" rx=\"6\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"548\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">可解释预警</text><text x=\"548\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">哪通道哪时刻</text><text x=\"548\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">人敢处置</text><text x=\"310\" y=\"210\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">前兆提前预警 · 误报降低 · 每次报警说得清为什么</text></svg></div>"
+        },
+        {
+          "no": 3,
+          "en": "DATA",
+          "title": "需要准备什么",
+          "html": "<p><b>随钻多通道时序</b>：扭矩、立压、流量、转速等 10+ 通道，含正常与异常前兆段；<b>事故标签</b>：卡钻、井漏、溢流等事故发生点（极少）；<b>工况标注</b>：正常钻进、起下钻等，排除工况切换的假异常。</p><div class=\"figure\"><svg viewBox=\"0 0 620 220\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"事故预警数据准备\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">事故预警需要的数据</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#41699b\"/><text x=\"32\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">随钻多通道时序</text><text x=\"32\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">扭矩/立压/流量/转速 10+</text><text x=\"32\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">含正常与异常前兆段</text><rect x=\"318\" y=\"34\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#b26a39\"/><text x=\"330\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">事故标签（极少）</text><text x=\"330\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">卡钻/井漏/溢流发生点</text><text x=\"330\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">类不均衡</text><rect x=\"20\" y=\"106\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#2f7d6b\"/><text x=\"32\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">工况标注</text><text x=\"32\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">正常钻进/起下钻</text><text x=\"32\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">排除工况切换假异常</text><rect x=\"318\" y=\"106\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#79828a\"/><text x=\"330\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">处置结果反馈</text><text x=\"330\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">预警后是否真发生事故</text><text x=\"330\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">闭环校验误报</text><rect x=\"20\" y=\"184\" width=\"582\" height=\"26\" rx=\"6\" fill=\"#f8ecdf\"/><text x=\"32\" y=\"202\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">训练策略：多变量异常检测 + 不均衡重采样 + 可解释 + 误报闭环</text></svg></div>"
+        },
+        {
+          "no": 4,
+          "en": "DIFFICULTY",
+          "title": "难度与参考方向",
+          "html": "<p>三个最容易翻车的点：</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>异常样本极少</b>——事故本身少，异常前兆样本类不均衡，模型偏向多数类</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>误报代价高</b>——一次误报要停工检查，代价大，但漏报更致命</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>需可解释</b>——黑盒报警现场不敢信、不敢处置，必须说清依据</span></div></div><p>改进路线按成本从低到高：先用<b>多变量异常检测</b>（重建误差/隔离森林）把异常分数做出来；再加<b>不均衡处理</b>（重采样、SMOTE 合成异常）补少数类；最后加<b>可解释</b>（注意力/贡献度）让每次报警可追溯。</p><div class=\"figure\"><svg viewBox=\"0 0 620 210\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"事故预警难点与对策\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">难点排序 + 成本从低到高的改进路线</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"52\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">① 异常样本极少</text><text x=\"32\" y=\"68\" font-size=\"8.5\" fill=\"#6b4a35\">类不均衡偏向多数类</text><path d=\"M310 57 L356 57\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"34\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"52\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">重采样 / SMOTE</text><text x=\"372\" y=\"68\" font-size=\"8.5\" fill=\"#4d565b\">补少数类</text><rect x=\"20\" y=\"86\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"104\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">② 误报代价高</text><text x=\"32\" y=\"120\" font-size=\"8.5\" fill=\"#6b4a35\">误报停工、漏报致命</text><path d=\"M310 109 L356 109\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"86\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"104\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">多变量重建误差</text><text x=\"372\" y=\"120\" font-size=\"8.5\" fill=\"#4d565b\">抓组合前兆降误报</text><rect x=\"20\" y=\"138\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"156\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">③ 需可解释</text><text x=\"32\" y=\"172\" font-size=\"8.5\" fill=\"#6b4a35\">黑盒报警不敢信</text><path d=\"M310 161 L356 161\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"138\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"156\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">注意力/贡献度</text><text x=\"372\" y=\"172\" font-size=\"8.5\" fill=\"#4d565b\">每次报警可追溯</text><rect x=\"20\" y=\"192\" width=\"582\" height=\"16\" rx=\"8\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"310\" y=\"204\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#41699b\">多变量异常检测 → 不均衡处理 → 可解释预警</text></svg></div>"
+        }
+      ]
+    },
+
+    "workflow": {
+      "label": "案例流程",
+      "title": "案例：一口井的井下复杂事故前兆预警改造",
+      "lead": [
+        "某井此前用单通道阈值报警，误报频繁、真前兆漏过。目标：用多变量异常检测从扭矩/立压/流量/转速等 10+ 通道抓事故前兆，处理类不均衡，给出可解释预警。",
+        "注意第 3、4、5 步：多变量异常检测、不均衡处理、可解释预警是智能化价值的三个落点，示范页三屏一一对应。"
+      ],
+      "stats": [
+        ["井", "某生产井"],
+        ["通道数", "10+（扭矩/立压等）"],
+        ["异常样本", "极少·类不均衡"],
+        ["报警方式", "单通道阈值"],
+        ["目标", "多变量+可解释预警"],
+        ["误报代价", "高·漏报更致命"]
+      ],
+      "steps": [
+        {
+          "name": "多通道数据接入",
+          "role": "数据",
+          "do": "读入随钻多通道时序（扭矩/立压/流量/转速 10+），按工况标注正常钻进/起下钻。示范页屏 1 顶部可切换通道看时序。",
+          "effect": "一份按工况切分的多通道时序，作为异常检测输入。",
+          "trap": "不排除工况切换，把正常起下钻的参数变化当异常，误报爆表。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">数据接入：多通道 → 工况标注</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">多通道时序</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">扭矩/立压/流量/转速</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"170\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"291\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">工况标注</text><text x=\"291\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">正常钻进/起下钻</text><path d=\"M380 72 L404 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"408\" y=\"42\" width=\"186\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"501\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">排除假异常</text><text x=\"501\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">工况切换不算异常</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不排工况切换 → 正常起下钻当异常 → 误报爆表</text></svg>"
+        },
+        {
+          "name": "异常前兆标注",
+          "role": "标注",
+          "do": "把卡钻/井漏/溢流发生点前的异常前兆段标注出来（极少）。示范页屏 1 顶部可注入异常看前兆形态。",
+          "effect": "少数异常前兆标签，供训练与验收。",
+          "trap": "异常样本太少又不想漏，把边界模糊的正常段也标成异常，模型更分不清。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">标注：事故点 → 异常前兆段（极少）</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">事故发生点</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">卡钻/井漏/溢流</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"170\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"291\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">前兆段标注</text><text x=\"291\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">极少样本</text><path d=\"M380 72 L404 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"408\" y=\"42\" width=\"186\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"501\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">类不均衡</text><text x=\"501\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">异常≈1%</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：边界模糊的正常段标成异常 → 模型更分不清</text></svg>"
+        },
+        {
+          "name": "多变量异常检测",
+          "role": "算法核心",
+          "do": "用多变量异常检测（重建误差/隔离森林）从 10+ 通道算综合异常分数，替代单通道阈值。示范页屏 1 在浏览器里实时算异常分数。",
+          "effect": "一个能抓多通道组合前兆的异常检测器，替代单通道阈值。",
+          "trap": "只看单通道或只看均值，抓不住「多个通道同时小幅偏离」的组合前兆。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">异常检测：多通道 → 综合异常分数</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">多通道输入</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">10+ 通道</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">重建误差/隔离森林</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">多变量联合</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">综合异常分数</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">抓组合前兆</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：只看单通道/均值 → 抓不住多通道同时小幅偏离的组合前兆</text></svg>"
+        },
+        {
+          "name": "不均衡处理",
+          "role": "算法核心",
+          "do": "异常样本极少，用重采样（少数类上采样）或 SMOTE 合成异常补少数类，让模型不偏向多数类。示范页屏 2 展示不均衡处理前后的效果。",
+          "effect": "少数异常类被补足，模型不再一票否决式偏向正常。",
+          "trap": "SMOTE 合成异常太假，学到的是「合成异常」而非「真前兆」，真事故照漏。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">不均衡处理：重采样 / SMOTE 补少数类</text><rect x=\"24\" y=\"42\" width=\"170\" height=\"60\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"109\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">原始：正常≈99% 异常≈1%</text><text x=\"109\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">模型偏向多数类</text><path d=\"M198 72 L222 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"226\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"301\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">重采样/SMOTE</text><text x=\"301\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">补少数类</text><path d=\"M380 72 L404 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"408\" y=\"42\" width=\"186\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"501\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">均衡后训练</text><text x=\"501\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">异常不再被淹没</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：合成异常太假 → 学到「合成异常」非真前兆 → 真事故照漏</text></svg>"
+        },
+        {
+          "name": "可解释预警",
+          "role": "算法核心",
+          "do": "给预警附解释：哪几个通道贡献大、哪一段时序触发，让人敢信敢处置。示范页屏 3 展示预警的通道贡献度。",
+          "effect": "每次报警能说清「为什么」，现场敢响应、能定位。",
+          "trap": "可解释是事后贴标签，没真正反映模型判断依据，会误导现场处置。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">可解释预警：报警 + 通道贡献 + 触发时刻</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">异常分数超阈值</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">触发预警</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">通道贡献度</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">立压↑ 流量↓</text><path d=\"M378 72 L400 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">现场可定位处置</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">说清为什么</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：可解释是事后贴标签 → 非真实判断依据 → 误导处置</text></svg>"
+        },
+        {
+          "name": "误报复核与回流",
+          "role": "人工确认",
+          "do": "处理员对每次预警复核（真前兆/误报），结果反馈回模型。示范页屏 3 展示预警复核清单。",
+          "effect": "误报率持续下降，预警越来越可信，闭环校验。",
+          "trap": "复核不回流，模型不知道误报，误报率永远降不下来。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">复核：预警 → 真前兆/误报 → 回流</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"52\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"60\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">预警事件</text><text x=\"104\" y=\"76\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">异常分数超阈值</text><path d=\"M188 68 L210 68\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"52\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"60\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">复核真伪</text><text x=\"294\" y=\"76\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">真前兆/误报</text><path d=\"M378 68 L400 68\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"52\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"60\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">反馈回流</text><text x=\"499\" y=\"76\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">误报率持续降</text><text x=\"24\" y=\"120\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：复核不回流 → 模型不知道误报 → 误报率永远降不下来</text></svg>"
+        }
+      ],
+      "metrics": {
+        "title": "怎么算「预警对了」",
+        "html": "<p>事故预警用 <b>召回率</b>（真前兆报出来多少）与 <b>误报率</b>（正常被误报多少）双重验收；<b>漏报</b>是最致命的——一次漏报可能卡钻/井漏。</p><p>最终还要看 <b>提前量</b>：预警是否在事故爆发前足够早给出，让现场有时间处置。</p><p style=\"margin-top:16px\"><svg viewBox='0 0 620 200' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='事故预警效果对比' style='width:100%;height:auto;display:block'><text x='14' y='20' font-size='10' fill='#4d565b' font-weight='600'>事故预警验收：召回率 × 误报率 × 提前量</text><rect x='14' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='159' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>预警效果</text><rect x='40' y='66' width='80' height='52' fill='#d9b78e'/><text x='80' y='96' text-anchor='middle' font-size='10' fill='#4d565b' font-weight='700'>召回 55%</text><text x='80' y='112' text-anchor='middle' font-size='8' fill='#8a6b52'>阈值报警</text><rect x='180' y='66' width='80' height='52' fill='#2f7d6b'/><text x='220' y='96' text-anchor='middle' font-size='10' fill='#fff' font-weight='700'>召回 90%</text><text x='220' y='112' text-anchor='middle' font-size='8' fill='#b9d8cb'>多变量异常</text><text x='159' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>召回 ↑ 误报 ↓</text><rect x='316' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='461' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>提前量 + 可解释</text><rect x='340' y='66' width='120' height='52' fill='#e7eef9' stroke='#41699b'/><text x='400' y='92' text-anchor='middle' font-size='9' fill='#2b4a72' font-weight='700'>提前 20 分钟</text><text x='400' y='108' text-anchor='middle' font-size='8' fill='#79828a'>事故前预警</text><rect x='470' y='66' width='120' height='52' fill='#e6f1ec' stroke='#2f7d6b'/><text x='530' y='92' text-anchor='middle' font-size='9' fill='#22604f' font-weight='700'>通道+时刻</text><text x='530' y='108' text-anchor='middle' font-size='8' fill='#79828a'>可解释可追溯</text><text x='461' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>漏报最致命 · 提前量要有</text><text x='310' y='188' text-anchor='middle' font-size='8' fill='#9ba3a9'>验收 = 召回率 × 误报率 × 提前量</text></svg></p>"
+      },
+      "fails": [
+        { "name": "异常样本极少", "why": "事故本身少，异常前兆样本类不均衡，模型偏向多数类，真前兆被淹没。" },
+        { "name": "误报代价高", "why": "一次误报要停工检查，代价大；但漏报更致命，可能卡钻/井漏。" },
+        { "name": "黑盒不可解释", "why": "黑盒报警现场不敢信、不敢处置，必须说清依据。" },
+        { "name": "复核不回流", "why": "预警复核结果不反馈回模型，模型不知道误报，误报率永远降不下来。" }
+      ]
+    },
+
+    "demo": {
+      "mode": "auto",
+      "html": "demo/index.html",
+      "js": "demo/demo.js",
+      "label": "可运行示范",
+      "intro": "用合成的随钻多通道时序演示多变量异常检测、不均衡处理与可解释预警。",
+      "height": 600
+    }
+  }
+}

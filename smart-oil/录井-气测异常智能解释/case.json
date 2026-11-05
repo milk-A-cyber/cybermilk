@@ -1,0 +1,133 @@
+{
+  "id": "m2-gas-anomaly",
+  "sceneId": "m2",
+  "methods": ["ts"],
+  "title": "气测异常智能解释：序列识别 + 流体判别 + 弱标签",
+  "version": "1.0.0",
+  "updated": "2026-11-05",
+
+  "tabs": {
+    "background": {
+      "label": "专业背景",
+      "lede": "气测录井连续测量钻井液返出气体中的总烃与组分，是发现油气显示最快的手段，解释员据峰值形态与组分比判断油气层。气测曲线受钻井液密度、脱气效率、接单根气影响大，峰值形态千变万化。智能方法用时序模型识别气测异常段并判别流体性质（油/气/水层），异常段样本少、真值靠试油验证。",
+      "judge": [
+        { "label": "数据形态", "value": "气测全烃+组分", "desc": "1—5m一点" },
+        { "label": "标注成本", "value": "高", "desc": "真值靠试油" },
+        { "label": "可见收益", "value": "解释一致+不漏层", "desc": "发现油气显示快" },
+        { "label": "难度", "value": "中", "desc": "形态多变+样本少" }
+      ],
+      "sections": [
+        {
+          "no": 1,
+          "en": "PROBLEM",
+          "title": "当前做法与问题",
+          "html": "<p><b>气测录井</b>连续测量钻井液返出气体中的总烃与组分，是发现油气显示最快的手段，解释员据峰值形态与组分比判断油气层。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>曲线干扰大</b>——受钻井液密度、脱气效率、接单根气影响</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>峰值形态多变</b>——人工解释一致性差，薄油气层被背景气掩盖</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>样本少</b>——异常段样本少，真值只能靠试油验证</span></div></div><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"人工气测解释的问题\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">人工判读峰值 → 形态多变 · 一致性差</text><rect x=\"20\" y=\"36\" width=\"280\" height=\"176\" rx=\"8\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"160\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">人工解释</text><rect x=\"36\" y=\"70\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"96\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#2b4a72\">峰值形态判断</text><rect x=\"180\" y=\"70\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"230\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">组分比判断</text><rect x=\"36\" y=\"112\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"96\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">曲线干扰大</text><rect x=\"180\" y=\"112\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"230\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">形态千变万化</text><text x=\"160\" y=\"180\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#b26a39\" font-weight=\"700\">解释一致性差 → 漏薄油气层</text><text x=\"160\" y=\"198\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#79828a\">背景气掩盖</text><rect x=\"316\" y=\"36\" width=\"284\" height=\"176\" rx=\"8\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"458\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">为什么难</text><text x=\"332\" y=\"82\" font-size=\"9.5\" fill=\"#4d565b\">· 峰值形态千变万化</text><text x=\"332\" y=\"104\" font-size=\"9.5\" fill=\"#4d565b\">· 薄层被背景气掩盖</text><text x=\"332\" y=\"126\" font-size=\"9.5\" fill=\"#4d565b\">· 异常段样本少</text><rect x=\"332\" y=\"150\" width=\"252\" height=\"46\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"344\" y=\"170\" font-size=\"8.5\" fill=\"#79828a\">真值只能靠试油验证</text><text x=\"344\" y=\"186\" font-size=\"8.5\" fill=\"#b26a39\" font-weight=\"700\">需要智能识别</text></svg></div>"
+        },
+        {
+          "no": 2,
+          "en": "INTERVENTION",
+          "title": "AI 能做什么",
+          "html": "<p>用<b>序列分类</b>识别气测异常段并<b>判别流体性质</b>（油 / 气 / 水层），替代人工分段与形态判读。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>异常段识别</b>——时序模型在气测曲线上标出异常段，替代人工分段</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>流体性质判别</b>——据峰值形态与组分比判油/气/水层</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>弱标签学习</b>——异常段样本少，用试油真值校正</span></div></div><p>落地形态：异常段自动标出、流体性质给建议，解释员只做复核。</p><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"气测异常智能解释流程\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">气测曲线 → 序列识别 + 流体判别 → 异常段</text><rect x=\"20\" y=\"40\" width=\"120\" height=\"120\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"80\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#242b2e\" font-weight=\"600\">气测全烃组分</text><path d=\"M36 78 C60 62 90 76 116 68\" fill=\"none\" stroke=\"#7a8a9a\" stroke-width=\"2.6\"/><text x=\"80\" y=\"130\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">1—5 m 一点</text><path d=\"M144 100 L168 100\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"172\" y=\"40\" width=\"130\" height=\"120\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"237\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">序列分类</text><text x=\"237\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">异常段识别</text><text x=\"237\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">流体判别</text><path d=\"M306 100 L330 100\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"334\" y=\"40\" width=\"130\" height=\"120\" rx=\"6\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"399\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#2b4a72\" font-weight=\"600\">弱标签校正</text><text x=\"399\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">试油真值</text><text x=\"399\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">样本少也学</text><path d=\"M468 100 L492 100\" stroke=\"#2b4a72\" stroke-width=\"1.6\"/><rect x=\"496\" y=\"40\" width=\"104\" height=\"120\" rx=\"6\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"548\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">异常段+性质</text><text x=\"548\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">油/气/水层</text><text x=\"548\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">复核即可</text><text x=\"310\" y=\"210\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">异常段自动标出 · 流体性质给建议 · 复核</text></svg></div>"
+        },
+        {
+          "no": 3,
+          "en": "DATA",
+          "title": "需要准备什么",
+          "html": "<p><b>气测全烃与组分</b>：1—5 m 一点，单井数千点；<b>钻井液与工况参数</b>：密度、排量、钻时，用于校正；<b>试油 / 生产验证</b>：层段与产能，作为真值。</p><div class=\"figure\"><svg viewBox=\"0 0 620 220\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"气测解释数据准备\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">气测异常解释需要的数据</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#41699b\"/><text x=\"32\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">气测全烃与组分</text><text x=\"32\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">总烃/甲烷/重烃</text><text x=\"32\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">1—5 m 一点，单井数千点</text><rect x=\"318\" y=\"34\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#b26a39\"/><text x=\"330\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">钻井液与工况参数</text><text x=\"330\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">密度/排量/钻时</text><text x=\"330\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">用于校正</text><rect x=\"20\" y=\"106\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#2f7d6b\"/><text x=\"32\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">试油 / 生产验证</text><text x=\"32\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">层段与产能</text><text x=\"32\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">作为真值</text><rect x=\"318\" y=\"106\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#79828a\"/><text x=\"330\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">异常段解释标签</text><text x=\"330\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">200—500 段</text><text x=\"330\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">人工解释</text><rect x=\"20\" y=\"184\" width=\"582\" height=\"26\" rx=\"6\" fill=\"#f8ecdf\"/><text x=\"32\" y=\"202\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">训练策略：序列分类 + 流体判别 + 弱标签学习</text></svg></div>"
+        },
+        {
+          "no": 4,
+          "en": "DIFFICULTY",
+          "title": "难度与参考方向",
+          "html": "<p>三个最容易翻车的点：</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>曲线干扰大</b>——钻井液密度、脱气效率、接单根气都影响气测</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>峰值形态多变</b>——薄油气层被背景气掩盖，人工漏判</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>异常段样本少</b>——监督信号稀疏，纯有监督学不好</span></div></div><p>改进路线按成本从低到高：先做<b>基线校正</b>去掉钻井液/工况干扰；再加<b>序列分类</b>识别异常段与流体性质；最后用<b>弱标签学习</b>靠试油真值校正。</p><div class=\"figure\"><svg viewBox=\"0 0 620 210\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"气测解释难点与对策\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">难点排序 + 成本从低到高的改进路线</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"52\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">① 曲线干扰大</text><text x=\"32\" y=\"68\" font-size=\"8.5\" fill=\"#6b4a35\">密度/脱气/接单根</text><path d=\"M310 57 L356 57\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"34\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"52\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">基线校正</text><text x=\"372\" y=\"68\" font-size=\"8.5\" fill=\"#4d565b\">去工况干扰</text><rect x=\"20\" y=\"86\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"104\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">② 形态多变</text><text x=\"32\" y=\"120\" font-size=\"8.5\" fill=\"#6b4a35\">薄层被掩盖</text><path d=\"M310 109 L356 109\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"86\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"104\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">序列分类</text><text x=\"372\" y=\"120\" font-size=\"8.5\" fill=\"#4d565b\">异常段+流体</text><rect x=\"20\" y=\"138\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"156\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">③ 样本少</text><text x=\"32\" y=\"172\" font-size=\"8.5\" fill=\"#6b4a35\">真值靠试油</text><path d=\"M310 161 L356 161\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"138\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"156\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">弱标签学习</text><text x=\"372\" y=\"172\" font-size=\"8.5\" fill=\"#4d565b\">试油真值校正</text><rect x=\"20\" y=\"192\" width=\"582\" height=\"16\" rx=\"8\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"310\" y=\"204\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#41699b\">基线校正 → 序列分类 → 弱标签学习</text></svg></div>"
+        }
+      ]
+    },
+
+    "workflow": {
+      "label": "案例流程",
+      "title": "案例：一口井的气测异常解释改造",
+      "lead": [
+        "某井此前由解释员据气测峰值形态与组分比判断油气层，曲线干扰大、峰值形态多变、薄层被背景气掩盖。目标：用序列分类识别气测异常段并判别流体性质，用弱标签学习靠试油真值校正。",
+        "注意第 3、4、5 步：异常段识别、流体判别、弱标签学习是智能化价值的三个落点，示范页三屏一一对应。"
+      ],
+      "stats": [
+        ["井", "某生产井"],
+        ["采样间隔", "1—5 m 一点"],
+        ["样本规模", "单井数千点"],
+        ["解释方式", "人工判读峰值"],
+        ["目标", "异常段+流体性质"],
+        ["难点", "干扰大+样本少"]
+      ],
+      "steps": [
+        {
+          "name": "气测数据接入",
+          "role": "数据",
+          "do": "读入气测全烃与组分、钻井液与工况参数。示范页屏 1 顶部可看气测曲线。",
+          "effect": "带工况参数的气测序列集，异常段 200—500 段。",
+          "trap": "不结合工况参数直接看气测，接单根气等干扰被当成异常。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">数据接入：气测全烃组分 + 工况参数</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">气测全烃组分</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">1—5 m 一点</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">工况参数</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">密度/排量/钻时</text><path d=\"M360 72 L384 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">异常段标签</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">200—500 段</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不结合工况 → 接单根气被当异常</text></svg>"
+        },
+        {
+          "name": "基线校正",
+          "role": "算法核心",
+          "do": "用钻井液密度、脱气效率、工况参数校正气测基线，去掉干扰。示范页屏 1 展示校正前后。",
+          "effect": "气测基线被拉平，接单根气等干扰被抑制，异常凸显。",
+          "trap": "不做基线校正，钻井液密度变化被当成异常，虚报警多。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">基线校正：气测 + 工况 → 异常凸显</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">原始气测</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">基线漂移</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">基线校正</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">去干扰</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">异常凸显</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">薄层不被掩盖</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不做校正 → 密度变化被当异常 → 虚报警多</text></svg>"
+        },
+        {
+          "name": "异常段识别",
+          "role": "算法核心",
+          "do": "用序列分类在气测曲线上标出异常段，替代人工分段。示范页屏 1 展示异常段。",
+          "effect": "异常段自动标出，薄层也不漏。",
+          "trap": "把整段连续气测当异常，薄油气层的局部峰值被漏掉。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">异常段识别：气测 → 异常段</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">校正后气测</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">连续序列</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">序列分类</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">异常段标出</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">异常段</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">薄层不漏</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：把整段当异常 → 薄层局部峰值被漏</text></svg>"
+        },
+        {
+          "name": "流体性质判别",
+          "role": "算法核心",
+          "do": "据峰值形态与组分比判油/气/水层。示范页屏 2 展示判别。",
+          "effect": "异常段给出流体性质建议，替代人工形态判读。",
+          "trap": "只看峰值高低不看组分比，凝析气层被误判成油层。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">流体判别：峰值 + 组分比 → 油/气/水层</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">峰值形态</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">总烃曲线</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">组分比</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">甲烷/重烃</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">油/气/水层</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">性质建议</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：只看峰值 → 凝析气层误判成油层</text></svg>"
+        },
+        {
+          "name": "弱标签学习",
+          "role": "算法核心",
+          "do": "异常段样本少，用试油真值做弱标签校正。示范页屏 3 展示校正前后。",
+          "effect": "异常段样本少也能学，判别随试油真值越来越准。",
+          "trap": "只靠异常段标签、不用试油真值校正，样本少时判别漂移。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">弱标签学习：异常段 + 试油真值 → 校正</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">异常段标签</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">样本少</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">试油真值</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">层段产能</text><path d=\"M378 72 L400 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">弱标签校正</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">样本少也学</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不用试油校正 → 样本少 → 判别漂移</text></svg>"
+        },
+        {
+          "name": "解释复核",
+          "role": "人工确认",
+          "do": "异常段与流体性质给建议，解释员只做复核。示范页屏 3 展示复核清单。",
+          "effect": "解释一致性提升，薄油气层不漏。",
+          "trap": "复核结果不回流，模型不知道判别错在哪，永远漏层。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">复核：异常段+性质 → 解释员复核</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">异常段+性质</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">模型建议</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">复核</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">判别确认</text><path d=\"M378 72 L400 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">一致性↑</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">不漏薄层</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：复核不回流 → 模型不知错 → 永远漏层</text></svg>"
+        }
+      ],
+      "metrics": {
+        "title": "怎么算「解释对了」",
+        "html": "<p>气测解释用 <b>异常段召回</b>（真实异常被标出的比例）与 <b>流体性质准确率</b> 双重验收；<b>虚报警</b> 衡量把干扰当异常的比率。</p><p>最终还要看 <b>复核回流</b>：复核结果与试油真值回流后，判别是否越用越准。</p><p style=\"margin-top:16px\"><svg viewBox='0 0 620 200' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='气测解释效果对比' style='width:100%;height:auto;display:block'><text x='14' y='20' font-size='10' fill='#4d565b' font-weight='600'>气测解释验收：召回 × 流体准确 × 虚报警</text><rect x='14' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='159' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>异常段召回</text><rect x='40' y='66' width='80' height='52' fill='#d9b78e'/><text x='80' y='96' text-anchor='middle' font-size='10' fill='#4d565b' font-weight='700'>召回 62%</text><text x='80' y='112' text-anchor='middle' font-size='8' fill='#8a6b52'>人工分段</text><rect x='180' y='66' width='80' height='52' fill='#2f7d6b'/><text x='220' y='96' text-anchor='middle' font-size='10' fill='#fff' font-weight='700'>召回 95%</text><text x='220' y='112' text-anchor='middle' font-size='8' fill='#b9d8cb'>序列识别+弱标签</text><text x='159' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>召回 ↑ 漏层 ↓</text><rect x='316' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='461' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>流体 + 虚警</text><rect x='340' y='66' width='120' height='52' fill='#e7eef9' stroke='#41699b'/><text x='400' y='92' text-anchor='middle' font-size='9' fill='#2b4a72' font-weight='700'>流体准确↑</text><text x='400' y='108' text-anchor='middle' font-size='8' fill='#79828a'>油/气/水判对</text><rect x='470' y='66' width='120' height='52' fill='#e6f1ec' stroke='#2f7d6b'/><text x='530' y='92' text-anchor='middle' font-size='9' fill='#22604f' font-weight='700'>虚报警↓</text><text x='530' y='108' text-anchor='middle' font-size='8' fill='#79828a'>基线校正</text><text x='461' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>解释一致 · 不漏层</text><text x='310' y='188' text-anchor='middle' font-size='8' fill='#9ba3a9'>验收 = 异常段召回 × 流体准确 × 虚报警</text></svg></p>"
+      },
+      "fails": [
+        { "name": "曲线干扰大", "why": "钻井液密度、脱气效率、接单根气都影响气测，不做基线校正确易虚报警。" },
+        { "name": "峰值形态多变", "why": "薄油气层被背景气掩盖，人工分段一致性差、漏层。" },
+        { "name": "异常段样本少", "why": "监督信号稀疏，纯有监督学不好，需弱标签学习。" },
+        { "name": "只看峰值忽略组分比", "why": "凝析气层与油层峰值相近，不看组分比会误判流体性质。" }
+      ]
+    },
+
+    "demo": {
+      "mode": "auto",
+      "html": "demo/index.html",
+      "js": "demo/demo.js",
+      "label": "可运行示范",
+      "intro": "用合成的气测曲线与工况演示基线校正、异常段识别、流体判别与弱标签校正。",
+      "height": 600
+    }
+  }
+}

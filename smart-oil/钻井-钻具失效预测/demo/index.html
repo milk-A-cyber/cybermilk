@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示范：钻具失效预测</title>
+<link rel="stylesheet" href="demo.css?v=20261105a">
+<link rel="stylesheet" href="aflow.css?v=20261105a">
+<link rel="stylesheet" href="aiq.css?v=20261105a">
+<style>
+#ctlDrawer{position:fixed;right:0;top:70px;width:268px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid #e9e4d8;border-radius:10px;box-shadow:0 6px 24px -8px rgba(0,0,0,.15);z-index:90;transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+#ctlDrawer.open{transform:translateX(0);opacity:1;pointer-events:auto}
+@media (max-width:760px){#ctlDrawer{width:calc(100vw - 20px);right:10px;top:auto;bottom:10px;max-height:45vh}}
+.review-list{font-size:13px;border:1px solid #e9e4d8;border-radius:8px;overflow:hidden;margin-top:8px}
+.review-list .row{display:flex;align-items:center;padding:7px 12px;border-bottom:1px solid #f0ece2}
+.review-list .row:last-child{border-bottom:none}
+.review-list .row span{flex:1;color:#4d565b}
+.review-list .row b{width:180px;color:#24333a;font-weight:700}
+.review-list .row em{color:#2f7d6b;font-style:normal;font-weight:700;font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <span class="kicker">CASE DEMO · 钻井工程 / 钻具失效预测</span>
+  <h1>从「按进尺粗算寿命」到「物理疲劳 + 时序的剩余寿命预测」</h1>
+  <p class="sub">三个实验：Q1 疲劳累积、Q2 剩余寿命预测、Q3 起钻建议。</p>
+</header>
+
+<!-- ================= 算法解剖 · 失效预测全流程 ================= -->
+<section class="sec" id="sec0">
+  <div class="qa">
+    <span class="qa-q">深入 · 想逐帧看就往下</span>
+    <p class="qa-a">不是「振动 → 黑盒 → 报警」，而是<b>逐段展开</b>：数据接入 → 疲劳累积 → 损伤特征 → 剩余寿命 → 起钻建议 → 起钻验证，每一步都能看见中间量</p>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">可选深入 · 对应流程 STEP 2—5</span>
+    <h2>把「振动/扭矩 → 断钻具预警」一步步拆开看</h2>
+    <p class="leadline">下面这段动画跑的是<b>真代码</b>（与实验 1—3 同一份模型）。自动播放，也可点阶段名跳步、拖速度。切建模方式、起钻阈值，这里的每一步都会同步重算。</p>
+  </div>
+  <div id="flowMount"></div>
+  <details class="more">
+    <summary>这段动画与后面三个实验是什么关系</summary>
+    <div class="more-body">
+      <p>实验 1—3 给出的是<b>结果</b>（损伤曲线、RUL 预测、起钻建议）；这段动画给出的是<b>过程</b>——同一份 <code>demo.js</code> 里的 <code>fatigueAccum / rulPredict / tripAdvice</code> 被拆成 6 个阶段依次放慢演给你看。</p>
+      <p>刻意做的两处细节：<b>①</b> 第 2 步把物理损伤画到失效线，看得见「疲劳累积」的加速过程；<b>②</b> 第 4 步把真实与预测 RUL 同框，看得见「混合建模」更贴近真实。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 1 · 疲劳累积 ================= -->
+<section class="sec" id="sec1">
+  <div class="qa">
+    <span class="qa-q">Q1 · 为什么需要智能算法</span>
+    <p class="qa-a">按进尺/纯钻时间粗算，区分不了工况损伤差异</p>
+    <button class="qa-go">开始实验 1</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 1 · 对应流程 STEP 1—2</span>
+    <h2>疲劳累积：振动/扭矩 → 物理损伤</h2>
+    <p class="leadline">看振动时序分工况，物理损伤怎么从 0 累加到接近失效。</p>
+  </div>
+  <div class="ctl" id="fatCtl">
+    <p class="ctl-note">疲劳累积来自振动幅值（损伤速率 ∝ 幅值²），振动/冲击工况损伤大。</p>
+  </div>
+  <svg id="fatChart" viewBox="0 0 400 200" role="img" aria-label="疲劳累积"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">累计损伤</span><b id="roDamage">—</b></div>
+    <div class="ro"><span class="k">工况组成</span><b id="roMode">—</b></div>
+  </div>
+  <p class="tip" id="fatTip">钻具在交变载荷下疲劳失效。振动幅值大、循环多的工况损伤速率快，物理损伤从 0 累加到 1（失效）。只看振动超标次数、忽略幅值，会低估高幅循环的加速损伤。断钻具后起钻打捞单次损失数十万。</p>
+</section>
+
+<!-- ================= 实验 2 · 剩余寿命预测 ================= -->
+<section class="sec" id="sec2">
+  <div class="qa">
+    <span class="qa-q">Q2 · 智能算法是什么</span>
+    <p class="qa-a"><b>混合建模</b>：物理疲劳 + 时序 → 剩余寿命 RUL<span class="qa-algo">疲劳累积 · 时序混合建模</span></p>
+    <button class="qa-go">开始实验 2</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 2 · 对应流程 STEP 3—4</span>
+    <h2>剩余寿命预测：物理 + 时序混合建模</h2>
+    <p class="leadline">切建模方式（纯时序/纯物理/混合），看 RUL 预测与真实差距。</p>
+  </div>
+  <div class="ctl" id="rulCtl">
+    <div class="sl">
+      <label>建模方式<output id="outMode">混合建模</output></label>
+      <input type="range" id="inMode" min="0" max="2" step="1" value="2">
+    </div>
+  </div>
+  <svg id="rulChart" viewBox="0 0 400 200" role="img" aria-label="剩余寿命预测"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">末端剩余寿命</span><b id="roRul">—</b></div>
+    <div class="ro"><span class="k">预测误差</span><b id="roErr">—</b></div>
+  </div>
+  <p class="tip" id="rulTip">失效样本稀少，纯时序模型会漂移；纯物理（Miner）忽略工况细节；混合建模用物理先验兜底、时序特征修正，最贴近真实。失效事件少时，物理约束让预测不漂移、置信度更好。</p>
+</section>
+
+<!-- ================= 实验 3 · 起钻建议 ================= -->
+<section class="sec" id="sec3">
+  <div class="qa">
+    <span class="qa-q">Q3 · 它怎么工作</span>
+    <p class="qa-a">失效窗口前 → <b>起钻建议</b>（替代振动超标才报警）→ 探伤回流</p>
+    <button class="qa-go">开始实验 3</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 3 · 对应流程 STEP 5—6</span>
+    <h2>起钻建议：失效窗口前及时起钻</h2>
+    <p class="leadline">拖起钻阈值，看剩余寿命何时越过起钻线、给什么建议。</p>
+  </div>
+  <div class="ctl" id="tripCtl">
+    <div class="sl">
+      <label>起钻阈值(m)<output id="outThr">15</output></label>
+      <input type="range" id="inThr" min="5" max="40" step="5" value="15">
+    </div>
+  </div>
+  <svg id="tripChart" viewBox="0 0 400 200" role="img" aria-label="起钻建议"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">起钻建议</span><b id="roAdvice" class="good">—</b></div>
+    <div class="ro"><span class="k">效果</span><b id="roAvoid">—</b></div>
+  </div>
+  <div class="review-list" id="reviewList"></div>
+  <p class="tip" id="tripTip">在失效窗口前给起钻建议，替代振动超标才报警。预测太保守过早起钻损失钻进时间，太激进又可能断钻具，要平衡。按建议起钻后探伤核对，结果回流模型，寿命估计越用越准。</p>
+</section>
+
+<footer>
+  <div class="map">
+    <div><b>实验 1 → STEP 2</b><br>疲劳累积算物理损伤。</div>
+    <div><b>实验 2 → STEP 4</b><br>混合建模预测 RUL。</div>
+    <div><b>实验 3 → STEP 5</b><br>起钻建议 + 探伤回流。</div>
+  </div>
+  <p class="note">纯前端教学演示：振动/扭矩时序由「工况基波 + 幅值噪声」合成，失效点已知、仅供对比；疲劳累积、剩余寿命预测与起钻建议均在浏览器实时计算。</p>
+</footer>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+/* 算法解剖：把 6 个阶段挂到 AFlow 引擎上 */
+(function () {
+  if (!window.AFlow || !window.RemoteFlow) return;
+  var F = window.RemoteFlow;
+  window.RemoteFlowApi = window.AFlow.create({
+    mount: document.getElementById('flowMount'),
+    title: '算法解剖',
+    subtitle: '自动播放：振动/扭矩怎么一步步变成断钻具预警',
+    stages: [
+      { name: '数据接入', tag: '振动/扭矩', dur: 4000, draw: function (t, g) { return F.stage1(t); } },
+      { name: '疲劳累积', tag: '物理损伤', dur: 4400, draw: function (t, g) { return F.stage2(t); } },
+      { name: '损伤特征', tag: 'RMS/峰值', dur: 4200, draw: function (t, g) { return F.stage3(t); } },
+      { name: '剩余寿命', tag: '混合建模', dur: 4800, draw: function (t, g) { return F.stage4(t); } },
+      { name: '起钻建议', tag: '失效窗口', dur: 4400, draw: function (t, g) { return F.stage5(t); } },
+      { name: '起钻验证', tag: '探伤回流', dur: 4200, draw: function (t, g) { return F.stage6(t); } }
+    ]
+  });
+})();
+</script>
+<script src="aiq.js?v=20261105a"></script>
+</body>
+</html>

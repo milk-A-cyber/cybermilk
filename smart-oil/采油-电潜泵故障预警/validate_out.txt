@@ -1,0 +1,44 @@
+﻿电潜泵故障预警 · 模型层自检
+  [PASS] genCurrent 存在
+  [PASS] slideZscore 存在
+  [PASS] detectAnomaly 存在
+  [PASS] genDegrade 存在
+  [PASS] trueRul 存在
+  [PASS] fitTrend 存在
+  [PASS] predictRUL 存在
+  [PASS] genFleet 存在
+  [PASS] classify 存在
+  [PASS] fleetEval 存在
+  [PASS] 电流 720 点 (scaling)
+  [PASS] scaling 故障段标注 [260,720]
+  [PASS] 基线 92A
+  [PASS] 正常工况 趋势检测误报率 <5%（实测 0.0%）
+  [PASS] 结垢 趋势检测命中 >60%（实测 84.1%）
+  [PASS] 结垢 绝对值命中 < 趋势检测命中（abs=52.0% < trend=84.1%，体现"缓慢爬升漏检"）
+  [PASS] 结垢 绝对值命中 <60%（前半段在 ±8A 内被漏掉，实测 52.0%）
+  [PASS] 停泵 绝对值命中 >50%（实测 100.0%）
+  [PASS] 滑窗特征三序列长度正确
+  [PASS] mild 退化曲线 90 天
+  [PASS] mild 阈值 22
+  [PASS] mild 单调下降（退化）
+  [PASS] moderate 退化曲线 90 天
+  [PASS] moderate 阈值 22
+  [PASS] moderate 单调下降（退化）
+  [PASS] severe 退化曲线 90 天
+  [PASS] severe 阈值 22
+  [PASS] severe 单调下降（退化）
+      [info] moderate day60 真实RUL=17 模型估计RUL=16
+  [PASS] moderate day60 可外推估计 RUL
+  [PASS] moderate day60 RUL 误差 <=12 天（实测 1）
+  [PASS] moderate 拟合斜率显著为负（约 -0.30，实测 -0.301）
+  [PASS] 井群 24 口
+  [PASS] 含故障井 7 口
+  [PASS] 四级分级边界正确（0/1/2/3 = 0/1/2/3）
+  [PASS] 灵敏度：激进(thr=0.2)级别 3 >= 保守(thr=0.8)级别 2
+      [info] thr=0.5 检出率=100.0% 误报率=0.0% 平均提前=23.7天 紧急=7 复核=0
+  [PASS] 检出率 >80%（实测 100.0%）
+  [PASS] 紧急误报率 <10%（实测 0.0%）
+  [PASS] 平均提前量 >=15 天（与案例 metrics 目标一致，实测 23.7）
+  [PASS] 混淆矩阵 2×4 结构
+
+==== 结果：39 通过 / 0 警告 / 0 失败 ====

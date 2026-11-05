@@ -1,0 +1,125 @@
+{
+  "id": "w5-log-impute",
+  "sceneId": "w5",
+  "methods": ["ts"],
+  "title": "测井数据修复：掩码自编码 + 跨曲线生成 + 序列插补",
+  "version": "1.0.0",
+  "updated": "2026-11-05",
+
+  "tabs": {
+    "background": {
+      "label": "专业背景",
+      "lede": "实际测井曲线常有缺失段、异常跳变与井径垮塌段，直接进入解释会造成参数失真，传统靠人工插值与经验修补。智能方法用序列重建模型补全缺失段，同时给出异常置信度。",
+      "judge": [
+        { "label": "数据形态", "value": "测井", "desc": "多曲线+标记" },
+        { "label": "标注成本", "value": "高", "desc": "人工标记异常" },
+        { "label": "可见收益", "value": "参数准", "desc": "解释不失真" },
+        { "label": "难度", "value": "中", "desc": "无真值难评" }
+      ],
+      "sections": [
+        {
+          "no": 1,
+          "en": "PROBLEM",
+          "title": "当前做法与问题",
+          "html": "<p><b>测井数据修复</b>补全缺失段与异常段。实际测井曲线常有缺失段、异常跳变与井径垮塌段，直接进入解释会造成参数失真，传统靠人工插值与经验修补。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>缺失段补值无依据</b>——人工补值无依据</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>异常段识别易漏</b>——异常段靠肉眼识别易漏</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>物理一致性难保证</b>——曲线间物理一致性难人工保证</span></div></div><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"人工修复测井的问题\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">人工修复 → 补值无依据 · 异常易漏 · 一致性难保证</text><rect x=\"20\" y=\"36\" width=\"280\" height=\"176\" rx=\"8\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"160\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">人工修复</text><rect x=\"36\" y=\"70\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"96\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#2b4a72\">缺失补值</text><rect x=\"180\" y=\"70\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"230\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">异常肉眼</text><rect x=\"36\" y=\"112\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"96\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">补值无依据</text><rect x=\"180\" y=\"112\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"230\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">识别易漏</text><text x=\"160\" y=\"180\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#b26a39\" font-weight=\"700\">一致性难保证</text><text x=\"160\" y=\"198\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#79828a\">参数失真</text><rect x=\"316\" y=\"36\" width=\"284\" height=\"176\" rx=\"8\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"458\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">为什么难</text><text x=\"332\" y=\"82\" font-size=\"9.5\" fill=\"#4d565b\">· 补值无依据</text><text x=\"332\" y=\"104\" font-size=\"9.5\" fill=\"#4d565b\">· 异常肉眼易漏</text><text x=\"332\" y=\"126\" font-size=\"9.5\" fill=\"#4d565b\">· 一致性难保证</text><rect x=\"332\" y=\"150\" width=\"252\" height=\"46\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"344\" y=\"170\" font-size=\"8.5\" fill=\"#79828a\">井径工程记录</text><text x=\"344\" y=\"186\" font-size=\"8.5\" fill=\"#b26a39\" font-weight=\"700\">需要智能修复</text></svg></div>"
+        },
+        {
+          "no": 2,
+          "en": "INTERVENTION",
+          "title": "AI 能做什么",
+          "html": "<p>用<b>序列重建模型</b>（掩码自编码、跨曲线生成）补全缺失段，同时给出<b>异常置信度</b>。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>掩码自编码</b>——重建缺失段，替代人工补值</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>跨曲线生成</b>——用邻井参考补全，物理一致性更稳</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>异常置信度</b>——给异常打分，复核不遗漏</span></div></div><p>落地形态：缺失段自动补全，异常置信度供人工复核。</p><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"测井智能修复流程\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">测井 → 缺失/异常识别 + 掩码重建 + 跨曲线生成 → 可解释</text><rect x=\"16\" y=\"40\" width=\"110\" height=\"120\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"71\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#242b2e\" font-weight=\"600\">测井数据</text><text x=\"71\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">多曲线+标记</text><path d=\"M130 100 L148 100\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"152\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"211\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#2b4a72\" font-weight=\"600\">缺失/异常识别</text><text x=\"211\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">阈值检测</text><path d=\"M274 100 L292 100\" stroke=\"#2b4a72\" stroke-width=\"1.6\"/><rect x=\"296\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"355\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">掩码重建</text><text x=\"355\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">序列插补</text><path d=\"M418 100 L436 100\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"440\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">可解释</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">异常置信度</text><text x=\"310\" y=\"210\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">补值有据 · 异常不漏 · 物理一致</text></svg></div>"
+        },
+        {
+          "no": 3,
+          "en": "DATA",
+          "title": "需要准备什么",
+          "html": "<p><b>多曲线测井数据</b>：全井段，人工标记的异常段；<b>邻井同期曲线</b>：同区块，作为参考；<b>井径与工程记录</b>：井况信息，辅助判断异常原因。</p><div class=\"figure\"><svg viewBox=\"0 0 620 220\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"测井修复数据准备\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">测井数据修复需要的数据</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#41699b\"/><text x=\"32\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">多曲线测井</text><text x=\"32\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">全井段+标记异常段</text><text x=\"32\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">GR/RT/DEN</text><rect x=\"318\" y=\"34\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#b26a39\"/><text x=\"330\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">邻井同期曲线</text><text x=\"330\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">同区块参考</text><text x=\"330\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">作为参考</text><rect x=\"20\" y=\"106\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#2f7d6b\"/><text x=\"32\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">井径与工程记录</text><text x=\"32\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">井况信息</text><text x=\"32\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">辅助判断原因</text><rect x=\"318\" y=\"106\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#79828a\"/><text x=\"330\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">真值</text><text x=\"330\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">缺失段原值</text><text x=\"330\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">评价补对与否</text><rect x=\"20\" y=\"184\" width=\"582\" height=\"26\" rx=\"6\" fill=\"#f8ecdf\"/><text x=\"32\" y=\"202\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">训练策略：掩码自编码 + 跨曲线生成 + 序列插补</text></svg></div>"
+        },
+        {
+          "no": 4,
+          "en": "DIFFICULTY",
+          "title": "难度与参考方向",
+          "html": "<p>三个最容易翻车的点：</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>补值无依据</b>——缺失段人工补值无依据</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>异常易漏</b>——异常段靠肉眼识别易漏</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>一致性难保证</b>——曲线间物理一致性难人工保证</span></div></div><p>改进路线按成本从低到高：先做<b>缺失/异常识别</b>；再加<b>掩码重建</b>；最后用<b>跨曲线生成</b>保证一致性。</p><div class=\"figure\"><svg viewBox=\"0 0 620 210\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"测井修复难点与对策\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">难点排序 + 成本从低到高的改进路线</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"52\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">① 补值无依据</text><text x=\"32\" y=\"68\" font-size=\"8.5\" fill=\"#6b4a35\">人工修补</text><path d=\"M310 57 L356 57\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"34\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"52\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">缺失/异常识别</text><text x=\"372\" y=\"68\" font-size=\"8.5\" fill=\"#4d565b\">阈值检测</text><rect x=\"20\" y=\"86\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"104\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">② 异常易漏</text><text x=\"32\" y=\"120\" font-size=\"8.5\" fill=\"#6b4a35\">肉眼漏检</text><path d=\"M310 109 L356 109\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"86\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"104\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">掩码重建</text><text x=\"372\" y=\"120\" font-size=\"8.5\" fill=\"#4d565b\">序列插补</text><rect x=\"20\" y=\"138\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"156\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">③ 一致性难</text><text x=\"32\" y=\"172\" font-size=\"8.5\" fill=\"#6b4a35\">物理关系</text><path d=\"M310 161 L356 161\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"138\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"156\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">跨曲线生成</text><text x=\"372\" y=\"172\" font-size=\"8.5\" fill=\"#4d565b\">邻井参考</text><rect x=\"20\" y=\"192\" width=\"582\" height=\"16\" rx=\"8\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"310\" y=\"204\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#41699b\">缺失/异常识别 → 掩码重建 → 跨曲线生成</text></svg></div>"
+        }
+      ]
+    },
+
+    "workflow": {
+      "label": "案例流程",
+      "title": "案例：一口井的测井数据修复",
+      "lead": [
+        "某井测井曲线有缺失段、异常跳变与井径垮塌段，直接解释会造成参数失真。此前靠人工插值与经验修补，补值无依据、异常易漏、物理一致性难保证。目标：序列重建模型补全缺失段，同时给出异常置信度。",
+        "注意第 3、4、5 步：掩码重建、跨曲线生成、井径工程验证是智能化价值的三个落点，示范页三屏一一对应。"
+      ],
+      "stats": [
+        ["井", "某生产井"],
+        ["测井", "多曲线"],
+        ["修复", "人工插值"],
+        ["参考", "邻井同期"],
+        ["目标", "缺失自动补全"],
+        ["难点", "无真值难评"]
+      ],
+      "steps": [
+        {
+          "name": "多曲线接入",
+          "role": "数据",
+          "do": "读入多曲线测井与人工标记异常段，配邻井与井径工程记录。示范页屏 1 顶部可看。",
+          "effect": "测井 + 缺失/异常标记 + 邻井参考。",
+          "trap": "不读入邻井，补全无参考。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">多曲线接入：测井 + 缺失/异常标记 + 邻井参考</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">多曲线测井</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">全井段</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">标记异常</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">缺失+跳变</text><path d=\"M360 72 L384 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">邻井+井径工程</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">参考+井况</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不读邻井 → 补全无参考</text></svg>"
+        },
+        {
+          "name": "缺失/异常识别",
+          "role": "基线",
+          "do": "阈值检测缺失段与异常跳变，给异常置信度。示范页屏 1 展示。",
+          "effect": "异常不漏，给出置信度。",
+          "trap": "异常段靠肉眼识别易漏。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">缺失/异常识别：阈值检测</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">阈值检测</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">局部跳变</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">异常置信度</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">打分</text><path d=\"M360 72 L384 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">不漏异常</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">复核清单</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：肉眼识别易漏 → 异常跳变</text></svg>"
+        },
+        {
+          "name": "掩码重建",
+          "role": "算法核心",
+          "do": "掩码自编码重建缺失段，邻点插值补全。示范页屏 2 展示。",
+          "effect": "缺失段自动补全，替代人工。",
+          "trap": "缺失段长时插值不准，忽略物理一致性。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">掩码重建：序列插补补全缺失段</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">掩码</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">缺失段</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">掩码自编码</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">序列插补</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">补全曲线</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">重建误差</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：缺失段长 → 插值不准</text></svg>"
+        },
+        {
+          "name": "跨曲线生成",
+          "role": "算法核心",
+          "do": "用邻井参考映射补全缺失段，保证曲线间物理一致性。示范页屏 3 展示。",
+          "effect": "比邻点插值更准，一致性更好。",
+          "trap": "邻井非同井有差异，井径异常会干扰。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">跨曲线生成：邻井参考映射补全</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">邻井参考</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">同期曲线</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">跨曲线生成</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">映射补全</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">一致性↑</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">误差↓</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：邻井非同井 → 有差异</text></svg>"
+        },
+        {
+          "name": "井径工程验证",
+          "role": "人工确认",
+          "do": "用井径与工程记录核对补全段井况，输出复核清单。示范页屏 3 展示。",
+          "effect": "修复准确性提升，异常不遗漏。",
+          "trap": "修复不回流，不知道补错在哪；无真值时只能靠下游解释效果间接判断。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">井径工程验证：补全 → 井况核对</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">补全结果</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">跨曲线</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">井径工程</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">井况核对</text><path d=\"M378 72 L400 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">可靠↑</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">异常不漏</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：修复不回流 → 不知补错 → 无法变准</text></svg>"
+        }
+      ],
+      "metrics": {
+        "title": "怎么算「修复对了」",
+        "html": "<p>测井修复用 <b>重建误差</b>（补全值与缺失段原值的平均差）衡量补全精度，<b>异常置信度</b> 衡量异常是否被识别，<b>物理一致性</b> 衡量补全段与邻井/其他曲线是否相符。</p><p>最终还要看 <b>下游解释效果</b>：补全后参数解释是否更合理。</p><p style=\"margin-top:16px\"><svg viewBox='0 0 620 200' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='测井修复效果对比' style='width:100%;height:auto;display:block'><text x='14' y='20' font-size='10' fill='#4d565b' font-weight='600'>测井修复验收：重建误差 × 异常置信度 × 一致性</text><rect x='14' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='159' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>重建误差</text><rect x='40' y='66' width='80' height='52' fill='#d9b78e'/><text x='80' y='96' text-anchor='middle' font-size='10' fill='#4d565b' font-weight='700'>MAE 0.41</text><text x='80' y='112' text-anchor='middle' font-size='8' fill='#8a6b52'>邻点插值</text><rect x='180' y='66' width='80' height='52' fill='#2f7d6b'/><text x='220' y='96' text-anchor='middle' font-size='10' fill='#fff' font-weight='700'>MAE 0.28</text><text x='220' y='112' text-anchor='middle' font-size='8' fill='#b9d8cb'>跨曲线生成</text><text x='159' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>误差 ↓</text><rect x='316' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='461' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>置信 + 一致性</text><rect x='340' y='66' width='120' height='52' fill='#e7eef9' stroke='#41699b'/><text x='400' y='92' text-anchor='middle' font-size='9' fill='#2b4a72' font-weight='700'>异常置信↑</text><text x='400' y='108' text-anchor='middle' font-size='8' fill='#79828a'>不漏异常</text><rect x='470' y='66' width='120' height='52' fill='#e6f1ec' stroke='#2f7d6b'/><text x='530' y='92' text-anchor='middle' font-size='9' fill='#22604f' font-weight='700'>一致性↑</text><text x='530' y='108' text-anchor='middle' font-size='8' fill='#79828a'>物理相符</text><text x='461' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>置信 · 一致</text><text x='310' y='188' text-anchor='middle' font-size='8' fill='#9ba3a9'>验收 = 重建误差 × 异常置信度 × 一致性</text></svg></p>"
+      },
+      "fails": [
+        { "name": "补值无依据", "why": "缺失段人工补值无依据。" },
+        { "name": "异常易漏", "why": "异常段靠肉眼识别易漏。" },
+        { "name": "一致性难保证", "why": "曲线间物理一致性难人工保证。" },
+        { "name": "参数失真", "why": "直接解释会造成参数失真。" }
+      ]
+    },
+
+    "demo": {
+      "mode": "auto",
+      "html": "demo/index.html",
+      "js": "demo/demo.js",
+      "label": "可运行示范",
+      "intro": "用合成的多曲线测井数据（含缺失段/异常跳变/邻井参考）演示缺失/异常识别与掩码重建、跨曲线生成补全。",
+      "height": 600
+    }
+  }
+}

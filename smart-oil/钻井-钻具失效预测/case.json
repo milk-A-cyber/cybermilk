@@ -1,0 +1,133 @@
+{
+  "id": "d4-string-fail",
+  "sceneId": "d4",
+  "methods": ["ts"],
+  "title": "钻具失效预测：物理疲劳 + 时序的剩余寿命预测",
+  "version": "1.0.0",
+  "updated": "2026-11-05",
+
+  "tabs": {
+    "background": {
+      "label": "专业背景",
+      "lede": "钻具在交变载荷下疲劳失效，一旦断钻具就要起钻打捞，单次损失可达数十万元。传统按进尺或纯钻时间粗放估算寿命，无法区分不同工况下的损伤差异；振动超标时往往已接近失效。智能方法从振动与扭矩时序中提取损伤特征，用物理疲劳模型与时序混合建模预测剩余寿命、给出起钻建议。",
+      "judge": [
+        { "label": "数据形态", "value": "高频时序+台账", "desc": "振动/扭矩高频采样" },
+        { "label": "标注成本", "value": "高", "desc": "失效事件稀少" },
+        { "label": "可见收益", "value": "起钻防断钻", "desc": "单次损失数十万" },
+        { "label": "难度", "value": "中", "desc": "物理+时序混合建模" }
+      ],
+      "sections": [
+        {
+          "no": 1,
+          "en": "PROBLEM",
+          "title": "当前做法与问题",
+          "html": "<p>钻具在交变载荷下疲劳失效，一旦<b>断钻具</b>就要起钻打捞，单次损失可达<b>数十万元</b>。传统按<b>进尺或纯钻时间</b>粗放估算寿命。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>粗放估算</b>——按进尺/纯钻时间，无法区分不同工况下的损伤差异</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>发现太晚</b>——振动超标时往往已接近失效，来不及起钻</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>代价高</b>——断钻具后起钻打捞，单次损失数十万</span></div></div><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"粗放估算寿命的问题\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">按进尺/纯钻时间估算寿命 → 区分不了工况 · 发现太晚</text><rect x=\"20\" y=\"36\" width=\"280\" height=\"176\" rx=\"8\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"160\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">粗放估算</text><rect x=\"36\" y=\"70\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"96\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#2b4a72\">按进尺/纯钻时间</text><rect x=\"180\" y=\"70\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"230\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">一视同仁</text><rect x=\"36\" y=\"112\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"96\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">区分不了工况</text><rect x=\"180\" y=\"112\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"230\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">损伤差异</text><text x=\"160\" y=\"180\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#b26a39\" font-weight=\"700\">振动超标时已接近失效</text><text x=\"160\" y=\"198\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#79828a\">来不及起钻</text><rect x=\"316\" y=\"36\" width=\"284\" height=\"176\" rx=\"8\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"458\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">为什么难</text><text x=\"332\" y=\"82\" font-size=\"9.5\" fill=\"#4d565b\">· 失效样本稀少</text><text x=\"332\" y=\"104\" font-size=\"9.5\" fill=\"#4d565b\">· 疲劳累积是物理过程</text><text x=\"332\" y=\"126\" font-size=\"9.5\" fill=\"#4d565b\">· 需物理+时序混合</text><rect x=\"332\" y=\"150\" width=\"252\" height=\"46\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"344\" y=\"170\" font-size=\"8.5\" fill=\"#79828a\">断钻具 → 起钻打捞</text><text x=\"344\" y=\"186\" font-size=\"8.5\" fill=\"#b26a39\" font-weight=\"700\">单次损失数十万</text></svg></div>"
+        },
+        {
+          "no": 2,
+          "en": "INTERVENTION",
+          "title": "AI 能做什么",
+          "html": "<p>从<b>振动与扭矩时序</b>中提取损伤特征，用<b>物理疲劳模型</b>（疲劳累积）累加损伤，再用<b>时序模型</b>预测剩余寿命，给出<b>起钻建议</b>。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>损伤特征提取</b>——从振动/扭矩算疲劳累积，区分工况损伤差异</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>剩余寿命预测</b>——物理疲劳 + 时序混合，预测还剩多少可安全钻进</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>起钻建议</b>——在失效窗口前给建议，替代振动超标才报警</span></div></div><p>落地形态：在断钻前及时起钻、减少打捞损失，且寿命估计按工况精细到每个钻具。</p><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"钻具失效预测流程\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">损伤特征 + 剩余寿命 + 起钻建议</text><rect x=\"20\" y=\"40\" width=\"120\" height=\"120\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"80\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#242b2e\" font-weight=\"600\">振动/扭矩</text><path d=\"M36 78 C60 62 90 76 116 68\" fill=\"none\" stroke=\"#7a8a9a\" stroke-width=\"2.6\"/><text x=\"80\" y=\"130\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">高频时序</text><path d=\"M144 100 L168 100\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"172\" y=\"40\" width=\"130\" height=\"120\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"237\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">损伤特征提取</text><text x=\"237\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">疲劳累积</text><text x=\"237\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">区分工况</text><path d=\"M306 100 L330 100\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"334\" y=\"40\" width=\"130\" height=\"120\" rx=\"6\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"399\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#2b4a72\" font-weight=\"600\">剩余寿命预测</text><text x=\"399\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">物理+时序</text><text x=\"399\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">混合建模</text><path d=\"M468 100 L492 100\" stroke=\"#2b4a72\" stroke-width=\"1.6\"/><rect x=\"496\" y=\"40\" width=\"104\" height=\"120\" rx=\"6\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"548\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">起钻建议</text><text x=\"548\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">失效窗口前</text><text x=\"548\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">替代超标报警</text><text x=\"310\" y=\"210\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">断钻前起钻 · 减少打捞损失 · 寿命按工况精细</text></svg></div>"
+        },
+        {
+          "no": 3,
+          "en": "DATA",
+          "title": "需要准备什么",
+          "html": "<p><b>钻具振动与扭矩</b>：高频采样、随钻测量；<b>钻具台账</b>：型号、服役历史、探伤记录；<b>起钻检查结果</b>：探伤与磨损测量，作为寿命标签。</p><div class=\"figure\"><svg viewBox=\"0 0 620 220\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"钻具失效预测数据准备\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">钻具失效预测需要的数据</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#41699b\"/><text x=\"32\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">钻具振动与扭矩</text><text x=\"32\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">高频采样，随钻测量</text><text x=\"32\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">损伤特征来源</text><rect x=\"318\" y=\"34\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#b26a39\"/><text x=\"330\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">钻具台账</text><text x=\"330\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">型号/服役历史/探伤</text><text x=\"330\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">失效事件标注</text><rect x=\"20\" y=\"106\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#2f7d6b\"/><text x=\"32\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">起钻检查结果</text><text x=\"32\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">探伤与磨损测量</text><text x=\"32\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">寿命标签</text><rect x=\"318\" y=\"106\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#79828a\"/><text x=\"330\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">工况记录</text><text x=\"330\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">正常/振动/冲击</text><text x=\"330\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">区分损伤差异</text><rect x=\"20\" y=\"184\" width=\"582\" height=\"26\" rx=\"6\" fill=\"#f8ecdf\"/><text x=\"32\" y=\"202\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">训练策略：疲劳累积特征 + 物理-时序混合 + 剩余寿命 + 起钻建议</text></svg></div>"
+        },
+        {
+          "no": 4,
+          "en": "DIFFICULTY",
+          "title": "难度与参考方向",
+          "html": "<p>三个最容易翻车的点：</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>失效样本稀少</b>——断钻具事件本身少，监督信号稀疏，纯时序学不好</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>需物理约束</b>——疲劳累积是物理过程，纯数据模型会忽略载荷循环次数</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>过报警代价</b>——提前起钻也损失钻进时间，预测太保守同样花钱</span></div></div><p>改进路线按成本从低到高：先用<b>疲劳累积模型</b>（Miner 线性损伤）把物理损伤算出来；再加<b>时序模型</b>从振动/扭矩学剩余寿命；最后用<b>混合建模</b>把物理先验与时序特征融合，给出起钻建议。</p><div class=\"figure\"><svg viewBox=\"0 0 620 210\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"钻具失效预测难点与对策\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">难点排序 + 成本从低到高的改进路线</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"52\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">① 失效样本稀少</text><text x=\"32\" y=\"68\" font-size=\"8.5\" fill=\"#6b4a35\">监督信号稀疏</text><path d=\"M310 57 L356 57\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"34\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"52\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">物理先验兜底</text><text x=\"372\" y=\"68\" font-size=\"8.5\" fill=\"#4d565b\">疲劳累积模型</text><rect x=\"20\" y=\"86\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"104\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">② 需物理约束</text><text x=\"32\" y=\"120\" font-size=\"8.5\" fill=\"#6b4a35\">疲劳累积是物理过程</text><path d=\"M310 109 L356 109\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"86\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"104\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">时序模型学剩余寿命</text><text x=\"372\" y=\"120\" font-size=\"8.5\" fill=\"#4d565b\">振动/扭矩特征</text><rect x=\"20\" y=\"138\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"156\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">③ 过报警代价</text><text x=\"32\" y=\"172\" font-size=\"8.5\" fill=\"#6b4a35\">提前起钻损失钻进</text><path d=\"M310 161 L356 161\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"138\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"156\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">混合建模+起钻建议</text><text x=\"372\" y=\"172\" font-size=\"8.5\" fill=\"#4d565b\">物理先验+时序融合</text><rect x=\"20\" y=\"192\" width=\"582\" height=\"16\" rx=\"8\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"310\" y=\"204\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#41699b\">疲劳累积 → 时序剩余寿命 → 混合建模 → 起钻建议</text></svg></div>"
+        }
+      ]
+    },
+
+    "workflow": {
+      "label": "案例流程",
+      "title": "案例：一套钻具的失效预测改造",
+      "lead": [
+        "某井此前按进尺/纯钻时间粗放估算钻具寿命，无法区分工况损伤差异，振动超标时已接近失效。目标：从振动与扭矩时序提取损伤特征，用物理疲劳+时序混合预测剩余寿命，给出起钻建议。",
+        "注意第 3、4、5 步：损伤特征提取、剩余寿命预测、起钻建议是智能化价值的三个落点，示范页三屏一一对应。"
+      ],
+      "stats": [
+        ["井", "某生产井"],
+        ["钻具", "钻柱/钻具组合"],
+        ["损失", "断钻具起钻数十万"],
+        ["现状", "按进尺估算"],
+        ["目标", "剩余寿命+起钻建议"],
+        ["难度", "物理+时序混合"]
+      ],
+      "steps": [
+        {
+          "name": "振动与扭矩接入",
+          "role": "数据",
+          "do": "读入钻具振动与扭矩高频时序 + 工况记录。示范页屏 1 顶部可切换工况看时序。",
+          "effect": "一份带工况标签的高频振动/扭矩时序，作为损伤特征输入。",
+          "trap": "振动/扭矩高频但噪声大，直接当特征，模型学到的是噪声不是损伤。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">数据接入：振动/扭矩 → 工况</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">振动/扭矩时序</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">高频采样</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"170\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"291\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">工况标注</text><text x=\"291\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">正常/振动/冲击</text><path d=\"M380 72 L404 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"408\" y=\"42\" width=\"186\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"501\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">区分损伤差异</text><text x=\"501\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">振动工况损伤大</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：振动/扭矩高频但噪声大 → 直接当特征 → 学到噪声非损伤</text></svg>"
+        },
+        {
+          "name": "疲劳累积计算",
+          "role": "算法核心",
+          "do": "用疲劳累积模型（Miner 线性损伤）把载荷循环累加为物理损伤。示范页屏 1 展示累积损伤曲线。",
+          "effect": "一个物理损伤量（0→1），区分不同工况的损伤速率。",
+          "trap": "只数振动超标次数，忽略载荷幅值，低估高幅循环的加速损伤。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">疲劳累积：载荷循环 → 物理损伤</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">载荷循环</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">振动幅值/次数</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">Miner 损伤</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">线性累加</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">物理损伤 0→1</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">区分工况速率</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：只数超标次数忽略幅值 → 低估高幅循环加速损伤</text></svg>"
+        },
+        {
+          "name": "损伤特征提取",
+          "role": "算法核心",
+          "do": "从振动/扭矩算统计与谱特征（RMS、峰值、能量），作为时序模型的输入。示范页屏 2 展示特征曲线。",
+          "effect": "一组能反映疲劳累积的损伤特征，供剩余寿命预测。",
+          "trap": "特征太多又相关，模型过拟合，剩余寿命预测不稳定。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">损伤特征：振动/扭矩 → 统计/谱特征</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">振动/扭矩</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">高频时序</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">统计/谱特征</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">RMS/峰值/能量</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">损伤特征</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">供 RUL 预测</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：特征太多又相关 → 模型过拟合 → 剩余寿命预测不稳定</text></svg>"
+        },
+        {
+          "name": "剩余寿命预测",
+          "role": "算法核心",
+          "do": "用物理疲劳 + 时序混合建模，从损伤特征预测剩余寿命。示范页屏 2 展示预测 RUL 与真实对照。",
+          "effect": "一个随钻进不断更新的剩余寿命估计，替代按进尺粗算。",
+          "trap": "只靠纯时序、不结合物理，失效样本少时预测漂移、置信度差。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">剩余寿命：物理+时序混合预测</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">物理损伤</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">疲劳累积先验</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">时序特征</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">振动/扭矩</text><path d=\"M378 72 L400 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">混合模型 → RUL</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">随钻进更新</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：只靠纯时序不结合物理 → 失效样本少 → 预测漂移置信度差</text></svg>"
+        },
+        {
+          "name": "起钻建议",
+          "role": "决策支持",
+          "do": "在失效窗口前给起钻建议，替代振动超标才报警。示范页屏 3 展示失效窗口与建议。",
+          "effect": "断钻前及时起钻，减少打捞损失。",
+          "trap": "预测太保守，过早起钻损失钻进时间；太激进又可能断钻具。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">起钻建议：失效窗口前提醒</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">剩余寿命</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">实时更新</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">失效窗口</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">断钻前提醒</text><path d=\"M378 72 L400 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">起钻建议</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">替代超标报警</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：太保守过早起钻损失钻进时间 → 太激进又可能断钻具</text></svg>"
+        },
+        {
+          "name": "起钻验证与回流",
+          "role": "人工确认",
+          "do": "按建议起钻后探伤，核对是否接近失效，结果回流模型。示范页屏 3 展示起钻检查清单。",
+          "effect": "寿命模型越用越准，起钻建议更可信。",
+          "trap": "验证不回流，模型不知道预测偏保守还是激进，误差永远不收敛。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">验证：起钻探伤 → 核对 → 回流</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"52\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"60\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">起钻探伤</text><text x=\"104\" y=\"76\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">磨损/裂纹</text><path d=\"M188 68 L210 68\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"52\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"60\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">核对接近失效</text><text x=\"294\" y=\"76\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">寿命标签</text><path d=\"M378 68 L400 68\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"52\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"60\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">反馈回流</text><text x=\"499\" y=\"76\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">模型越用越准</text><text x=\"24\" y=\"120\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：验证不回流 → 模型不知道偏保守还是激进 → 误差不收敛</text></svg>"
+        }
+      ],
+      "metrics": {
+        "title": "怎么算「预测对了」",
+        "html": "<p>钻具失效预测用 <b>剩余寿命误差</b>（预测 RUL 与真实之差）与 <b>提前量</b>（断钻前多久提醒）双重验收；<b>误起钻</b>（其实还能钻就起钻）衡量保守成本。</p><p>最终还要看 <b>避免的损失</b>：起钻建议让多少断钻具事件被提前避免。</p><p style=\"margin-top:16px\"><svg viewBox='0 0 620 200' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='钻具失效预测效果对比' style='width:100%;height:auto;display:block'><text x='14' y='20' font-size='10' fill='#4d565b' font-weight='600'>钻具失效预测验收：RUL 误差 × 提前量 × 避免损失</text><rect x='14' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='159' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>预测精度</text><rect x='40' y='66' width='80' height='52' fill='#d9b78e'/><text x='80' y='96' text-anchor='middle' font-size='10' fill='#4d565b' font-weight='700'>误差 38%</text><text x='80' y='112' text-anchor='middle' font-size='8' fill='#8a6b52'>按进尺估算</text><rect x='180' y='66' width='80' height='52' fill='#2f7d6b'/><text x='220' y='96' text-anchor='middle' font-size='10' fill='#fff' font-weight='700'>误差 12%</text><text x='220' y='112' text-anchor='middle' font-size='8' fill='#b9d8cb'>混合建模</text><text x='159' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>RUL 误差 ↓</text><rect x='316' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='461' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>提前量 + 避免损失</text><rect x='340' y='66' width='120' height='52' fill='#e7eef9' stroke='#41699b'/><text x='400' y='92' text-anchor='middle' font-size='9' fill='#2b4a72' font-weight='700'>提前 1 立柱</text><text x='400' y='108' text-anchor='middle' font-size='8' fill='#79828a'>失效窗口前</text><rect x='470' y='66' width='120' height='52' fill='#e6f1ec' stroke='#2f7d6b'/><text x='530' y='92' text-anchor='middle' font-size='9' fill='#22604f' font-weight='700'>减少打捞损失</text><text x='530' y='108' text-anchor='middle' font-size='8' fill='#79828a'>数十万/次</text><text x='461' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>误起钻要平衡 · 提前量要有</text><text x='310' y='188' text-anchor='middle' font-size='8' fill='#9ba3a9'>验收 = RUL 误差 × 提前量 × 避免损失</text></svg></p>"
+      },
+      "fails": [
+        { "name": "失效样本稀少", "why": "断钻具事件本身少，监督信号稀疏，纯时序模型学不好剩余寿命。" },
+        { "name": "需物理约束", "why": "疲劳累积是物理过程，纯数据模型忽略载荷循环次数与幅值。" },
+        { "name": "过报警代价", "why": "提前起钻也损失钻进时间，预测太保守同样花钱，要平衡。" },
+        { "name": "验证不回流", "why": "起钻探伤结果不回流，模型不知道预测偏保守还是激进，误差不收敛。" }
+      ]
+    },
+
+    "demo": {
+      "mode": "auto",
+      "html": "demo/index.html",
+      "js": "demo/demo.js",
+      "label": "可运行示范",
+      "intro": "用合成的振动/扭矩时序演示疲劳累积、剩余寿命预测与起钻建议。",
+      "height": 600
+    }
+  }
+}

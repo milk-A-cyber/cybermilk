@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示范：地震相智能分类</title>
+<link rel="stylesheet" href="demo.css?v=20261105a">
+<link rel="stylesheet" href="aflow.css?v=20261105a">
+<link rel="stylesheet" href="aiq.css?v=20261105a">
+<style>
+/* 右侧控件抽屉（嵌入主站时由父页面接管，这里保留独立样式兜底） */
+#ctlDrawer{position:fixed;right:0;top:70px;width:268px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid #e9e4d8;border-radius:10px;box-shadow:0 6px 24px -8px rgba(0,0,0,.15);z-index:90;transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+#ctlDrawer.open{transform:translateX(0);opacity:1;pointer-events:auto}
+@media (max-width:760px){#ctlDrawer{width:calc(100vw - 20px);right:10px;top:auto;bottom:10px;max-height:45vh}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <span class="kicker">CASE DEMO · 物探解释 / 地震相智能分类</span>
+  <h1>从「解释员经验划相」到「稀疏井标定 · 全数据体相带概率体」</h1>
+  <p class="sub">三个实验：Q1 看懂切片图像分类、Q2 半监督扩展、Q3 相带概率体输出。</p>
+</header>
+
+<!-- ================= 算法解剖 · 相带分类全流程 ================= -->
+<section class="sec" id="sec0">
+  <div class="qa">
+    <span class="qa-q">深入 · 想逐帧看就往下</span>
+    <p class="qa-a">不是「切片 → 黑盒 → 相带图」，而是<b>逐段展开</b>：切片切块 → 稀疏井标签 → 切片分类 → 半监督扩展 → 相带概率体 → 复核预测，每一步都能看见中间量</p>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">可选深入 · 对应流程 STEP 3—5</span>
+    <h2>把「地震切片 → 相带概率体」一步步拆开看</h2>
+    <p class="leadline">下面这段动画跑的是<b>真代码</b>（与实验 1—3 同一份模型）。自动播放，也可点阶段名跳步、拖速度。改相带类别数、分类权重、井标签数和伪标签阈值，这里的每一步都会同步重算。</p>
+  </div>
+  <div id="flowMount"></div>
+  <details class="more">
+    <summary>这段动画与后面三个实验是什么关系</summary>
+    <div class="more-body">
+      <p>实验 1—3 给出的是<b>结果</b>（切片分类、伪标签覆盖、相带概率体）；这段动画给出的是<b>过程</b>——同一份 <code>demo.js</code> 里的 <code>classifySlice / semiExpand / faciesProb</code> 被拆成 6 个阶段依次放慢演给你看。</p>
+      <p>刻意做的两处细节：<b>①</b> 第 3 步用卷积-池化-全连接结构示意「从切片提取反射结构到相带类别」；<b>②</b> 第 4 步专门放大井标签与伪标签的覆盖对比，看得见「标签稀疏怎么靠半监督补」。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 1 · 切片分类 ================= -->
+<section class="sec" id="sec1">
+  <div class="qa">
+    <span class="qa-q">Q1 · 为什么需要智能算法</span>
+    <p class="qa-a">解释员经验划相主观性强、因人而异；图像分类让相带划分客观可复现</p>
+    <button class="qa-go">开始实验 1</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 1 · 对应流程 STEP 3</span>
+    <h2>切片分类：每个切片到底属于哪类相带</h2>
+    <p class="leadline">切相带类别数、拖分类权重，看预测结果与真值的差距——这就是「从反射结构判相带」的核心。</p>
+  </div>
+  <div class="ctl" id="clsCtl">
+    <div class="btns" id="faciBtns">
+      <button type="button" data-facies="3">3 类</button>
+      <button type="button" data-facies="4" class="on">4 类</button>
+      <button type="button" data-facies="6">6 类</button>
+    </div>
+    <div class="sl">
+      <label>分类权重<output id="outWeight">0.60</output></label>
+      <input type="range" id="inWeight" min="0" max="1.4" step="0.05" value="0.6">
+    </div>
+  </div>
+  <div class="legend" id="clsLegend"></div>
+  <div class="fg">
+    <div><svg id="clsTrue" viewBox="0 0 430 270" role="img" aria-label="相带真值"></svg><div class="cap">真值（相带分布）</div></div>
+    <div><svg id="clsPred" viewBox="0 0 430 270" role="img" aria-label="分类预测"></svg><div class="cap">图像分类预测</div></div>
+  </div>
+  <svg id="clsProb" viewBox="0 0 430 270" role="img" aria-label="相带概率" style="margin-top:12px"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">整体准确率</span><b id="roAcc" class="good">—</b></div>
+    <div class="ro"><span class="k">各类 F1</span><b id="roF1">—</b></div>
+  </div>
+  <p class="tip" id="clsTip">拖「分类权重」模拟模型训练充分程度：权重越高，预测越贴近真值。类别越多，稀有相带越容易被常见相带吞掉；只看准确率会被常见相带骗过，要看各类 F1。</p>
+</section>
+
+<!-- ================= 实验 2 · 半监督扩展 ================= -->
+<section class="sec" id="sec2">
+  <div class="qa">
+    <span class="qa-q">Q2 · 智能算法是什么</span>
+    <p class="qa-a"><b>稀疏井标签</b> + <b>高置信伪标签</b> 把 50—200 个标签扩展到全数据体<span class="qa-algo">计算机视觉 · 图像分类 / 弱监督</span></p>
+    <button class="qa-go">开始实验 2</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 2 · 对应流程 STEP 4</span>
+    <h2>半监督扩展：稀疏标签怎么「长出」全数据体</h2>
+    <p class="leadline">井标签太少直接训练会过拟合。切井标签数、拖伪标签阈值，看未标注切片怎么被伪标签覆盖。</p>
+  </div>
+  <div class="ctl" id="semiCtl">
+    <div class="sl">
+      <label>井标签数<output id="outLabeled">12</output></label>
+      <input type="range" id="inLabeled" min="2" max="40" step="1" value="12">
+    </div>
+    <div class="sl">
+      <label>伪标签阈值<output id="outPseudo">0.70</output></label>
+      <input type="range" id="inPseudo" min="0.4" max="0.95" step="0.01" value="0.7">
+    </div>
+  </div>
+  <svg id="semiChart" viewBox="0 0 430 270" role="img" aria-label="半监督扩展"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">已标定切片</span><b id="roCovered" class="good">—</b></div>
+    <div class="ro"><span class="k">伪标签</span><b id="roPseudo">—</b></div>
+  </div>
+  <p class="tip" id="semiTip">绿色 = 井标签，橙色 = 伪标签，灰 = 未覆盖。伪标签阈值越高越可信但覆盖越少；阈值太低会引入错误标签，越训越偏。</p>
+</section>
+
+<!-- ================= 实验 3 · 相带概率体 ================= -->
+<section class="sec" id="sec3">
+  <div class="qa">
+    <span class="qa-q">Q3 · 它怎么工作</span>
+    <p class="qa-a">切片分类 → 邻域一致化 → 连续可入库的相带概率体</p>
+    <button class="qa-go">开始实验 3</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 3 · 对应流程 STEP 5</span>
+    <h2>相带概率体：逐片分类怎么变成连续相带图</h2>
+    <p class="leadline">逐切片分类有盐椒噪声。拖平滑次数做邻域一致化，看相带图怎么变连续、又与真值差多少。</p>
+  </div>
+  <div class="ctl" id="probCtl">
+    <div class="sl">
+      <label>平滑次数<output id="outSmooth">1</output></label>
+      <input type="range" id="inSmooth" min="0" max="6" step="1" value="1">
+    </div>
+  </div>
+  <svg id="probChart" viewBox="0 0 430 270" role="img" aria-label="相带概率体"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">与真值一致率</span><b id="roMatch" class="good">—</b></div>
+    <div class="ro"><span class="k">平滑次数</span><b id="roSmooth">—</b></div>
+  </div>
+  <p class="tip" id="probTip">平滑次数太少：相带图全是盐椒噪声不可用；太多：小相带被抹掉。邻域一致化的目标是在「连续」与「保真」之间取平衡。</p>
+</section>
+
+<footer>
+  <div class="map">
+    <div><b>实验 1 → STEP 3</b><br>卷积分类网络，每片判一个相带类别。</div>
+    <div><b>实验 2 → STEP 4</b><br>稀疏井标签 + 高置信伪标签扩展。</div>
+    <div><b>实验 3 → STEP 5</b><br>邻域一致化 → 相带概率体。</div>
+  </div>
+  <p class="note">纯前端教学演示：相带切片由「相带反射纹理」合成，相带真值已知、仅供对比；图像分类、半监督扩展与相带概率体均在浏览器实时计算。</p>
+</footer>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+/* 算法解剖：把 6 个阶段挂到 AFlow 引擎上 */
+(function () {
+  if (!window.AFlow || !window.RemoteFlow) return;
+  var F = window.RemoteFlow;
+  window.RemoteFlowApi = window.AFlow.create({
+    mount: document.getElementById('flowMount'),
+    title: '算法解剖',
+    subtitle: '自动播放：一张地震切片集怎么一步步变成相带概率体',
+    stages: [
+      { name: '切片切块', tag: '相带类别锁定', dur: 4200, draw: function (t, g) { return F.stage1(t); } },
+      { name: '稀疏井标签', tag: '50—200 个', dur: 4400, draw: function (t, g) { return F.stage2(t); } },
+      { name: '切片分类', tag: '卷积网络', dur: 4800, draw: function (t, g) { return F.stage3(t); } },
+      { name: '半监督扩展', tag: '伪标签', dur: 4400, draw: function (t, g) { return F.stage4(t); } },
+      { name: '相带概率体', tag: '邻域一致化', dur: 4600, draw: function (t, g) { return F.stage5(t); } },
+      { name: '复核与预测', tag: '储层预测', dur: 4600, draw: function (t, g) { return F.stage6(t); } }
+    ]
+  });
+})();
+</script>
+<script src="aiq.js?v=20261105a"></script>
+</body>
+</html>

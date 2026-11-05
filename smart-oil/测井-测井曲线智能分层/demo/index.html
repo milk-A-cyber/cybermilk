@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示范：测井曲线智能分层</title>
+<link rel="stylesheet" href="demo.css?v=20261105a">
+<link rel="stylesheet" href="aflow.css?v=20261105a">
+<link rel="stylesheet" href="aiq.css?v=20261105a">
+<style>
+#ctlDrawer{position:fixed;right:0;top:70px;width:268px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid #e9e4d8;border-radius:10px;box-shadow:0 6px 24px -8px rgba(0,0,0,.15);z-index:90;transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+#ctlDrawer.open{transform:translateX(0);opacity:1;pointer-events:auto}
+@media (max-width:760px){#ctlDrawer{width:calc(100vw - 20px);right:10px;top:auto;bottom:10px;max-height:45vh}}
+.review-list{font-size:13px;border:1px solid #e9e4d8;border-radius:8px;overflow:hidden;margin-top:8px}
+.review-list .row{display:flex;align-items:center;padding:7px 12px;border-bottom:1px solid #f0ece2}
+.review-list .row:last-child{border-bottom:none}
+.review-list .row span{flex:1;color:#4d565b}
+.review-list .row b{width:220px;color:#24333a;font-weight:700}
+.review-list .row em{color:#2f7d6b;font-style:normal;font-weight:700;font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <span class="kicker">CASE DEMO · 测井 / 测井曲线智能分层</span>
+  <h1>从「人工卡层」到「序列分割 + 多曲线融合 + 邻井约束」</h1>
+  <p class="sub">三个实验：Q1 序列分割、Q2 多曲线融合、Q3 邻井约束。</p>
+</header>
+
+<!-- ================= 算法解剖 · 分层全流程 ================= -->
+<section class="sec" id="sec0">
+  <div class="qa">
+    <span class="qa-q">深入 · 想逐帧看就往下</span>
+    <p class="qa-a">不是「测井曲线 → 黑盒 → 层位」，而是<b>逐段展开</b>：曲线接入 → 变点检测 → 多曲线融合 → 邻井约束 → 分层复核 → 回流，每一步都能看见中间量</p>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">可选深入 · 对应流程 STEP 1—6</span>
+    <h2>把「测井曲线 → 层位」一步步拆开看</h2>
+    <p class="leadline">下面这段动画跑的是<b>真代码</b>（与实验 1—3 同一份模型）。自动播放，也可点阶段名跳步、拖速度。切序列分割、灵敏度、邻井约束，这里的每一步都会同步重算。</p>
+  </div>
+  <div id="flowMount"></div>
+  <details class="more">
+    <summary>这段动画与后面三个实验是什么关系</summary>
+    <div class="more-body">
+      <p>实验 1—3 给出的是<b>结果</b>（地层边界、薄互层界线、邻井一致）；这段动画给出的是<b>过程</b>——同一份 <code>demo.js</code> 里的 <code>segDetect / multiFuse / neighborConstrain</code> 被拆成 6 个阶段依次放慢演给你看。</p>
+      <p>刻意做的两处细节：<b>①</b> 第 3 步把单曲线与融合曲线并列，看得见薄互层界线被收窄；<b>②</b> 第 4 步把本井与邻井层位上下并列，看得见邻井约束。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 1 · 序列分割 ================= -->
+<section class="sec" id="sec1">
+  <div class="qa">
+    <span class="qa-q">Q1 · 为什么需要智能算法</span>
+    <p class="qa-a">单井人工卡层要 2—4 小时，薄互层界线模糊、差 0.5—1m，人工经验差异</p>
+    <button class="qa-go">开始实验 1</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 1 · 对应流程 STEP 1—2</span>
+    <h2>序列分割：测井曲线 → 地层边界</h2>
+    <p class="leadline">切单曲线/多曲线、拖灵敏度，看命中率怎么变。</p>
+  </div>
+  <div class="ctl" id="segCtl">
+    <div class="sl">
+      <label>分割方式<output id="outSeg">多曲线</output></label>
+      <input type="range" id="inSeg" min="0" max="1" step="1" value="1">
+    </div>
+    <div class="sl">
+      <label>灵敏度<output id="outSens">0.60</output></label>
+      <input type="range" id="inSens" min="0.3" max="1.2" step="0.05" value="0.6">
+    </div>
+  </div>
+  <svg id="segChart" viewBox="0 0 400 160" role="img" aria-label="序列分割"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">层位命中</span><b id="roHit">—</b></div>
+    <div class="ro"><span class="k">分割方式</span><b id="roMode">—</b></div>
+  </div>
+  <p class="tip" id="segTip">测井曲线（GR/SP/RT/DEN）0.125m 采样，单井 5000—20000 点。序列分割在曲线上检测地层边界，替代手动分段。灵敏度太高会把曲线小波动当分层，虚分层多、层划碎。</p>
+</section>
+
+<!-- ================= 实验 2 · 多曲线融合 ================= -->
+<section class="sec" id="sec2">
+  <div class="qa">
+    <span class="qa-q">Q2 · 智能算法是什么</span>
+    <p class="qa-a"><b>多曲线融合</b>：GR/SP/RT/DEN → 薄互层界线<span class="qa-algo">多曲线联合 · 界线收窄</span></p>
+    <button class="qa-go">开始实验 2</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 2 · 对应流程 STEP 3</span>
+    <h2>多曲线融合：GR/SP/RT/DEN → 薄互层界线</h2>
+    <p class="leadline">看单曲线与融合曲线的界线差别，深色为薄互层。</p>
+  </div>
+  <div class="ctl" id="fuseCtl">
+    <div class="sl">
+      <label>融合方式<output id="outFuse">已融合</output></label>
+      <input type="range" id="inFuse" min="0" max="1" step="1" value="1">
+    </div>
+  </div>
+  <svg id="fuseChart" viewBox="0 0 400 180" role="img" aria-label="多曲线融合"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">薄互层</span><b id="roThin">—</b></div>
+    <div class="ro"><span class="k">融合方式</span><b id="roFuse">—</b></div>
+  </div>
+  <p class="tip" id="fuseTip">单条曲线难区分薄互层，薄互层界线模糊、差 0.5—1m。多曲线融合把 GR/SP/RT/DEN 联合判断，薄互层界线更清楚、差 0.5—1m 收窄。</p>
+</section>
+
+<!-- ================= 实验 3 · 邻井约束 ================= -->
+<section class="sec" id="sec3">
+  <div class="qa">
+    <span class="qa-q">Q3 · 它怎么工作</span>
+    <p class="qa-a">邻井分层约束 → <b>层位一致</b>（人工经验差异被消除）</p>
+    <button class="qa-go">开始实验 3</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 3 · 对应流程 STEP 4—6</span>
+    <h2>邻井约束：本井分层 + 邻井 → 一致 + 复核</h2>
+    <p class="leadline">切无约束/有约束，看命中率与复核清单。</p>
+  </div>
+  <div class="ctl" id="nbCtl">
+    <div class="sl">
+      <label>邻井约束<output id="outNb">有约束</output></label>
+      <input type="range" id="inNb" min="0" max="1" step="1" value="1">
+    </div>
+  </div>
+  <svg id="nbChart" viewBox="0 0 400 180" role="img" aria-label="邻井约束"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">层位命中</span><b id="roNbHit">—</b></div>
+    <div class="ro"><span class="k">约束方式</span><b id="roNbMode">—</b></div>
+  </div>
+  <div class="review-list" id="reviewList"></div>
+  <p class="tip" id="nbTip">人工经验差异导致不同人分层位置不一。邻井分层表约束本井层位一致，层位与邻井对得上；复核结果回流，层位越用越准、偏差越小。</p>
+</section>
+
+<footer>
+  <div class="map">
+    <div><b>实验 1 → STEP 1—2</b><br>序列分割。</div>
+    <div><b>实验 2 → STEP 3</b><br>多曲线融合。</div>
+    <div><b>实验 3 → STEP 4—6</b><br>邻井约束 + 回流。</div>
+  </div>
+  <p class="note">纯前端教学演示：测井曲线与审定分层由「岩性可钻性 + 薄互层 + 噪声」合成，真实层位已知、仅供对比；序列分割、多曲线融合与邻井约束均在浏览器实时计算。</p>
+</footer>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+/* 算法解剖：把 6 个阶段挂到 AFlow 引擎上 */
+(function () {
+  if (!window.AFlow || !window.RemoteFlow) return;
+  var F = window.RemoteFlow;
+  window.RemoteFlowApi = window.AFlow.create({
+    mount: document.getElementById('flowMount'),
+    title: '算法解剖',
+    subtitle: '自动播放：测井曲线怎么一步步变成层位',
+    stages: [
+      { name: '曲线接入', tag: 'GR/SP/RT/DEN', dur: 4000, draw: function (t, g) { return F.stage1(t); } },
+      { name: '变点检测', tag: '地层边界', dur: 4600, draw: function (t, g) { return F.stage2(t); } },
+      { name: '多曲线融合', tag: '薄互层界线', dur: 4600, draw: function (t, g) { return F.stage3(t); } },
+      { name: '邻井约束', tag: '层位一致', dur: 4400, draw: function (t, g) { return F.stage4(t); } },
+      { name: '分层复核', tag: '边界确认', dur: 4200, draw: function (t, g) { return F.stage5(t); } },
+      { name: '回流', tag: '更准', dur: 4200, draw: function (t, g) { return F.stage6(t); } }
+    ]
+  });
+})();
+</script>
+<script src="aiq.js?v=20261105a"></script>
+</body>
+</html>

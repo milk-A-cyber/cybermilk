@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示范：录井报告自动生成</title>
+<link rel="stylesheet" href="demo.css?v=20261105a">
+<link rel="stylesheet" href="aflow.css?v=20261105a">
+<link rel="stylesheet" href="aiq.css?v=20261105a">
+<style>
+#ctlDrawer{position:fixed;right:0;top:70px;width:268px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid #e9e4d8;border-radius:10px;box-shadow:0 6px 24px -8px rgba(0,0,0,.15);z-index:90;transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+#ctlDrawer.open{transform:translateX(0);opacity:1;pointer-events:auto}
+@media (max-width:760px){#ctlDrawer{width:calc(100vw - 20px);right:10px;top:auto;bottom:10px;max-height:45vh}}
+.review-list{font-size:13px;border:1px solid #e9e4d8;border-radius:8px;overflow:hidden;margin-top:8px}
+.review-list .row{display:flex;align-items:center;padding:7px 12px;border-bottom:1px solid #f0ece2}
+.review-list .row:last-child{border-bottom:none}
+.review-list .row span{flex:1;color:#4d565b}
+.review-list .row b{flex:2.2;color:#24333a;font-weight:700}
+.review-list .row em{color:#2f7d6b;font-style:normal;font-weight:700;font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <span class="kicker">CASE DEMO · 录井 / 录井报告自动生成</span>
+  <h1>从「人工编报告」到「信息抽取 + 模板生成 + 检索增强」</h1>
+  <p class="sub">三个实验：Q1 信息抽取、Q2 模板化生成、Q3 检索增强生成。</p>
+</header>
+
+<!-- ================= 算法解剖 · 报告生成全流程 ================= -->
+<section class="sec" id="sec0">
+  <div class="qa">
+    <span class="qa-q">深入 · 想逐帧看就往下</span>
+    <p class="qa-a">不是「录井数据 → 黑盒 → 报告」，而是<b>逐段展开</b>：数据接入 → 信息抽取 → 模板生成 → 检索增强 → 复核修正 → 回流，每一步都能看见中间量</p>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">可选深入 · 对应流程 STEP 1—6</span>
+    <h2>把「录井数据 → 报告」一步步拆开看</h2>
+    <p class="leadline">下面这段动画跑的是<b>真代码</b>（与实验 1—3 同一份模型）。自动播放，也可点阶段名跳步、拖速度。切信息抽取、检索增强，这里的每一步都会同步重算。</p>
+  </div>
+  <div id="flowMount"></div>
+  <details class="more">
+    <summary>这段动画与后面三个实验是什么关系</summary>
+    <div class="more-body">
+      <p>实验 1—3 给出的是<b>结果</b>（要点清单、规范报告、佐证引用）；这段动画给出的是<b>过程</b>——同一份 <code>demo.js</code> 里的 <code>extractInfo / tplGen / ragEnhance</code> 被拆成 6 个阶段依次放慢演给你看。</p>
+      <p>刻意做的两处细节：<b>①</b> 第 2 步把信息抽取逐项列出，看得见油气显示不漏；<b>②</b> 第 4 步把历史报告库逐条列出，看得见哪些被检索引用。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 1 · 信息抽取 ================= -->
+<section class="sec" id="sec1">
+  <div class="qa">
+    <span class="qa-q">Q1 · 为什么需要智能算法</span>
+    <p class="qa-a">一份报告人工编写 4—8 小时，口径不一致返工多，数据散落易漏</p>
+    <button class="qa-go">开始实验 1</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 1 · 对应流程 STEP 1—2</span>
+    <h2>信息抽取：结构化数据 → 报告要点</h2>
+    <p class="leadline">切基础/完整，看油气显示有没有漏检。</p>
+  </div>
+  <div class="ctl" id="extractCtl">
+    <div class="sl">
+      <label>抽取方式<output id="outExtract">完整</output></label>
+      <input type="range" id="inExtract" min="0" max="1" step="1" value="1">
+    </div>
+  </div>
+  <svg id="extractChart" viewBox="0 0 400 180" role="img" aria-label="信息抽取"></svg>
+  <div class="rrow ro3">
+    <div class="ro"><span class="k">油气显示</span><b id="roGasN">—</b></div>
+    <div class="ro"><span class="k">地层</span><b id="roLayerN">—</b></div>
+    <div class="ro"><span class="k">要点项</span><b id="roItems">—</b></div>
+  </div>
+  <p class="tip" id="extractTip">录井报告汇总钻时、气测、岩屑、荧光等成果。信息抽取从结构化数据抽报告要点（地层、油气显示、气测异常），完整抽取不漏关键显示，替代人工逐项汇总。</p>
+</section>
+
+<!-- ================= 实验 2 · 模板化生成 ================= -->
+<section class="sec" id="sec2">
+  <div class="qa">
+    <span class="qa-q">Q2 · 智能算法是什么</span>
+    <p class="qa-a"><b>模板化生成</b>：报告要点 → 规范报告<span class="qa-algo">信息抽取 · 模板填数</span></p>
+    <button class="qa-go">开始实验 2</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 2 · 对应流程 STEP 3</span>
+    <h2>模板化生成：要点 → 规范报告</h2>
+    <p class="leadline">看模板骨架怎么把要点填成口径统一的报告。</p>
+  </div>
+  <div class="ctl" id="tplCtl">
+    <div class="sl">
+      <label>模板方式<output id="outTpl">已套模板</output></label>
+      <input type="range" id="inTpl" min="0" max="1" step="1" value="1">
+    </div>
+  </div>
+  <svg id="tplChart" viewBox="0 0 400 180" role="img" aria-label="模板化生成"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">段落数</span><b id="roSegs">—</b></div>
+    <div class="ro"><span class="k">模板</span><b id="roTpl">—</b></div>
+  </div>
+  <div class="review-list" id="tplReview"></div>
+  <p class="tip" id="tplTip">模板化生成按报告模板把要点填成规范报告，口径统一、返工少。纯模板填数报告生硬，缺上下文与佐证——所以下一步加检索增强。</p>
+</section>
+
+<!-- ================= 实验 3 · 检索增强生成 ================= -->
+<section class="sec" id="sec3">
+  <div class="qa">
+    <span class="qa-q">Q3 · 它怎么工作</span>
+    <p class="qa-a">检索历史报告相关段 → <b>报告有据可依</b>（补佐证、口径一致）</p>
+    <button class="qa-go">开始实验 3</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 3 · 对应流程 STEP 4—6</span>
+    <h2>检索增强生成：历史报告参考 → 佐证报告</h2>
+    <p class="leadline">切不检索/检索，看历史报告引用与生成报告。</p>
+  </div>
+  <div class="ctl" id="ragCtl">
+    <div class="sl">
+      <label>检索增强<output id="outRag">检索</output></label>
+      <input type="range" id="inRag" min="0" max="1" step="1" value="1">
+    </div>
+  </div>
+  <svg id="ragChart" viewBox="0 0 400 220" role="img" aria-label="检索增强生成"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">检索引用</span><b id="roRefs">—</b></div>
+    <div class="ro"><span class="k">检索说明</span><b id="roNote">—</b></div>
+  </div>
+  <div class="review-list" id="ragReview"></div>
+  <p class="tip" id="ragTip">单靠模板生成的报告生硬、缺佐证。检索增强生成检索历史报告相关段补佐证与上下文，关键结论有据可依；复核结果回流，报告越用越准、返工越少。</p>
+</section>
+
+<footer>
+  <div class="map">
+    <div><b>实验 1 → STEP 1—2</b><br>信息抽取。</div>
+    <div><b>实验 2 → STEP 3</b><br>模板化生成。</div>
+    <div><b>实验 3 → STEP 4—6</b><br>检索增强 + 回流。</div>
+  </div>
+  <p class="note">纯前端教学演示：录井数据与历史报告由「地层 + 油气显示 + 噪声」合成，报告要点已知、仅供对比；信息抽取、模板生成与检索增强均在浏览器实时计算。</p>
+</footer>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+/* 算法解剖：把 6 个阶段挂到 AFlow 引擎上 */
+(function () {
+  if (!window.AFlow || !window.RemoteFlow) return;
+  var F = window.RemoteFlow;
+  window.RemoteFlowApi = window.AFlow.create({
+    mount: document.getElementById('flowMount'),
+    title: '算法解剖',
+    subtitle: '自动播放：录井数据怎么一步步变成报告',
+    stages: [
+      { name: '数据接入', tag: '录井+模板', dur: 4000, draw: function (t, g) { return F.stage1(t); } },
+      { name: '信息抽取', tag: '报告要点', dur: 4600, draw: function (t, g) { return F.stage2(t); } },
+      { name: '模板生成', tag: '规范报告', dur: 4600, draw: function (t, g) { return F.stage3(t); } },
+      { name: '检索增强', tag: '历史佐证', dur: 4400, draw: function (t, g) { return F.stage4(t); } },
+      { name: '复核修正', tag: '确认改写', dur: 4200, draw: function (t, g) { return F.stage5(t); } },
+      { name: '回流', tag: '更准', dur: 4200, draw: function (t, g) { return F.stage6(t); } }
+    ]
+  });
+})();
+</script>
+<script src="aiq.js?v=20261105a"></script>
+</body>
+</html>

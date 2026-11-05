@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示范：抽油机井工况诊断</title>
+<link rel="stylesheet" href="demo.css?v=20261103b">
+<link rel="stylesheet" href="aflow.css?v=20261103b">
+<link rel="stylesheet" href="aiq.css?v=20261104b">
+<style>
+/* 右侧控件抽屉 */
+#ctlDrawer{position:fixed;right:0;top:70px;width:268px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid #e9e4d8;border-radius:10px;box-shadow:0 6px 24px -8px rgba(0,0,0,.15);z-index:90;transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+#ctlDrawer.open{transform:translateX(0);opacity:1;pointer-events:auto}
+.ctl-drawer-head{display:flex;align-items:center;gap:8px;padding:9px 14px;border-bottom:1px solid #e9e4d8;background:#fbfaf6;border-radius:10px 10px 0 0}
+.ctl-drawer-tag{font-size:10px;letter-spacing:.1em;color:#2f7d6b;background:#e6f1ec;border-radius:999px;padding:2px 9px;font-weight:600;white-space:nowrap}
+.ctl-drawer-title{font-size:11.5px;color:#79828a;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ctl-drawer-body{padding:12px 14px}
+.ctl-drawer-body .ctl{display:block;margin:0}
+.ctl-drawer-body .ctl .sl{display:flex;flex-direction:column;gap:3px;margin-bottom:14px}
+.ctl-drawer-body .ctl .sl label{font-size:12.5px;color:#4d565b;display:flex;justify-content:space-between;align-items:center}
+.ctl-drawer-body .ctl .sl output{font-family:ui-monospace,monospace;font-size:13px;color:#2f7d6b;font-weight:600}
+.ctl-drawer-body .ctl input[type=range]{width:100%;accent-color:#2f7d6b;height:20px}
+.ctl-drawer-body .ctl .chk{font-size:12.5px;color:#4d565b;display:flex;align-items:center;gap:6px;margin-bottom:9px;cursor:pointer}
+.ctl-drawer-body .ctl .btns{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.ctl-drawer-body .ctl .btns button{font:inherit;font-size:12px;padding:5px 11px;border-radius:7px;border:1px solid #e9e4d8;background:#fff;color:#4d565b;cursor:pointer}
+.ctl-drawer-body .ctl .btns button.on,.ctl-drawer-body .ctl .btns button:hover{background:#2f7d6b;color:#fff;border-color:#2f7d6b}
+.ctl-drawer-body .ctl .presets{margin-bottom:14px}
+.ctl-drawer-body .ctl .presets .lb{font-size:11px;color:#79828a;display:block;margin-bottom:6px}
+.ctl-drawer-body .ctl button{margin-top:6px}
+.ctl-drawer-body .ctl{margin-top:0}
+.ctl-drawer-body .sliders{display:block}
+.ctl-drawer-body .sliders .sl{margin-bottom:14px}
+.ctl-drawer-body .ctl-cap{font-size:11px;color:#79828a;margin:0 0 7px}
+.ctl-drawer-body .tau-sl{margin-bottom:10px;gap:8px;padding:6px 10px}
+.ctl-drawer-body .tau-sl label{font-size:12px;color:#4d565b;display:flex;align-items:center;gap:6px;white-space:nowrap}
+.ctl-drawer-body .tau-sl input[type=range]{flex:1;min-width:0;width:auto;height:18px}
+.ctl-drawer-body .tau-sl output{font-family:ui-monospace,monospace;font-size:12.5px;color:#2f7d6b;font-weight:600}
+@media (max-width:760px){#ctlDrawer{width:calc(100vw - 20px);right:10px;top:auto;bottom:10px;max-height:45vh}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <span class="kicker">CASE DEMO · 采油 / 抽油机井工况诊断</span>
+  <h1>从一张示功图到全厂批量判读</h1>
+  <p class="sub">三个实验，Q1 解决一个痛点、Q2 展示一套方法、Q3 跑完一遍闭环。</p>
+</header>
+
+<section class="sec aiq" id="secQ">
+  <span class="sec-no" style="display:none">00 · 先看三问</span>
+  <div class="aiq-top">
+    <span class="aiq-chip">AI 三问</span>
+    <p class="aiq-lede">下面三个实验都在回答同一组问题。先用一分钟看这三张卡：<b>为什么</b>非换算法不可、换上的<b>到底是什么</b>、它<b>怎么落到现场</b>——每张卡的结论，都能在后面的实验里自己复现。</p>
+  </div>
+  <div class="aiq-grid">
+
+    <article class="aiq-card q1" data-aiq data-mode="new">
+      <div class="aiq-hd"><span class="n">01</span><div><b>为什么非换不可</b><em>WHY</em></div></div>
+      <table class="aiq-tbl">
+        <thead><tr><th>同一张图</th><th>老师傅判读</th><th>模型判读</th></tr></thead>
+        <tbody>
+          <tr><td>看什么</td><td>翻图对照，凭手感</td><td>32 维形状特征</td></tr>
+          <tr><td>复合故障</td><td>各说各话，难复盘</td><td>最近原型 + 距离，可复现</td></tr>
+          <tr><td>全厂批量</td><td>逐张过手，一天几十张</td><td>一轮 24 口，异常才转人</td></tr>
+          <tr><td>标准漂移</td><td>换个人结论就变</td><td>同一份权重，结论稳定</td></tr>
+          <tr><td>新故障</td><td>没见过就凭经验猜</td><td>距离超阈值 → 明确转人工</td></tr>
+        </tbody>
+      </table>
+      <ul class="aiq-nums">
+        <li data-tone="good"><b data-old="—" data-new="0.89">—</b><span>结论置信度</span></li>
+        <li data-tone="good"><b data-old="—" data-new="0.002">—</b><span>到原型距离</span></li>
+        <li data-tone="good"><b data-old="1 张" data-new="24 口">1 张</b><span>每轮判读</span></li>
+      </ul>
+      <p class="aiq-note">
+        <span>人眼判图的瓶颈不在「看不看得懂」，而在<b>标准不一致</b>：同一张示功图，两个人可能给出两个结论，复合故障更没人说得清。<span class="hl-good">批量复现</span>才是智能化的真正收益——不是比老师傅更准，而是 24 口井用同一把尺子。</span>
+      </p>
+      <p class="aiq-cost"><b>代价</b>要先把历史示功图按故障类型标好；标注本身不一致，模型学到的就是不一致。它的价值是「同一把尺子量 24 口井」，不是「比老师傅更懂泵」。</p>
+    </article>
+
+    <article class="aiq-card q2">
+      <div class="aiq-hd"><span class="n">02</span><div><b>算法到底是什么</b><em>WHAT</em></div></div>
+      <p class="aiq-say">它把示功图当成<b>一张 32×32 的灰度图</b>：不靠人去描述「饱满、刀把、黄瓜」，让卷积自己学「什么形状对应什么故障」，再拿形状跟各类「原型」比距离。</p>
+      <div class="aiq-pipe">
+        <div class="p"><i>IN</i>光杆载荷-位移曲线（<b>一个冲程</b>）</div>
+        <div class="ar"></div>
+        <div class="p"><i>G</i>栅格化：归一化成 <b>32×32 灰度</b></div>
+        <div class="ar"></div>
+        <div class="p"><i>C</i>两层 <b>3×3 卷积 + ReLU</b>，抓局部形状</div>
+        <div class="ar"></div>
+        <div class="p"><i>F</i>池化压成 <b>32 维特征向量</b></div>
+        <div class="ar"></div>
+        <div class="p"><i>P</i>与 <b>5 类原型</b>比距离，取最近</div>
+        <div class="ar"></div>
+        <div class="p"><i>OUT</i>类别 + <b>置信度</b> + 是否转人工</div>
+      </div>
+      <p class="aiq-eq">k* = argmin<sub>k</sub> ‖f(x) − p<sub>k</sub>‖<br><em>d &gt; τ 或 conf &lt; θ → 转人工</em></p>
+      <ul class="aiq-fit">
+        <li class="y"><i>✓</i>冲程曲线能规整栅格化；故障类型有限、可枚举</li>
+        <li class="n"><i>✕</i>训练集里没有的复合故障会被硬塞进最近原型——必须靠距离闸门兜底</li>
+      </ul>
+    </article>
+
+    <article class="aiq-card q3">
+      <div class="aiq-hd"><span class="n">03</span><div><b>怎么实现的</b><em>HOW</em></div></div>
+      <ol class="aiq-steps">
+        <li><b>采样</b>：一个冲程的载荷-位移取 180 个采样点</li>
+        <li><b>栅格化</b>：归一化到 32×32，像素值就是载荷强度</li>
+        <li><b>卷积</b>：两层 3×3 + ReLU，提传递线、刀把等局部形状</li>
+        <li><b>压维</b>：全局池化 → 32 维特征向量</li>
+        <li><b>比对</b>：与 5 类原型（每类 6 个变体）算欧氏距离，取最近</li>
+        <li><b>双闸</b>：置信与距离都过才出结论，否则转人工</li>
+      </ol>
+      <p class="aiq-warn"><b>最容易翻车的一步</b>CNN 不是万能分类器。训练集里没有的复合故障，它一定会塞进最近的那个原型——闸门不开，错的结论就被当成真的。</p>
+      <div class="aiq-jump">
+        <span>想逐帧看卷积怎么扫过图</span>
+        <a href="#sec0">看算法解剖 ↓</a>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+
+<!-- ================= 算法解剖 · CNN 前向全流程 ================= -->
+<section class="sec" id="sec0" data-title="算法解剖 · CNN 前向传播">
+  <div class="qa">
+    <span class="qa-q">深入 · 想逐帧看就往下</span>
+    <p class="qa-a">不是「输入→黑盒→输出」，而是<b>逐层展开</b>：栅格化 → 卷积 → ReLU → 特征 → 原型比对 → 双闸判定，每一步都能看见中间量</p>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">可选深入 · 对应流程 STEP 3</span>
+    <h2>把 CNN 的前向传播一步步拆开看</h2>
+    <p class="leadline">下面这段动画跑的是<b>真代码</b>（与屏 2 的分类器同一份算法）。自动播放，你也可以点阶段名跳步、拖速度。改实验 1 的参数，这里的每一步都会同步重算。</p>
+  </div>
+  <div id="flowMount"></div>
+  <details class="more">
+    <summary>这段动画与屏 2 分类器是什么关系</summary>
+    <div class="more-body">
+      <p>屏 2 给出的是<b>结果</b>（8 张响应图 + 32 维特征 + 概率 + 判定）；这段动画给出的是<b>过程</b>——同一份 <code>demo.js</code> 里的 <code>rasterize / convRaw / convCell / featureVector / diag</code> 函数被拆成 7 个阶段依次放慢演给你看。</p>
+      <p>你可以对照着看：动画停在第 3 步时，屏 2 第一个通道的响应图正是在被「扫」出来的那一张；动画停在第 6 步时，概率条上的数值就是屏 2 判定卡里的那组数。</p>
+      <p>刻意做的两处细节：<b>①</b> 卷积阶段把 25 项乘法逐项列出并滚动显示，让人看见「点积」不是一个黑箱；<b>②</b> ReLU 阶段用直方图展示负响应被压平的过程，点出「没有非线性，叠多少层都还是线性模型」。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 1 · 单井模拟 ================= -->
+<section class="sec" id="sec1">
+  <div class="qa">
+    <span class="qa-q">Q1 · 为什么需要智能算法</span>
+    <p class="qa-a">老师傅逐张识图，标准不一，复合故障判错率高</p>
+    <button class="qa-go">开始实验 1</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 1 · 对应流程 STEP 1—2</span>
+    <h2>生成一张示功图</h2>
+    <p class="leadline">拖四个参数，实时看「载荷—位移」闭合曲线怎么变——这就是分类器每天唯一的输入。</p>
+  </div>
+  <div class="sim">
+    <div class="sim-col">
+      <svg id="unitSvg" viewBox="0 0 420 296" role="img" aria-label="抽油机地面设备示意图"></svg>
+      <svg id="pumpSvg" viewBox="0 0 420 196" role="img" aria-label="井下泵工作原理示意图"></svg>
+      <div class="rrow">
+        <div class="ro"><span class="k">冲次 SPM</span><b id="roSpm">6</b></div>
+        <div class="ro"><span class="k">冲程 S</span><b id="roS">3.0 m</b></div>
+        <div class="ro"><span class="k">当前相</span><b id="roPhase">上冲程</b></div>
+        <div class="ro"><span class="k">光杆载荷</span><b id="roLoad">— kN</b></div>
+      </div>
+    </div>
+    <div class="sim-col">
+      <svg id="cardSvg" viewBox="0 0 430 330" role="img" aria-label="实时示功图"></svg>
+      <div class="rrow">
+        <div class="ro"><span class="k">分类器判定</span><b id="roPred">—</b></div>
+        <div class="ro"><span class="k">置信度</span><b id="roConf">—</b></div>
+        <div class="ro"><span class="k">到原型距离</span><b id="roDist">—</b></div>
+        <div class="ro"><span class="k">处置</span><b id="roAct">—</b></div>
+      </div>
+    </div>
+  </div>
+  <div class="ctl">
+    <div class="presets" id="presets"><span class="lb">工况预设</span></div>
+    <div class="sliders" id="sliders"></div>
+  </div>
+  <p class="tip" id="simTip"></p>
+  <details class="more">
+    <summary>这一步在讲什么（数据从哪来 · 示功图怎么形成）</summary>
+    <div class="more-body">
+      <p>这台「示功图生成器」模拟现场传感器每天看到的东西：一个冲程里，光杆载荷随位移变化，画出来就是一条闭合曲线。切换工况预设、拖动参数滑杆，实时生成对应的图——现场每口井每天就是这样产出 1—24 幅数据，而<b>曲线形状的改变，就是后续分类器唯一能看到的信息</b>。</p>
+      <p>示功图是怎么形成的（上下冲程的载荷传递），见「专业背景」小节。所有物理模拟、栅格化、卷积、分类都在你的浏览器里实时完成，没有后端。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 2 · 分类器 ================= -->
+<section class="sec" id="sec2">
+  <div class="qa">
+    <span class="qa-q">Q2 · 智能算法是什么</span>
+    <p class="qa-a"><b>卷积神经网络 CNN</b> 图像分类 + <b>原型网络</b> 距离分流<span class="qa-algo">CV · 深度学习</span></p>
+    <button class="qa-go">开始实验 2</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 2 · 对应流程 STEP 3</span>
+    <h2>分类器怎么读这张图</h2>
+    <p class="leadline">曲线 → 32×32 灰度 → 卷积响应 → 32 维特征 → 原型比对，整条前向链全程可见。改实验 1 的参数，这里同步重算。</p>
+  </div>
+  <div class="nn">
+    <div class="nn-l">
+      <div class="nn-io">
+        <div class="nn-block">
+          <h4>① 输入 · 32×32 灰度</h4>
+          <canvas id="nnIn" width="32" height="32"></canvas>
+        </div>
+        <div class="nn-arrow">→</div>
+        <div class="nn-block" style="flex:1">
+          <h4>② 第一层卷积特征（8 通道 · ReLU 后的 32×32 响应）</h4>
+          <div class="frow"><span class="tag who">输入</span><span class="tag who">核（训练后<b>固定</b>）</span><span class="tag eq">=</span><span class="tag who hl">响应（随输入变）</span></div>
+          <div class="feat-grid" id="featGrid"></div>
+          <div class="feat-legend">
+            <span><i class="sw sw-map"></i><b>上</b>：响应图　<b>中</b>：能量条（越过中点 = 比常态活跃）</span>
+            <span><i class="sw sw-k"></i><b>下</b>：5×5 卷积核，训练后锁死（绿正 / 棕负）</span>
+            <span><i class="sw sw-hot"></i>金边 = 最强激活；变淡 = 几乎没被激活，换工况会「换人」</span>
+          </div>
+          <div class="fstrip" id="fstrip"></div>
+          <div class="fstrip-cap">↓ 每通道按虚线四象限取均值 → 32 维特征向量（8 × 4，L2 归一化）</div>
+        </div>
+      </div>
+    </div>
+    <div class="nn-r">
+      <div class="nn-block">
+        <h4>③ 类别概率（softmax · 阈值 0.75）</h4>
+        <svg id="confSvg" viewBox="0 0 320 150"></svg>
+      </div>
+      <div class="nn-block">
+        <h4>④ 分布外检测（到最近原型的距离 · 阈值 0.10）</h4>
+        <svg id="oodSvg" viewBox="0 0 320 64"></svg>
+      </div>
+      <div class="verdict" id="verdictBox">
+        <div class="vt">VERDICT</div>
+        <div class="vv" id="verdictV">—</div>
+        <p id="verdictP">—</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 特征空间地图 -->
+  <div class="nn-block fs-block">
+    <h4>⑤ 把 32 维摊平到纸面：当前这张图落在训练分布的哪个位置</h4>
+    <div class="fs-wrap">
+      <svg id="fspaceSvg" viewBox="0 0 700 300" role="img" aria-label="32 维特征的 PC1/PC2 投影散点图"></svg>
+      <div class="fs-side">
+        <div class="fs-legend" id="fsLegend"></div>
+        <p class="fs-note" id="fsNote"></p>
+      </div>
+    </div>
+  </div>
+
+  <details class="more">
+    <summary>为什么两道闸都要（读图说明）</summary>
+    <div class="more-body">
+      <p>工程做法是把示功图当<b>图像</b>：缩放到 32×32 灰度图，过轻量卷积网络出工况类别。这里用一个真正在跑的微型网络演示前向全过程：曲线先被栅格化，第一层 8 个卷积核把「形状」变成「响应」，再按象限汇成 32 维特征，与各工况原型比对。</p>
+      <p>响应图的读法：<b>深靛 = 没响应</b>，<b>青 = 中等</b>，<b>琥珀／米白 = 强响应</b>。虚线十字把响应图切成四块，下一步就是按这四块取均值——所以「哪一块亮」直接决定 32 维特征里那一位的数值。</p>
+      <p>最后一步把 32 维投影到平面，一眼看清这张图是落在训练见过的形状簇里，还是掉进了没覆盖的空洞：<b>softmax 置信度高的图，也可能离所有原型都很远</b>——这正是只用一个阈值会「自信地判错」的地方。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 3 · 批量判读 ================= -->
+<section class="sec" id="sec3">
+  <div class="qa">
+    <span class="qa-q">Q3 · 它怎么工作</span>
+    <p class="qa-a">曲线→栅格化→卷积→32维→比原型→分流；高置信出结论，低置信转人工</p>
+    <button class="qa-go">开始实验 3</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 3 · 对应流程 STEP 4—5</span>
+    <h2>区块级批量判读：24 口井一轮</h2>
+    <p class="leadline">高置信直接出结论，少数没把握的转人工复核。点任意一口井，参数会载入实验 1、图进入实验 2 细查。</p>
+  </div>
+  <div class="batch">
+    <div class="bgrid" id="bgrid"></div>
+    <div class="batch-side">
+      <div class="nn-block">
+        <h4>本轮判定分布</h4>
+        <svg id="batchChart" viewBox="0 0 280 170"></svg>
+      </div>
+      <div class="bstats">
+        <div><div class="l">直接采纳</div><div class="v" id="bsOk">—</div></div>
+        <div><div class="l">转人工复核</div><div class="v" id="bsRev">—</div></div>
+        <div><div class="l">复核占比</div><div class="v" id="bsPct">—</div></div>
+      </div>
+      <button class="btn ghost" id="btnReroll">重新模拟一轮</button>
+      <p style="margin:0;font-size:11.5px;color:#9ba3a9;line-height:1.7">灰色 = 复合故障，被距离阈值拦下；这类井是人工台账里最耗时、最容易判得不一致的部分。</p>
+    </div>
+  </div>
+
+  <!-- 混淆矩阵 -->
+  <div class="nn-block cm-block">
+    <h4>⑤ 混淆矩阵：真实工况 × 模型判定（点格子可跳到对应井）</h4>
+    <div class="cm-wrap">
+      <svg id="cmSvg" viewBox="0 0 470 264" role="img" aria-label="实时混淆矩阵"></svg>
+    </div>
+    <p class="cm-note" id="cmNote"></p>
+  </div>
+
+  <!-- 阈值权衡 -->
+  <div class="nn-block tau-block">
+    <h4>⑥ 阈值怎么定：拖 τ，看「省人力」与「少误判」的权衡</h4>
+    <div class="tau-wrap">
+      <div class="tau-chart">
+        <div class="tau-sl">
+          <label>距离阈值 τ<output id="outTau">0.10</output></label>
+          <input type="range" id="inTau" min="0.02" max="0.30" step="0.01" value="0.10">
+        </div>
+        <svg id="tauChart" viewBox="0 0 460 190" role="img" aria-label="阈值权衡曲线"></svg>
+        <details class="more">
+          <summary>两条曲线怎么看</summary>
+          <div class="more-body"><p>τ 越小＝越保守（更多井转人工、更少错判被放行）；τ 越大＝越省人力（代价是复合故障会被「自信地」判错）。两条曲线的夹角处就是工程上该落刀的地方。</p></div>
+        </details>
+      </div>
+      <div class="tau-read">
+        <div class="tr-row"><span>直接采纳井数</span><b id="trN">—</b></div>
+        <div class="tr-row"><span>人工复核率</span><b id="trRev" class="clay">—</b></div>
+        <div class="tr-row"><span>误采纳率（判错却放行）</span><b id="trBad" class="red">—</b></div>
+        <div class="tr-row"><span>采纳井准确率</span><b id="trAcc" class="ok">—</b></div>
+        <p class="tau-note" id="tauNote"></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="map">
+    <div><b>实验 1 → STEP 1—2</b><br>滑杆即「井况」，物理模拟实时产出每口井的闭合曲线。</div>
+    <div><b>实验 2 → STEP 3</b><br>栅格化 → 卷积 → 原型比对，输出类别、置信度与分布外距离。</div>
+    <div><b>实验 3 → STEP 4—5</b><br>高置信出结论、低置信转人工；拖 τ 即人力与误判的权衡。</div>
+  </div>
+  <p class="note">纯前端教学演示：物理模型为简化版（惯性载荷 + 传递线模型）；卷积核为手工设计的第一层检测子；分类头用各工况标准图特征均值作原型。</p>
+</footer>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+/* 算法解剖：把 7 个阶段挂到 AFlow 引擎上 */
+(function () {
+  if (!window.AFlow || !window.PumpFlow) return;
+  var F = window.PumpFlow;
+  window.PumpFlowApi = window.AFlow.create({
+    mount: document.getElementById('flowMount'),
+    title: '算法解剖',
+    subtitle: '自动播放：一张示功图怎么一步步变成工况判定',
+    stages: [
+      { name: '采集归一', tag: '曲线 → [0,1]', dur: 4200, draw: function (t, g) { return F.stage1(t); } },
+      { name: '栅格化', tag: '→ 32×32 灰度', dur: 4200, draw: function (t, g) { return F.stage2(t); } },
+      { name: '卷积', tag: '5×5 核 × 1024 位置', dur: 6000, draw: function (t, g) { return F.stage3(t); } },
+      { name: 'ReLU', tag: '负响应 → 0', dur: 4200, draw: function (t, g) { return F.stage4(t); } },
+      { name: '特征汇聚', tag: '→ 32 维向量', dur: 4800, draw: function (t, g) { return F.stage5(t); } },
+      { name: '原型比对', tag: '→ 类别概率', dur: 4800, draw: function (t, g) { return F.stage6(t); } },
+      { name: '双闸判定', tag: '采纳 / 转人工', dur: 4800, draw: function (t, g) { return F.stage7(t); } }
+    ]
+  });
+})();
+</script>
+<script>
+/* 右侧控件抽屉：滚动到实验时自动弹出，离开自动收起 */
+(function(){
+  if (window.__ctlDrawerInit) return;
+  window.__ctlDrawerInit = true;
+  var embedded = (window.parent !== window);
+
+  if (!embedded) {
+    /* 独立打开：本地抽屉 */
+    var drawer = document.createElement('aside');
+    drawer.id = 'ctlDrawer';
+    drawer.innerHTML = '<div class="ctl-drawer-head"><span class="ctl-drawer-tag">交互控件</span><span class="ctl-drawer-title"></span></div><div class="ctl-drawer-body"></div>';
+    document.body.appendChild(drawer);
+    var titleEl = drawer.querySelector('.ctl-drawer-title');
+    /* 独立打开时的抽屉也用「控件块」这套口径，和主站里的抽屉保持一致：
+       算法解剖段没有自己的控件，但工况与 τ 都能改它，所以照样要出现。 */
+    var BLOCKS = [
+      {key: 'cond', sel: '#sec1 > .ctl',    sec: 'sec1', name: '工况预设与参数'},
+      {key: 'tau',  sel: '#sec3 .tau-sl',   sec: 'sec3', name: '距离阈值 τ'},
+      {key: 'roll', sel: '#sec3 #btnReroll', sec: 'sec3', name: '批量重采样'}
+    ];
+    var SEC_BLOCKS = {
+      sec0: ['cond', 'tau'],
+      sec1: ['cond', 'tau'],
+      sec2: ['cond', 'tau'],
+      sec3: ['tau', 'roll']
+    };
+    var pages = {};
+    BLOCKS.forEach(function(b){
+      var c = document.querySelector(b.sel);
+      if (!c) return;
+      var ph = document.createElement('div');
+      ph.style.height = c.offsetHeight + 'px';
+      ph.style.flex = 'none';
+      c.parentNode.insertBefore(ph, c);
+      var page = document.createElement('div');
+      page.className = 'ctl-page';
+      page.innerHTML = '<div class="ctl-cap">' + b.name + '</div>';
+      page.appendChild(c);
+      drawer.querySelector('.ctl-drawer-body').appendChild(page);
+      pages[b.key] = page;
+    });
+    var secEls = {}, secTitle = {};
+    document.querySelectorAll('.sec').forEach(function(sec){
+      secEls[sec.id] = sec;
+      var t = sec.getAttribute('data-title');
+      if (!t) {
+        var sn = sec.querySelector('.sec-no');
+        t = sn ? sn.textContent.trim() : sec.id;
+      }
+      secTitle[sec.id] = t;
+    });
+    var ids = Object.keys(SEC_BLOCKS).filter(function(id){
+      return (SEC_BLOCKS[id] || []).some(function(k){ return pages[k]; });
+    });
+    if (!ids.length) return;
+    var currentId = '';
+    function setActive(id){
+      if (currentId === id) return;
+      currentId = id;
+      var keys = SEC_BLOCKS[id] || [];
+      var shown = keys.filter(function(k){ return pages[k]; });
+      BLOCKS.forEach(function(b){
+        var pg = pages[b.key];
+        if (!pg) return;
+        var on = shown.indexOf(b.key) >= 0;
+        pg.style.display = on ? '' : 'none';
+        /* 一段里显示多块时才标注块名，单块时不喧宾夺主；
+           块自己也写了同样的标题（比如 τ 行自带「距离阈值 τ」）就不重复标了 */
+        var cap = pg.querySelector('.ctl-cap');
+        if (cap) {
+          var showCap = on && (shown.length > 1 || b.sec !== id);
+          if (showCap) {
+            var bodyTxt = pg.textContent.replace(cap.textContent, '');
+            if (bodyTxt.indexOf(b.name) >= 0) showCap = false;
+          }
+          cap.style.display = showCap ? '' : 'none';
+        }
+      });
+      if (id) titleEl.textContent = secTitle[id] || id;
+      drawer.classList.toggle('open', !!id);
+    }
+    function onScroll(){
+      var vh = window.innerHeight;
+      var pivot = vh * 0.46;              /* 真实注视点：视口中线偏上（顶部有固定导航） */
+      var hitId = null;
+      var coverId = null, coverBest = 0;
+      ids.forEach(function(id){
+        var r = secEls[id].getBoundingClientRect();
+        var vis = Math.min(r.bottom, vh) - Math.max(r.top, 0);
+        if (vis <= 2) return;
+        if (r.top <= pivot && r.bottom >= pivot) hitId = id;
+        var cover = vis / vh;
+        if (cover > coverBest) { coverBest = cover; coverId = id; }
+      });
+      /* 注视点落在某段里才算那一段；没落中时，段落要占住半个视口才接管 */
+      setActive(hitId || (coverBest >= 0.5 ? coverId : null));
+    }
+    window.addEventListener('scroll', onScroll, {passive:true});
+    window.addEventListener('resize', onScroll);
+    onScroll();
+    return;
+  }
+
+  /* 收集段落并报给父页面
+     原则：一段抽屉里出现的控件 = 所有能改动这一段图的控件（实测影响面），
+     不只是「长在这一段里的」那些。本段自己的控件直接铺开，
+     其它段落借来的控件折叠在「来自 实验 N」下面，并默认展开/收起由下表决定。 */
+  var BLOCKS = [
+    {key: 'cond', sel: '#sec1 > .ctl',  sec: 'sec1', name: '工况预设与参数'},
+    {key: 'tau',  sel: '#sec3 .tau-sl', sec: 'sec3', name: '距离阈值 τ'},
+    {key: 'roll', sel: '#sec3 #btnReroll', sec: 'sec3', name: '批量重采样'}
+  ];
+  /* 段 → 控件块（实测：工况改实验 1 的示功图与实验 2 的投影；τ 改实验 1 的处置结论、
+     实验 2 的混淆矩阵与复核比例；重投只改实验 3 的批量结果）。
+     算法解剖（sec0）跑的是同一份算法：曲线来自工况参数，第 6/7 步的双闸判定用 τ，
+     所以这一段也必须能改这两块——否则看着动画却没处调，要滚到实验 1 才出现控件。 */
+  var SEC_BLOCKS = {
+    sec0: [{k: 'cond', open: true}, {k: 'tau', open: true}],
+    sec1: [{k: 'cond', open: true}, {k: 'tau', open: false}],
+    sec2: [{k: 'cond', open: true}, {k: 'tau', open: true}],
+    sec3: [{k: 'tau', open: true}, {k: 'roll', open: true}]
+  };
+  var SEC_NAME = {sec1: '实验 1', sec2: '实验 2', sec3: '实验 3'};
+  var __initOnce = false;
+  var BLOCK_BY_KEY = {};
+  BLOCKS.forEach(function(b){ BLOCK_BY_KEY[b.key] = b; });
+
+  function prepBlock(b){
+    var c = document.querySelector(b.sel);
+    if (!c) return;
+    b.el = c;
+    if (!__initOnce) {
+      var ph = document.createElement('div');
+      ph.style.height = c.offsetHeight + 'px';
+      ph.style.flex = 'none';
+      c.parentNode.insertBefore(ph, c);
+    }
+    var els = [];
+    if (c.matches && c.matches('input, button, select')) els.push(c);
+    Array.prototype.push.apply(els, c.querySelectorAll('input, button, select'));
+    var cls = (typeof c.className === 'string' && c.className) ? c.className.split(/\s+/)[0] : '';
+    var cidBase = b.sec + '-' + (c.id || cls || 'ctl');
+    els.forEach(function(el, idx){
+      el.setAttribute('data-ctl-id', el.id || (cidBase + '-' + idx));
+    });
+    /* 把控件的「当前值」写回属性，父页面重绘抽屉时位置才对得上 */
+    els.forEach(function(el){
+      if (el.type === 'range') el.setAttribute('value', el.value);
+      if (el.type === 'checkbox') { if (el.checked) el.setAttribute('checked', 'checked'); else el.removeAttribute('checked'); }
+    });
+    if (!__initOnce) c.style.display = 'none';
+  }
+
+  function htmlOfBlock(b){
+    if (!b.el) return '';
+    /* 序列化前先临时显形：否则副本会带着 display:none，抽屉里是空的 */
+    var prevDisp = b.el.style.display;
+    b.el.style.display = '';
+    var h = b.el.outerHTML;
+    b.el.style.display = prevDisp;
+    return h;
+  }
+
+  function htmlForSec(secId){
+    var html = '', list = SEC_BLOCKS[secId] || [];
+    list.forEach(function(it){
+      var b = BLOCK_BY_KEY[it.k];
+      if (!b || !b.el) return;
+      var h = htmlOfBlock(b);
+      if (b.sec === secId) {
+        html += h;
+      } else {
+        html += '<details class="gdb"' + (it.open ? ' open' : '') + '>' +
+          '<summary>来自 ' + (SEC_NAME[b.sec] || b.sec) + ' · ' + b.name + '</summary>' + h + '</details>';
+      }
+    });
+    return html;
+  }
+
+  function sendSections(){
+    BLOCKS.forEach(prepBlock);
+    var secs = [];
+    document.querySelectorAll('.sec').forEach(function(sec){
+      var html = htmlForSec(sec.id);
+      /* 「AI 三问」这一段本来就没有可调的：显式报上去（html 为空），
+         宿主据此收起抽屉，而不是继续沿用上一个实验的控件 */
+      if (sec.id === 'secQ') {
+        var rq = sec.getBoundingClientRect();
+        secs.push({id: 'secQ', title: 'AI 三问', html: '', top: rq.top + window.scrollY, height: rq.height});
+        return;
+      }
+      if (!html) return;
+      var title = sec.getAttribute('data-title');
+      if (!title) {
+        var secNo = sec.querySelector('.sec-no');
+        title = secNo ? secNo.textContent.trim() : sec.id;
+      }
+      var rect = sec.getBoundingClientRect();
+      var top = rect.top + window.scrollY;
+      secs.push({id: sec.id, title: title, html: html, top: top, height: rect.height});
+    });
+    __initOnce = true;
+    if (secs.length) {
+      try { parent.postMessage({__drawer: 'init', sections: secs}, '*'); } catch(e){}
+    }
+  }
+  sendSections();
+  setTimeout(sendSections, 800);
+  setTimeout(sendSections, 2000);
+
+  window.addEventListener('message', function(e){
+    if (e.source !== window.parent) return;
+    var d = e.data;
+    if (!d || d.__drawer !== 'control') return;
+    var el = document.querySelector('[data-ctl-id="' + CSS.escape(d.id) + '"]');
+    if (!el) return;
+    if (el.type === 'range') {
+      el.value = d.value;
+      el.dispatchEvent(new Event('input', {bubbles: true}));
+    } else if (el.type === 'checkbox') {
+      el.checked = d.value;
+      el.dispatchEvent(new Event('change', {bubbles: true}));
+    } else if (el.tagName === 'BUTTON') {
+      el.click();
+      /* 预设按钮会改滑杆值：回传一次，让抽屉里的滑杆/高亮跟着走 */
+      setTimeout(sendSections, 0);
+    }
+  });
+})();
+</script>
+<script src="aiq.js?v=20261104b"></script>
+</body>
+</html>
