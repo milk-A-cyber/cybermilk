@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>测井数据修复 · 掩码自编码 + 跨曲线生成 + 序列插补</title>
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="aflow.css">
+<style>
+  .qa{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:18px 20px;margin-bottom:20px;font-size:14px;line-height:1.75;color:#3a4348;}
+  .qa b{color:#242b2e;}
+  .sec{border:1px solid #e9e4d8;border-radius:14px;padding:20px;margin-bottom:20px;background:#fff;}
+  .sec>h3{margin:0 0 4px;font-size:18px;color:#242b2e;}
+  .sec>p.sub{color:#79828a;font-size:13px;margin:0 0 14px;}
+  .chart{width:100%;height:auto;display:block;background:#fff;border:1px solid #f0ece2;border-radius:8px;}
+  .ctl{background:#fbfaf6;border:1px dashed #d9cbb3;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13px;color:#4d565b;}
+  .ctl label{display:block;margin-bottom:4px;}
+  .ctl input[type=range]{width:100%;}
+  .rrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .rrow .chip{background:#e6f1ec;border:1px solid #b9d8cb;color:#22604f;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;}
+  .tip{background:#f8ecdf;border-left:3px solid #b26a39;border-radius:6px;padding:10px 14px;margin-top:12px;font-size:13px;color:#6b4a35;line-height:1.6;}
+  .tip b{color:#8a4f27;}
+  .flowblock{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:16px;margin-top:20px;}
+  #reviewList{margin-top:12px;}
+</style>
+</head>
+<body>
+
+<header class="demo-head">
+  <div class="badge">环节5 · 测井</div>
+  <h1>测井数据修复</h1>
+  <p>掩码自编码 + 跨曲线生成 + 序列插补 · 多曲线+标记 · 补值无依据 · 异常易漏 · 一致性难保证</p>
+  <div class="hdmeta">
+    <span>数据形态：多曲线测井+标记</span><span>方法：ts</span><span>验收：重建误差 × 异常置信度 × 一致性</span>
+  </div>
+</header>
+
+<section class="section">
+  <div class="sec">
+    <h3>算法解剖</h3>
+    <p class="sub">把「修复测井 → 可解释」拆成 6 步，每一步都跑真代码，滑块可切参数。</p>
+    <div id="flowMount"></div>
+    <div class="qa">
+      <b>怎么做对：</b>先读多曲线测井（含缺失段与异常跳变）、邻井同期曲线与井径工程记录；缺失段人工补值无依据、异常肉眼易漏、物理一致性难保证；用掩码自编码重建缺失段，跨曲线生成用邻井参考补全；最后井径工程核对，修复结果回流越修越准。
+      <div id="more"><a href="#" onclick="return false">更多</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec1">
+    <h3>屏 1 · 缺失/异常识别：阈值检测 + 异常置信度</h3>
+    <p class="sub">拖滑块调阈值，看异常识别准确率与判错怎么变。</p>
+    <div class="qa">阈值检测缺失段与异常跳变，给异常置信度。肉眼识别异常易漏，阈值过高会漏检。</div>
+    <div id="detCtl" class="ctl">
+      <label>检测阈值 <b id="outThr">1.00</b></label>
+      <input id="inThr" type="range" min="0.4" max="1.8" step="0.1" value="1.0">
+    </div>
+    <svg id="detChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">识别准确率：<span id="roDetAcc">—</span></span><span class="chip">判错：<span id="roDetErr">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换检测规则（detectAnomaly），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec2">
+    <h3>屏 2 · 掩码重建 + 序列插补</h3>
+    <p class="sub">切邻点插值/跨曲线生成，看重建误差怎么变。</p>
+    <div class="qa">掩码自编码重建缺失段，邻点插值补全。缺失段长时插值不准，跨曲线生成用邻井参考更准、物理一致。</div>
+    <div id="impCtl" class="ctl">
+      <label>补全方式 <b id="outMode">跨曲线生成</b></label>
+      <input id="inMode" type="range" min="0" max="1" step="1" value="1">
+    </div>
+    <svg id="impChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">重建误差：<span id="roImpAcc">—</span></span><span class="chip">待复核：<span id="roImpErr">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换补全规则（impute），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec3">
+    <h3>屏 3 · 井径工程验证 + 复核</h3>
+    <p class="sub">看跨曲线补全 + 邻井参考 + 井径，复核清单可核。</p>
+    <div class="qa">井径工程记录核对补全段井况。修复不回流，不知道补错在哪；无真值时评价只能靠下游解释效果间接判断。</div>
+    <svg id="verChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">判错：<span id="roVerErr">—</span></span></div>
+    <div id="reviewList"></div>
+    <div class="tip"><b>想改成你自己的：</b>换验证逻辑，或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<div class="flowblock">
+  <h3>示范说明</h3>
+  <p style="color:#4d565b;font-size:13px;line-height:1.7;margin:8px 0 0">合成一口井的多曲线测井数据（含缺失段、异常跳变、邻井参考与井径工程记录），演示缺失/异常识别、掩码重建与跨曲线生成的修复链路。所有数字都是浏览器里算出来的，没有后端。</p>
+</div>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+(function () {
+  var mount = document.getElementById('flowMount');
+  var flow = window.RemoteFlow;
+  var AFlow = window.AFlow;
+  if (!flow || !mount || !AFlow) return;
+  var ui = AFlow.create(mount, {
+    title: '测井 → 可解释 · 缺失识别 + 掩码重建 + 跨曲线生成',
+    captions: { prev: '上一步', next: '下一步', close: '收起' }
+  });
+  ui.setSteps([
+    { name: '多曲线接入', desc: '缺失+异常' },
+    { name: '缺失/异常识别', desc: '阈值检测' },
+    { name: '掩码重建', desc: '序列插补' },
+    { name: '跨曲线生成', desc: '邻井参考' },
+    { name: '井径验证', desc: '井况核对' },
+    { name: '回流', desc: '修复回流' }
+  ]);
+  ui.onRender = function (i) {
+    var out = flow['stage' + (i + 1)](ui.progress());
+    if (out) {
+      ui.setSvg(out.svg);
+      ui.setStats(out.stats || []);
+      ui.setNote(out.note || '');
+    }
+  };
+  ui.render();
+})();
+</script>
+<script src="aiq.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>智能完井滑套控制策略 · 强化学习</title>
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="aflow.css">
+<style>
+  .qa{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:18px 20px;margin-bottom:20px;font-size:14px;line-height:1.75;color:#3a4348;}
+  .qa b{color:#242b2e;}
+  .sec{border:1px solid #e9e4d8;border-radius:14px;padding:20px;margin-bottom:20px;background:#fff;}
+  .sec>h3{margin:0 0 4px;font-size:18px;color:#242b2e;}
+  .sec>p.sub{color:#79828a;font-size:13px;margin:0 0 14px;}
+  .chart{width:100%;height:auto;display:block;background:#fff;border:1px solid #f0ece2;border-radius:8px;}
+  .ctl{background:#fbfaf6;border:1px dashed #d9cbb3;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13px;color:#4d565b;}
+  .ctl label{display:block;margin-bottom:4px;}
+  .ctl input[type=range]{width:100%;}
+  .rrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .rrow .chip{background:#e6f1ec;border:1px solid #b9d8cb;color:#22604f;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;}
+  .tip{background:#f8ecdf;border-left:3px solid #b26a39;border-radius:6px;padding:10px 14px;margin-top:12px;font-size:13px;color:#6b4a35;line-height:1.6;}
+  .tip b{color:#8a4f27;}
+  .flowblock{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:16px;margin-top:20px;}
+</style>
+</head>
+<body>
+
+<header class="demo-head">
+  <div class="badge">环节7 · 完井</div>
+  <h1>智能完井滑套控制策略</h1>
+  <p>强化学习在储层模拟器上学习滑套控制策略 · 最大化累计产量并抑制含水上升</p>
+  <div class="hdmeta">
+    <span>数据形态：储层+生产</span><span>方法：rl</span><span>验收：产油×含水</span>
+  </div>
+</header>
+
+<section class="section">
+  <div class="sec">
+    <h3>算法解剖</h3>
+    <p class="sub">把「滑套控制」拆成 6 步，每一步都跑真代码，滑块可切参数。</p>
+    <div id="flowMount"></div>
+    <div class="qa">
+      <b>怎么做对：</b>智能完井把井筒分成多段，每段配可遥控开关的滑套，通过井下控制实现各段产液调节。多段储层渗透率与含水饱和度不同，统一开阀低效。用强化学习在储层模拟器上学习滑套控制策略，最大化累计产量并抑制含水上升。
+      <div id="more"><a href="#" onclick="return false">更多</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec1">
+    <h3>屏 1 · 储层分段</h3>
+    <p class="sub">看多段储层的渗透率与含水分布。</p>
+    <div class="qa">多段储层渗透率与含水饱和度不同。</div>
+    <svg id="resChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">分段数：<span id="roSeg">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换储层生成（genReservoir），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec2">
+    <h3>屏 2 · Q-learning 训练</h3>
+    <p class="sub">调含水惩罚权重，看奖励收敛与策略。</p>
+    <div class="qa">Q-learning 在储层模拟器上学习滑套开/关策略。</div>
+    <div id="rlCtl" class="ctl">
+      <label>含水惩罚权重 λ <b id="outLambda">1.00</b></label>
+      <input id="inLambda" type="range" min="0.3" max="2" step="0.1" value="1">
+    </div>
+    <svg id="rlChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">回合：<span id="roRounds">—</span></span><span class="chip">末轮奖励：<span id="roFinalQ">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换学习算法（rlTrain），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec3">
+    <h3>屏 3 · 策略评估</h3>
+    <p class="sub">看 RL 策略 vs 全开策略的产油与含水。</p>
+    <div class="qa">RL 牺牲少量产油换取含水大幅下降。</div>
+    <svg id="evalChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">RL产油：<span id="roOilRL">—</span></span><span class="chip">全开产油：<span id="roOilOpen">—</span></span><span class="chip">RL含水：<span id="roWaterRL">—</span></span><span class="chip">全开含水：<span id="roWaterOpen">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换策略评估（slideEval），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<div class="flowblock">
+  <h3>示范说明</h3>
+  <p style="color:#4d565b;font-size:13px;line-height:1.7;margin:8px 0 0">合成多段储层与生产滑套状态，演示用强化学习在储层模拟器上学习滑套控制策略、最大化累计产量并抑制含水上升的控制链路。所有数字都是浏览器里算出来的，没有后端。</p>
+</div>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+(function () {
+  var mount = document.getElementById('flowMount');
+  var flow = window.RemoteFlow;
+  var AFlow = window.AFlow;
+  if (!flow || !mount || !AFlow) return;
+  var ui = AFlow.create(mount, {
+    title: '智能完井滑套控制策略 · 强化学习',
+    captions: { prev: '上一步', next: '下一步', close: '收起' }
+  });
+  ui.setSteps([
+    { name: '储层分段', desc: '渗透率/含水' },
+    { name: '滑套动作', desc: '开/关' },
+    { name: '储层模拟器', desc: '机理模型' },
+    { name: '强化学习', desc: 'Q-learning' },
+    { name: '策略学习', desc: '抑制含水' },
+    { name: '策略评估', desc: 'RL vs 全开' }
+  ]);
+  ui.onRender = function (i) {
+    var out = flow['stage' + (i + 1)](ui.progress());
+    if (out) {
+      ui.setSvg(out.svg);
+      ui.setStats(out.stats || []);
+      ui.setNote(out.note || '');
+    }
+  };
+  ui.render();
+})();
+</script>
+<script src="aiq.js"></script>
+</body>
+</html>

@@ -1,0 +1,125 @@
+{
+  "id": "c2-cement-opt",
+  "sceneId": "c2",
+  "methods": ["opt"],
+  "title": "注水泥参数优化：密度窗口约束推荐",
+  "version": "1.0.0",
+  "updated": "2026-11-05",
+
+  "tabs": {
+    "background": {
+      "label": "专业背景",
+      "lede": "注水泥设计要确定水泥浆密度、流变性、排量与替浆方案，目标是在不漏失的前提下实现全封固。设计多沿用邻井经验，遇到窄密度窗口（孔隙压力与破裂压力接近）时容易漏失或留窜槽。施工样本有限，且“好结果”受多因素影响、标签噪声大。",
+      "judge": [
+        { "label": "数据形态", "value": "井况+施工", "desc": "压力窗口" },
+        { "label": "标注成本", "value": "中", "desc": "施工结果作标签" },
+        { "label": "可见收益", "value": "漏失↓", "desc": "窗口内全封固" },
+        { "label": "难度", "value": "中", "desc": "样本有限噪声大" }
+      ],
+      "sections": [
+        {
+          "no": 1,
+          "en": "PROBLEM",
+          "title": "当前做法与问题",
+          "html": "<p><b>注水泥参数优化</b>设计要确定水泥浆密度、流变性、排量与替浆方案，目标是在不漏失的前提下实现全封固。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>沿用邻井经验</b>——设计多沿用邻井经验</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>窄窗口易漏失</b>——窄密度窗口（Pp 与 Pf 接近）易漏失或留窜槽</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>样本有限噪声大</b>——施工样本有限，好结果受多因素影响</span></div></div><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"注水泥参数设计的问题\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">经验设计 → 窄窗口漏失 · 样本有限 · 标签噪声大</text><rect x=\"20\" y=\"36\" width=\"280\" height=\"176\" rx=\"8\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"160\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">经验设计</text><rect x=\"36\" y=\"70\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"96\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#2b4a72\">密度</text><rect x=\"180\" y=\"70\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"230\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">排量</text><rect x=\"36\" y=\"112\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"96\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">窄窗口漏失</text><rect x=\"180\" y=\"112\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"230\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">留窜槽</text><text x=\"160\" y=\"180\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#b26a39\" font-weight=\"700\">全封固难保证</text><text x=\"160\" y=\"198\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#79828a\">CBL 评价不可靠</text><rect x=\"316\" y=\"36\" width=\"284\" height=\"176\" rx=\"8\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"458\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">为什么难</text><text x=\"332\" y=\"82\" font-size=\"9.5\" fill=\"#4d565b\">· 施工样本有限</text><text x=\"332\" y=\"104\" font-size=\"9.5\" fill=\"#4d565b\">· 好结果受多因素影响</text><text x=\"332\" y=\"126\" font-size=\"9.5\" fill=\"#4d565b\">· 标签噪声大</text><rect x=\"332\" y=\"150\" width=\"252\" height=\"46\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"344\" y=\"170\" font-size=\"8.5\" fill=\"#79828a\">密度窗口约束</text><text x=\"344\" y=\"186\" font-size=\"8.5\" fill=\"#b26a39\" font-weight=\"700\">需要约束优化</text></svg></div>"
+        },
+        {
+          "no": 2,
+          "en": "INTERVENTION",
+          "title": "AI 能做什么",
+          "html": "<p>建立 <b>\"井况—浆体—顶替效率\"映射</b>，在 <b>密度窗口约束</b>内推荐浆柱结构与排量。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>代理模型</b>——映射井况-浆体-顶替效率</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>约束优化</b>——密度窗口内扫描不漏失方案</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>水力计算耦合</b>——排量-顶替联动</span></div></div><p>落地形态：推荐浆柱密度与排量，窄窗口也不漏失。</p><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"注水泥参数优化流程\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">井况 → 代理模型 → 约束优化 → 推荐设计</text><rect x=\"16\" y=\"40\" width=\"110\" height=\"120\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"71\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#242b2e\" font-weight=\"600\">井况</text><text x=\"71\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">压力窗口</text><path d=\"M130 100 L148 100\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"152\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"211\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#2b4a72\" font-weight=\"600\">代理模型</text><text x=\"211\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">井况-浆体-顶替</text><path d=\"M274 100 L292 100\" stroke=\"#2b4a72\" stroke-width=\"1.6\"/><rect x=\"296\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"355\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">约束优化</text><text x=\"355\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">密度窗口</text><path d=\"M418 100 L436 100\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"440\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">推荐设计</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">浆柱+排量</text><text x=\"310\" y=\"210\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">不漏失 · 全封固 · 窄窗口也稳</text></svg></div>"
+        },
+        {
+          "no": 3,
+          "en": "DATA",
+          "title": "需要准备什么",
+          "html": "<p><b>井况数据</b>：井径、温度、压力窗口，无需标注；<b>施工记录</b>：密度、排量、返高，数百井次；<b>施工结果</b>：CBL 评价与漏失情况，作为标签。</p><div class=\"figure\"><svg viewBox=\"0 0 620 220\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"注水泥优化数据准备\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">注水泥优化需要的数据</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#41699b\"/><text x=\"32\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">井况数据</text><text x=\"32\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">井径温度压力窗口</text><text x=\"32\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">无需标注</text><rect x=\"318\" y=\"34\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#b26a39\"/><text x=\"330\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">施工记录</text><text x=\"330\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">密度排量返高</text><text x=\"330\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">数百井次</text><rect x=\"20\" y=\"106\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#2f7d6b\"/><text x=\"32\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">施工结果</text><text x=\"32\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">CBL 评价与漏失</text><text x=\"32\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">作为标签</text><rect x=\"318\" y=\"106\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#79828a\"/><text x=\"330\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">施工记录</text><text x=\"330\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">作为输入特征</text><text x=\"330\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">数百井次</text><rect x=\"20\" y=\"184\" width=\"582\" height=\"26\" rx=\"6\" fill=\"#f8ecdf\"/><text x=\"32\" y=\"202\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">训练策略：代理模型 + 约束优化 + 水力计算耦合</text></svg></div>"
+        },
+        {
+          "no": 4,
+          "en": "DIFFICULTY",
+          "title": "难度与参考方向",
+          "html": "<p>三个最容易翻车的点：</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>施工样本有限</b>——好结果难学</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>标签噪声大</b>——好结果受多因素影响</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>窄窗口约束</b>——密度窗口内求最优</span></div></div><p>改进路线按成本从低到高：先做<b>压力窗口</b>；再加<b>顶替效率映射</b>；最后用<b>约束优化</b>扫描推荐。</p><div class=\"figure\"><svg viewBox=\"0 0 620 210\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"注水泥优化难点与对策\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">难点排序 + 成本从低到高的改进路线</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"52\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">① 施工样本有限</text><text x=\"32\" y=\"68\" font-size=\"8.5\" fill=\"#6b4a35\">好结果难学</text><path d=\"M310 57 L356 57\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"34\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"52\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">压力窗口</text><text x=\"372\" y=\"68\" font-size=\"8.5\" fill=\"#4d565b\">Pp-Pf 约束</text><rect x=\"20\" y=\"86\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"104\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">② 标签噪声大</text><text x=\"32\" y=\"120\" font-size=\"8.5\" fill=\"#6b4a35\">多因素影响</text><path d=\"M310 109 L356 109\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"86\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"104\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">顶替效率映射</text><text x=\"372\" y=\"120\" font-size=\"8.5\" fill=\"#4d565b\">井况-浆体</text><rect x=\"20\" y=\"138\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"156\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">③ 窄窗口约束</text><text x=\"32\" y=\"172\" font-size=\"8.5\" fill=\"#6b4a35\">漏失或窜槽</text><path d=\"M310 161 L356 161\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"138\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"156\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">约束优化</text><text x=\"372\" y=\"172\" font-size=\"8.5\" fill=\"#4d565b\">扫描推荐</text><rect x=\"20\" y=\"192\" width=\"582\" height=\"16\" rx=\"8\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"310\" y=\"204\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#41699b\">压力窗口 → 顶替效率映射 → 约束优化</text></svg></div>"
+        }
+      ]
+    },
+
+    "workflow": {
+      "label": "案例流程",
+      "title": "案例：某区块注水泥参数约束优化",
+      "lead": [
+        "某区块注水泥设计此前沿用邻井经验，窄密度窗口（孔隙压力与破裂压力接近）井常漏失或留窜槽。目标：用代理模型建立井况—浆体—顶替效率映射，在密度窗口约束内推荐浆柱密度与排量，保证不漏失、全封固。",
+        "注意第 3、4、5 步：顶替效率映射、约束优化、结果对比是智能化价值的三个落点，示范页三屏一一对应。"
+      ],
+      "stats": [
+        ["井", "某区块多井"],
+        ["设计", "邻井经验"],
+        ["数据", "井况+施工"],
+        ["窗口", "窄→易漏失"],
+        ["目标", "不漏失全封固"],
+        ["难点", "样本有限噪声大"]
+      ],
+      "steps": [
+        {
+          "name": "井况接入",
+          "role": "数据",
+          "do": "读入井况（井径、温度、压力窗口）与施工记录（密度、排量、返高）。示范页屏 1 顶部可看。",
+          "effect": "井况 + 施工记录。",
+          "trap": "不读压力窗口，设计无约束。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">井况接入：井径 + 温度 + 压力窗口</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">井况</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">井径温度窗口</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">施工记录</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">密度排量返高</text><path d=\"M360 72 L384 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">压力窗口</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">Pp-Pf</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不读窗口 → 设计无约束</text></svg>"
+        },
+        {
+          "name": "压力窗口",
+          "role": "约束",
+          "do": "建立密度窗口约束：孔隙压力与破裂压力当量密度之间。示范页屏 1 展示。",
+          "effect": "窄窗口风险可见。",
+          "trap": "窄窗口经验密度易超破裂压力导致漏失。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">压力窗口：Pp-Pf 密度约束</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">孔隙压力</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">Pp</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">破裂压力</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">Pf</text><path d=\"M360 72 L384 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">密度窗口</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">约束</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：窄窗口 → 经验密度超破裂压力 → 漏失</text></svg>"
+        },
+        {
+          "name": "顶替效率映射",
+          "role": "算法核心",
+          "do": "建立井况—浆体—顶替效率映射。示范页屏 2 展示。",
+          "effect": "密度过低留窜槽、排量过高压漏。",
+          "trap": "单因素无法预测顶替。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">顶替效率映射：井况-浆体-顶替</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">浆体密度</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">浆柱</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">排量</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">替浆</text><path d=\"M360 72 L384 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">顶替效率</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">映射</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：单因素 → 无法预测顶替</text></svg>"
+        },
+        {
+          "name": "约束优化",
+          "role": "算法核心",
+          "do": "在密度窗口约束内扫描浆柱密度与排量，先筛漏失、再取最高效率。示范页屏 2 展示。",
+          "effect": "推荐浆柱密度 + 排量。",
+          "trap": "只求效率忽略约束会漏失。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">约束优化：窗口内扫描</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">扫描</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">密度×排量</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">筛漏失</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">不漏失</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">最高效率</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">浆柱+排量</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：只求效率忽略约束 → 漏失</text></svg>"
+        },
+        {
+          "name": "结果对比",
+          "role": "人工确认",
+          "do": "对比邻井经验与约束优化推荐的密度/排量/漏失/CBL。示范页屏 3 展示。",
+          "effect": "推荐显式好于经验。",
+          "trap": "经验密度常超破裂压力导致漏失。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">结果对比：经验 vs 推荐</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">邻井经验</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">常漏失</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">约束优化推荐</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">全封固</text><path d=\"M378 72 L400 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">不漏失↑</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">全封固↑</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：经验密度常超破裂压力 → 漏失</text></svg>"
+        }
+      ],
+      "metrics": {
+        "title": "怎么算「设计对了」",
+        "html": "<p>注水泥设计用 <b>漏失率</b>（密度超破裂压力导致漏失的井次占比）衡量安全性，<b>全封固率</b>（顶替效率高、CBL 评价好）衡量封固效果，<b>约束满足率</b> 衡量推荐是否落在密度窗口内。</p><p>最终还要看 <b>窄窗口表现</b>：孔隙压力与破裂压力接近时是否仍不漏失。</p><p style=\"margin-top:16px\"><svg viewBox='0 0 620 200' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='注水泥优化效果对比' style='width:100%;height:auto;display:block'><text x='14' y='20' font-size='10' fill='#4d565b' font-weight='600'>注水泥优化验收：不漏失 × 全封固 × 窄窗口稳</text><rect x='14' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='159' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>漏失率</text><rect x='40' y='66' width='80' height='52' fill='#d9b78e'/><text x='80' y='96' text-anchor='middle' font-size='10' fill='#4d565b' font-weight='700'>高</text><text x='80' y='112' text-anchor='middle' font-size='8' fill='#8a6b52'>邻井经验</text><rect x='180' y='66' width='80' height='52' fill='#2f7d6b'/><text x='220' y='96' text-anchor='middle' font-size='10' fill='#fff' font-weight='700'>低</text><text x='220' y='112' text-anchor='middle' font-size='8' fill='#b9d8cb'>约束优化</text><text x='159' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>漏失 ↓</text><rect x='316' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='461' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>全封固 + 窄窗口</text><rect x='340' y='66' width='120' height='52' fill='#e7eef9' stroke='#41699b'/><text x='400' y='92' text-anchor='middle' font-size='9' fill='#2b4a72' font-weight='700'>全封固↑</text><text x='400' y='108' text-anchor='middle' font-size='8' fill='#79828a'>CBL 好</text><rect x='470' y='66' width='120' height='52' fill='#e6f1ec' stroke='#2f7d6b'/><text x='530' y='92' text-anchor='middle' font-size='9' fill='#22604f' font-weight='700'>窄窗口稳↑</text><text x='530' y='108' text-anchor='middle' font-size='8' fill='#79828a'>不漏失</text><text x='461' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>安全 · 封固</text><text x='310' y='188' text-anchor='middle' font-size='8' fill='#9ba3a9'>验收 = 不漏失 × 全封固 × 窄窗口稳</text></svg></p>"
+      },
+      "fails": [
+        { "name": "施工样本有限", "why": "好结果受多因素影响，样本有限难学。" },
+        { "name": "标签噪声大", "why": "好结果受多因素影响，标签噪声大。" },
+        { "name": "窄窗口漏失", "why": "孔隙压力与破裂压力接近时易漏失。" },
+        { "name": "留窜槽", "why": "顶替不充分导致窜槽。" }
+      ]
+    },
+
+    "demo": {
+      "mode": "auto",
+      "html": "demo/index.html",
+      "js": "demo/demo.js",
+      "label": "可运行示范",
+      "intro": "用合成的井况与施工记录演示在密度窗口约束内推荐浆柱密度与排量的注水泥参数优化。",
+      "height": 600
+    }
+  }
+}

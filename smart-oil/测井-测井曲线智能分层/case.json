@@ -1,0 +1,125 @@
+{
+  "id": "w1-log-segment",
+  "sceneId": "w1",
+  "methods": ["ts"],
+  "title": "测井曲线智能分层：序列分割 + 变点检测 + 邻井约束",
+  "version": "1.0.0",
+  "updated": "2026-11-05",
+
+  "tabs": {
+    "background": {
+      "label": "专业背景",
+      "lede": "测井曲线（GR/SP/RT/DEN）0.125m 采样，单井 5000—20000 点。分层即把井段按岩性/物性切成层，是储层评价的基础。单井人工卡层要 2—4 小时，薄互层界线模糊、差 0.5—1m。智能方法做序列分割、变点检测、邻井分层约束。",
+      "judge": [
+        { "label": "数据形态", "value": "测井曲线", "desc": "GR/SP/RT/DEN" },
+        { "label": "标注成本", "value": "中", "desc": "人工分层表" },
+        { "label": "可见收益", "value": "卡层快+准", "desc": "2—4小时→分钟" },
+        { "label": "难度", "value": "中", "desc": "薄互层界线模糊" }
+      ],
+      "sections": [
+        {
+          "no": 1,
+          "en": "PROBLEM",
+          "title": "当前做法与问题",
+          "html": "<p><b>测井曲线分层</b>把井段按岩性/物性切成层，是储层评价的基础。GR/SP/RT/DEN 0.125m 采样，单井 5000—20000 点。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>卡层耗时长</b>——单井人工卡层要 2—4 小时</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>薄互层界线模糊</b>——薄互层界线模糊，差 0.5—1m</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>人工经验差异</b>——不同人分层位置不一，一致性差</span></div></div><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"人工测井分层的问题\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">人工卡层 → 2—4小时 · 薄互层模糊 · 不一致</text><rect x=\"20\" y=\"36\" width=\"280\" height=\"176\" rx=\"8\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"160\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">人工分层</text><rect x=\"36\" y=\"70\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"96\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#2b4a72\">曲线目测</text><rect x=\"180\" y=\"70\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"230\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">手动分段</text><rect x=\"36\" y=\"112\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"96\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">2—4 小时</text><rect x=\"180\" y=\"112\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"230\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">薄互层模糊</text><text x=\"160\" y=\"180\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#b26a39\" font-weight=\"700\">差 0.5—1m</text><text x=\"160\" y=\"198\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#79828a\">人工经验差异</text><rect x=\"316\" y=\"36\" width=\"284\" height=\"176\" rx=\"8\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"458\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">为什么难</text><text x=\"332\" y=\"82\" font-size=\"9.5\" fill=\"#4d565b\">· 单井 2—4 小时卡层</text><text x=\"332\" y=\"104\" font-size=\"9.5\" fill=\"#4d565b\">· 薄互层界线模糊</text><text x=\"332\" y=\"126\" font-size=\"9.5\" fill=\"#4d565b\">· 人工经验差异</text><rect x=\"332\" y=\"150\" width=\"252\" height=\"46\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"344\" y=\"170\" font-size=\"8.5\" fill=\"#79828a\">5000—20000 点/井</text><text x=\"344\" y=\"186\" font-size=\"8.5\" fill=\"#b26a39\" font-weight=\"700\">需要智能分层</text></svg></div>"
+        },
+        {
+          "no": 2,
+          "en": "INTERVENTION",
+          "title": "AI 能做什么",
+          "html": "<p>用<b>变点检测/序列分割</b>切地层，<b>多曲线融合</b>区分薄互层，<b>邻井分层约束</b>保持层位一致。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>序列分割</b>——在 GR/SP/RT/DEN 曲线上检测地层边界，替代手动分段</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>多曲线融合</b>——多条曲线联合判断薄互层界线</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>邻井约束</b>——邻井分层表约束本井层位一致</span></div></div><p>落地形态：地层边界自动标出，测井解释员复核。</p><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"测井智能分层流程\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">测井曲线 → 序列分割 + 多曲线融合 + 邻井约束 → 层位</text><rect x=\"16\" y=\"40\" width=\"110\" height=\"120\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"71\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#242b2e\" font-weight=\"600\">测井曲线</text><text x=\"71\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">GR/SP/RT/DEN</text><path d=\"M130 100 L148 100\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"152\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"211\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#2b4a72\" font-weight=\"600\">序列分割</text><text x=\"211\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">地层边界</text><text x=\"211\" y=\"96\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">替代手动</text><path d=\"M274 100 L292 100\" stroke=\"#2b4a72\" stroke-width=\"1.6\"/><rect x=\"296\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"355\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">多曲线融合</text><text x=\"355\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">薄互层界线</text><text x=\"355\" y=\"96\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">更清楚</text><path d=\"M418 100 L436 100\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"440\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">邻井约束</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">层位一致</text><text x=\"499\" y=\"96\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">一致性↑</text><text x=\"310\" y=\"210\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">卡层快 · 薄互层准 · 邻井一致</text></svg></div>"
+        },
+        {
+          "no": 3,
+          "en": "DATA",
+          "title": "需要准备什么",
+          "html": "<p><b>测井曲线</b>：GR/SP/RT/DEN，0.125m 采样，单井 5000—20000 点；<b>人工分层表</b>：30—50 口井的审定分层，作为训练与验证；<b>邻井分层</b>：邻井分层约束，保持层位一致。</p><div class=\"figure\"><svg viewBox=\"0 0 620 220\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"测井分层数据准备\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">测井分层需要的数据</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#41699b\"/><text x=\"32\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">测井曲线</text><text x=\"32\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">GR/SP/RT/DEN</text><text x=\"32\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">0.125m 采样</text><rect x=\"318\" y=\"34\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#b26a39\"/><text x=\"330\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">人工分层表</text><text x=\"330\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">30—50 口井</text><text x=\"330\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">审定分层</text><rect x=\"20\" y=\"106\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#2f7d6b\"/><text x=\"32\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">邻井分层</text><text x=\"32\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">邻井约束</text><text x=\"32\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">层位一致</text><rect x=\"318\" y=\"106\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#79828a\"/><text x=\"330\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">FORCE 2020/Kansas</text><text x=\"330\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">公开数据集</text><text x=\"330\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">可复现</text><rect x=\"20\" y=\"184\" width=\"582\" height=\"26\" rx=\"6\" fill=\"#f8ecdf\"/><text x=\"32\" y=\"202\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">训练策略：序列分割 + 多曲线融合 + 邻井约束</text></svg></div>"
+        },
+        {
+          "no": 4,
+          "en": "DIFFICULTY",
+          "title": "难度与参考方向",
+          "html": "<p>三个最容易翻车的点：</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>薄互层界线模糊</b>——薄互层界线模糊，差 0.5—1m</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>单曲线信息有限</b>——单条曲线难区分薄互层</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>人工经验差异</b>——不同人分层位置不一</span></div></div><p>改进路线按成本从低到高：先做<b>变点检测</b>切地层；再加<b>多曲线融合</b>区分薄互层；最后用<b>邻井分层约束</b>保持一致。</p><div class=\"figure\"><svg viewBox=\"0 0 620 210\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"测井分层难点与对策\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">难点排序 + 成本从低到高的改进路线</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"52\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">① 薄互层模糊</text><text x=\"32\" y=\"68\" font-size=\"8.5\" fill=\"#6b4a35\">差 0.5—1m</text><path d=\"M310 57 L356 57\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"34\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"52\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">变点检测</text><text x=\"372\" y=\"68\" font-size=\"8.5\" fill=\"#4d565b\">切地层</text><rect x=\"20\" y=\"86\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"104\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">② 单曲线有限</text><text x=\"32\" y=\"120\" font-size=\"8.5\" fill=\"#6b4a35\">难分薄互层</text><path d=\"M310 109 L356 109\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"86\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"104\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">多曲线融合</text><text x=\"372\" y=\"120\" font-size=\"8.5\" fill=\"#4d565b\">界线清楚</text><rect x=\"20\" y=\"138\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"156\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">③ 经验差异</text><text x=\"32\" y=\"172\" font-size=\"8.5\" fill=\"#6b4a35\">不一致</text><path d=\"M310 161 L356 161\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"138\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"156\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">邻井约束</text><text x=\"372\" y=\"172\" font-size=\"8.5\" fill=\"#4d565b\">一致性好</text><rect x=\"20\" y=\"192\" width=\"582\" height=\"16\" rx=\"8\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"310\" y=\"204\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#41699b\">变点检测 → 多曲线融合 → 邻井约束</text></svg></div>"
+        }
+      ]
+    },
+
+    "workflow": {
+      "label": "案例流程",
+      "title": "案例：一口井的测井分层改造",
+      "lead": [
+        "某井此前由测井解释员据测井曲线手动分层，单井 2—4 小时，薄互层界线模糊、差 0.5—1m。目标：序列分割切地层，多曲线融合区分薄互层，邻井约束保持层位一致。",
+        "注意第 3、4、5 步：序列分割、多曲线融合、邻井约束是智能化价值的三个落点，示范页三屏一一对应。"
+      ],
+      "stats": [
+        ["井", "某生产井"],
+        ["采样", "0.125 m 一点"],
+        ["分层方式", "人工手动分段"],
+        ["曲线", "GR/SP/RT/DEN"],
+        ["目标", "层位自动"],
+        ["难点", "薄互层模糊"]
+      ],
+      "steps": [
+        {
+          "name": "测井曲线接入",
+          "role": "数据",
+          "do": "读入 GR/SP/RT/DEN 曲线。示范页屏 1 顶部可看曲线。",
+          "effect": "多曲线集，5000—20000 点/井。",
+          "trap": "不结合多条曲线直接看单条，薄互层被忽略。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">测井曲线接入：GR/SP/RT/DEN</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">测井曲线</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">GR/SP/RT/DEN</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">人工分层表</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">30—50 井</text><path d=\"M360 72 L384 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">邻井分层</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">约束一致</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：只看单条曲线 → 薄互层被忽略</text></svg>"
+        },
+        {
+          "name": "变点检测",
+          "role": "算法核心",
+          "do": "在测井曲线上检测地层边界，替代手动分段。示范页屏 1 展示分层。",
+          "effect": "地层边界自动标出，替代人工手动分段。",
+          "trap": "把曲线小波动当分层，虚分层多、层划碎。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">变点检测：测井曲线 → 地层边界</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">测井曲线</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">连续序列</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">变点检测</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">地层边界</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">层位</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">自动分段</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：小波动当分层 → 虚分层多 → 划碎</text></svg>"
+        },
+        {
+          "name": "多曲线融合",
+          "role": "算法核心",
+          "do": "GR/SP/RT/DEN 多条曲线联合判断薄互层界线。示范页屏 2 展示融合。",
+          "effect": "薄互层界线更清楚，差 0.5—1m 收窄。",
+          "trap": "只用单条曲线，薄互层界线模糊、差 0.5—1m。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">多曲线融合：GR/SP/RT/DEN → 薄互层界线</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">单条曲线</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">界线模糊</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">多曲线融合</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">联合判断</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">界线清楚</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">差 0.5—1m↓</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：单曲线 → 薄互层界线模糊</text></svg>"
+        },
+        {
+          "name": "邻井约束",
+          "role": "算法核心",
+          "do": "邻井分层表约束本井层位一致。示范页屏 3 展示约束。",
+          "effect": "层位与邻井一致，人工经验差异被消除。",
+          "trap": "不做邻井约束，本井层位与邻井对不上、不一致。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">邻井约束：本井分层 + 邻井分层 → 一致</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">本井分层</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">变点+融合</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">邻井分层表</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">约束</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">层位一致</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">经验差异↓</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不邻井约束 → 层位对不上</text></svg>"
+        },
+        {
+          "name": "分层复核",
+          "role": "人工确认",
+          "do": "地层边界给建议，测井解释员复核。示范页屏 3 展示复核清单。",
+          "effect": "分层一致性与准确性提升。",
+          "trap": "复核结果不回流，模型不知道分层错在哪，永远差 0.5—1m。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">分层复核：层位 → 测井解释员复核</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">层位建议</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">模型建议</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">复核</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">边界确认</text><path d=\"M378 72 L400 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">一致性↑</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">差 0.5—1m↓</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：复核不回流 → 模型不知错 → 永远差</text></svg>"
+        }
+      ],
+      "metrics": {
+        "title": "怎么算「分层对了」",
+        "html": "<p>测井分层用 <b>边界命中率</b>（检测出的层位与审定分层的重合度）与 <b>边界偏差</b>（检测层位与审定层位的深度差）双重验收；<b>虚分层</b> 衡量把无层变化处划界的比例。</p><p>最终还要看 <b>邻井一致</b>：本井层位与邻井层位是否对得上。</p><p style=\"margin-top:16px\"><svg viewBox='0 0 620 200' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='测井分层效果对比' style='width:100%;height:auto;display:block'><text x='14' y='20' font-size='10' fill='#4d565b' font-weight='600'>测井分层验收：边界命中 × 边界偏差 × 邻井一致</text><rect x='14' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='159' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>边界命中率</text><rect x='40' y='66' width='80' height='52' fill='#d9b78e'/><text x='80' y='96' text-anchor='middle' font-size='10' fill='#4d565b' font-weight='700'>命中 65%</text><text x='80' y='112' text-anchor='middle' font-size='8' fill='#8a6b52'>人工手动</text><rect x='180' y='66' width='80' height='52' fill='#2f7d6b'/><text x='220' y='96' text-anchor='middle' font-size='10' fill='#fff' font-weight='700'>命中 93%</text><text x='220' y='112' text-anchor='middle' font-size='8' fill='#b9d8cb'>序列分割+约束</text><text x='159' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>命中 ↑ 偏差 ↓</text><rect x='316' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='461' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>边界偏差 + 邻井一致</text><rect x='340' y='66' width='120' height='52' fill='#e7eef9' stroke='#41699b'/><text x='400' y='92' text-anchor='middle' font-size='9' fill='#2b4a72' font-weight='700'>偏差↓</text><text x='400' y='108' text-anchor='middle' font-size='8' fill='#79828a'>薄互层收窄</text><rect x='470' y='66' width='120' height='52' fill='#e6f1ec' stroke='#2f7d6b'/><text x='530' y='92' text-anchor='middle' font-size='9' fill='#22604f' font-weight='700'>邻井一致↑</text><text x='530' y='108' text-anchor='middle' font-size='8' fill='#79828a'>约束层位</text><text x='461' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>薄互层准 · 一致好</text><text x='310' y='188' text-anchor='middle' font-size='8' fill='#9ba3a9'>验收 = 边界命中 × 边界偏差 × 邻井一致</text></svg></p>"
+      },
+      "fails": [
+        { "name": "卡层耗时长", "why": "单井人工卡层要 2—4 小时，交付慢。" },
+        { "name": "薄互层界线模糊", "why": "薄互层界线模糊，差 0.5—1m。" },
+        { "name": "单曲线信息有限", "why": "单条曲线难区分薄互层。" },
+        { "name": "人工经验差异", "why": "不同人分层位置不一，一致性差。" }
+      ]
+    },
+
+    "demo": {
+      "mode": "auto",
+      "html": "demo/index.html",
+      "js": "demo/demo.js",
+      "label": "可运行示范",
+      "intro": "用合成的测井曲线演示序列分割、多曲线融合与邻井约束。",
+      "height": 600
+    }
+  }
+}

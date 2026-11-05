@@ -1,0 +1,214 @@
+/* =========================================================
+   电潜泵故障预警 · 示范页样式（整页模式，运行在沙箱 iframe）
+   浅色主题：全部使用设计令牌 / 低饱和浅色 hex，不用深色背景
+   ========================================================= */
+:root {
+  --jade: #2f7d6b;
+  --jade-bg: #e6f1ec;
+  --clay: #b26a39;
+  --clay-bg: #f7ece2;
+  --blue: #41699b;
+  --blue-bg: #e7eef9;
+  --ink: #242b2e;
+  --ink-2: #4d565b;
+  --ink-3: #79828a;
+  --ink-4: #9ba3a9;
+  --line: #e9e4d8;
+  --card: #fbfaf6;
+  --bg: #faf9f4;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  padding: 20px 22px 26px;
+  background: var(--bg);
+  color: var(--ink);
+  font: 14.5px/1.7 -apple-system, "Segoe UI", "Microsoft YaHei", system-ui, sans-serif;
+}
+
+/* ---------- 头部 ---------- */
+.hd { margin-bottom: 18px; }
+.kicker {
+  font-size: 10.5px; letter-spacing: .14em; color: var(--jade);
+  font-weight: 700;
+}
+.hd h1 { margin: 4px 0 6px; font-size: 21px; color: var(--ink); }
+.hd .lead {
+  margin: 0; max-width: 980px; color: var(--ink-2); font-size: 13.5px; line-height: 1.75;
+}
+.hd .lead b, .sec-hd p b { color: var(--ink); }
+
+.method-card{
+  margin:14px 0 6px;
+  display:grid;grid-template-columns:1fr 34px 1fr;align-items:stretch;gap:0;
+}
+.method-card .mc-side{
+  border-radius:10px;padding:11px 15px;font-size:13.5px;line-height:1.65;
+}
+.method-card .mc-old{background:#f1f1ee;color:#6a6f73;border:1px solid #e3e0d6}
+.method-card .mc-new{background:var(--jade-bg);color:#1f5f4d;border:1px solid #b9d8cb}
+.method-card .mc-tag{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;margin-bottom:4px}
+.method-card .mc-old .mc-tag{color:#9a948a}
+.method-card .mc-new .mc-tag{color:var(--jade)}
+.method-card .mc-side b{font-weight:700}
+.method-card .mc-arrow{display:grid;place-items:center;color:var(--clay);font-size:20px;font-weight:700}
+@media (max-width:720px){.method-card{grid-template-columns:1fr;gap:6px}.method-card .mc-arrow{transform:rotate(90deg)}}
+
+/* ---------- 区块 ---------- */
+.sec {
+  background: #fff; border: 1px solid var(--line); border-radius: 12px;
+  padding: 18px 18px 14px; margin-bottom: 22px;
+}
+.sec-hd { margin-bottom: 12px; }
+.sec-no {
+  font-size: 10px; color: var(--blue); font-weight: 700; letter-spacing: .08em;
+}
+.sec-hd h2 { margin: 2px 0 8px; font-size: 16.5px; color: var(--ink); }
+.sec-hd p { margin: 6px 0 0; color: var(--ink-2); font-size: 13px; line-height: 1.75; }
+
+/* ---------- 控制条 ---------- */
+.ctl {
+  display: flex; flex-wrap: wrap; gap: 12px 20px; align-items: center;
+  padding: 10px 12px; background: var(--card); border: 1px solid var(--line);
+  border-radius: 10px; margin-bottom: 12px;
+}
+.btns { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.btns button {
+  border: 1px solid var(--line); background: #fff; color: var(--ink-2);
+  border-radius: 20px; padding: 6px 13px; font-size: 12.5px; cursor: pointer;
+  transition: all .15s;
+}
+.btns button:hover { border-color: var(--jade); color: var(--jade); }
+.btns button.on { background: var(--jade-bg); border-color: var(--jade); color: var(--jade); font-weight: 600; }
+.sl { display: inline-flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink-2); }
+.sl label { white-space: nowrap; }
+.sl output { min-width: 34px; font-weight: 700; color: var(--ink); }
+.sl input[type="range"] { width: 130px; accent-color: var(--jade); }
+
+/* ---------- 图 ---------- */
+svg { display: block; width: 100%; height: auto; }
+.fg {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 10px;
+}
+@media (max-width: 760px) { .fg { grid-template-columns: 1fr; } }
+.cap {
+  font-size: 11.5px; color: var(--ink-3); margin: 4px 0 10px; line-height: 1.6;
+}
+
+/* ---------- 读数行 ---------- */
+.rrow {
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  margin: 10px 0 8px;
+}
+.rrow.ro5 { grid-template-columns: repeat(5, 1fr); }
+.rrow.ro4 { grid-template-columns: repeat(4, 1fr); }
+@media (max-width: 820px) {
+  .rrow, .rrow.ro5, .rrow.ro4 { grid-template-columns: repeat(2, 1fr); }
+}
+.ro {
+  background: var(--card); border: 1px solid var(--line); border-radius: 8px;
+  padding: 6px 10px;
+}
+.ro .k { display: block; font-size: 10.5px; color: var(--ink-3); }
+.ro b { font-size: 14px; color: var(--ink); font-family: "SF Mono", Consolas, monospace; }
+.ro b.ok { color: var(--jade); }
+.ro b.warn { color: var(--clay); }
+.ro b.bad { color: #b3492f; }
+
+/* ---------- 提示条 ---------- */
+.tip {
+  font-size: 13px; color: var(--ink-2); background: var(--jade-bg);
+  border-left: 3px solid var(--jade); border-radius: 4px;
+  padding: 9px 13px; margin: 10px 0 0; line-height: 1.7;
+}
+.tip b { color: var(--ink); }
+
+/* ---------- 页脚 ---------- */
+footer { font-size: 12px; color: var(--ink-3); line-height: 1.7; }
+.map {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 10px;
+}
+@media (max-width: 820px) { .map { grid-template-columns: 1fr; } }
+.map div {
+  background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px;
+}
+.map b { color: var(--ink); }
+
+/* =========================================================
+   教学化版式（2026-11 追加）：三问卡片 / 精简导读 / 折叠详解
+   只作用于页面外框文字，不改 demo.js 生成的 SVG / canvas
+   ========================================================= */
+.hd { margin-bottom: 0; }
+.hd h1 { margin-bottom: 5px; }
+.hd .sub { margin: 0; font-size: 13.5px; line-height: 1.7; color: #4d565b; max-width: 900px; }
+.q3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 13px 0 2px; }
+.qcard { background: #fff; border: 1px solid #e9e4d8; border-radius: 10px; padding: 10px 13px 11px; }
+.qcard .qn {
+  display: block; font-size: 10px; font-weight: 700; letter-spacing: .07em;
+  color: #2f7d6b; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 4px;
+}
+.qcard p { margin: 0; font-size: 12.5px; line-height: 1.62; color: #4d565b; }
+.qcard p b { color: #242b2e; font-weight: 600; }
+.qcard.q-why { background: #f6f5f1; border-color: #e3e0d6; }
+.qcard.q-what { background: #f7fbfd; border-color: #d5e2ea; }
+.qcard.q-how { background: #fdfaf3; border-color: #e6dcc8; }
+@media (max-width: 860px) { .q3 { grid-template-columns: 1fr; } }
+
+.sec { margin-top: 18px; padding: 16px 20px 18px; }
+.sec-hd { margin-bottom: 12px; }
+.sec-hd .leadline { margin: 0; font-size: 13.5px; line-height: 1.7; color: #4d565b; max-width: 900px; }
+
+details.more { margin-top: 10px; }
+details.more summary {
+  cursor: pointer; font-size: 11.5px; color: #22604f; list-style: none;
+  display: inline-flex; align-items: baseline; gap: 5px; padding: 2px 0;
+}
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::before { content: "＋"; font-size: 11px; color: #2f7d6b; }
+details.more[open] summary::before { content: "－"; }
+details.more .more-body {
+  margin-top: 8px; font-size: 12.5px; line-height: 1.72; color: #79828a;
+  border-left: 2px solid #e9e4d8; padding-left: 11px; max-width: 940px;
+}
+details.more .more-body p { margin: 0 0 6px; }
+details.more .more-body p:last-child { margin-bottom: 0; }
+details.more .more-body b { color: #4d565b; }
+footer .note { margin: 8px 0 0; font-size: 11.5px; line-height: 1.7; color: #9ba3a9; }
+@media (max-width: 860px) { footer .note { font-size: 11px; } }
+
+/* =========================================================
+   三问锚点（2026-11 追加）：Q1/Q2/Q3 直接钉在对应实验顶部
+   不新增 DOM id、不动 demo.js 生成的内容
+   ========================================================= */
+.qa {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, #e6f1ec 0%, #fbfaf6 100%);
+  border: 1px solid #b9d8cb; border-radius: 10px; padding: 9px 14px;
+  margin-bottom: 12px;
+}
+.qa-q {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  color: #2f7d6b; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.qa-a { margin: 0; font-size: 13px; color: #242b2e; line-height: 1.55; }
+.qa-go {
+  border: 1px solid #2f7d6b; background: #fff; color: #235f51;
+  border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600;
+  cursor: pointer; font-family: inherit; white-space: nowrap;
+}
+.qa-go:hover { background: #2f7d6b; color: #fff; }
+@media (max-width: 800px) {
+  .qa { grid-template-columns: 1fr; gap: 4px; padding: 10px 13px; }
+  .qa-go { justify-self: start; }
+}
+
+/* AI 领域标签药丸（2026-11） */
+.qa-algo {
+  display: inline-block; margin-left: 8px; padding: 1px 7px;
+  font-size: 9.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #235f51; background: #e6f1ec; border: 1px solid #b9d8cb;
+  border-radius: 999px; letter-spacing: .04em;
+}
+.qa-a b { color: #2f7d6b; font-weight: 600; }

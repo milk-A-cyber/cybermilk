@@ -1,0 +1,125 @@
+{
+  "id": "c1-cement-eval",
+  "sceneId": "c1",
+  "methods": ["cv", "ts"],
+  "title": "固井质量智能评价：CBL/VDL 波形分段分类",
+  "version": "1.0.0",
+  "updated": "2026-11-05",
+
+  "tabs": {
+    "background": {
+      "label": "专业背景",
+      "lede": "固井质量决定层间封隔，评价依据是 CBL/VDL 测井：水泥胶结好则套管波弱、地层波强，传统由解释员按胶结指数分段评级。单井 CBL/VDL 图数十幅，人工分段评级需 1—2 小时；快速地层、微环隙等特殊情况易误判，评级结果与后续挤水泥决策直接相关。",
+      "judge": [
+        { "label": "数据形态", "value": "CBL/VDL", "desc": "波形图" },
+        { "label": "标注成本", "value": "中", "desc": "评级段100—300" },
+        { "label": "可见收益", "value": "2h→秒级", "desc": "替代人工评级" },
+        { "label": "难度", "value": "高", "desc": "误判代价大" }
+      ],
+      "sections": [
+        {
+          "no": 1,
+          "en": "PROBLEM",
+          "title": "当前做法与问题",
+          "html": "<p><b>固井质量智能评价</b>决定层间封隔，评价依据是 <b>CBL/VDL 测井</b>：水泥胶结好则套管波弱、地层波强，传统由解释员按胶结指数分段评级。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>人工分级 1—2 小时</b>——单井 CBL/VDL 图数十幅，人工分段评级慢</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>特殊井况易误判</b>——快速地层、微环隙等特殊情况易误判</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>评级结果关系决策</b>——评级与后续挤水泥决策直接相关</span></div></div><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"人工评级固井的问题\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">人工评级 → 慢 · 特殊井况误判 · 决策代价大</text><rect x=\"20\" y=\"36\" width=\"280\" height=\"176\" rx=\"8\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"160\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">人工评级</text><rect x=\"36\" y=\"70\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"96\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#2b4a72\">胶结指数</text><rect x=\"180\" y=\"70\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"230\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">分段评级</text><rect x=\"36\" y=\"112\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"96\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">1—2 小时</text><rect x=\"180\" y=\"112\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"230\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">特殊易误判</text><text x=\"160\" y=\"180\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#b26a39\" font-weight=\"700\">决策代价高</text><text x=\"160\" y=\"198\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#79828a\">挤水泥直接相关</text><rect x=\"316\" y=\"36\" width=\"284\" height=\"176\" rx=\"8\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"458\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">为什么难</text><text x=\"332\" y=\"82\" font-size=\"9.5\" fill=\"#4d565b\">· 评级标准主观带</text><text x=\"332\" y=\"104\" font-size=\"9.5\" fill=\"#4d565b\">· 快速地层/微环隙</text><text x=\"332\" y=\"126\" font-size=\"9.5\" fill=\"#4d565b\">· 误判代价大</text><rect x=\"332\" y=\"150\" width=\"252\" height=\"46\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"344\" y=\"170\" font-size=\"8.5\" fill=\"#79828a\">后续验窜结果</text><text x=\"344\" y=\"186\" font-size=\"8.5\" fill=\"#b26a39\" font-weight=\"700\">需要智能评价</text></svg></div>"
+        },
+        {
+          "no": 2,
+          "en": "INTERVENTION",
+          "title": "AI 能做什么",
+          "html": "<p>对 <b>CBL/VDL 图像与变密度图做分段分类</b>，输出 <b>胶结等级曲线</b>，替代人工分段评级。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>波形分段分类</b>——CBL/VDL 波形分段分类</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>输出胶结等级曲线</b>——替代人工分段评级</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>验窜回流</b>——后续验窜结果回流更准</span></div></div><p>落地形态：胶结等级曲线自动输出，特殊井况转人工复核。</p><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"固井质量智能评价流程\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">CBL/VDL → 波形分段分类 → 胶结等级曲线</text><rect x=\"16\" y=\"40\" width=\"110\" height=\"120\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"71\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#242b2e\" font-weight=\"600\">CBL/VDL</text><text x=\"71\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">波形图</text><path d=\"M130 100 L148 100\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"152\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"211\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#2b4a72\" font-weight=\"600\">波形特征</text><text x=\"211\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">套管+地层波</text><path d=\"M274 100 L292 100\" stroke=\"#2b4a72\" stroke-width=\"1.6\"/><rect x=\"296\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"355\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">分段分类</text><text x=\"355\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">胶结等级</text><path d=\"M418 100 L436 100\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"440\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">等级曲线</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">验窜回流</text><text x=\"310\" y=\"210\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">评级快 · 特殊井况准 · 决策可靠</text></svg></div>"
+        },
+        {
+          "no": 3,
+          "en": "DATA",
+          "title": "需要准备什么",
+          "html": "<p><b>CBL/VDL 测井</b>：全井段，约 0.5 m 一点，人工评级段 100—300 段；<b>水泥浆与施工记录</b>：密度、返高、排量，辅助解释；<b>后续验窜结果</b>：挤水泥或试压，作为真值。</p><div class=\"figure\"><svg viewBox=\"0 0 620 220\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"固井质量评价数据准备\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">固井质量评价需要的数据</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#41699b\"/><text x=\"32\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">CBL/VDL 测井</text><text x=\"32\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">全井段约 0.5 m 一点</text><text x=\"32\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">评级段 100—300</text><rect x=\"318\" y=\"34\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#b26a39\"/><text x=\"330\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">水泥浆/施工记录</text><text x=\"330\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">密度返高排量</text><text x=\"330\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">辅助解释</text><rect x=\"20\" y=\"106\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#2f7d6b\"/><text x=\"32\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">后续验窜结果</text><text x=\"32\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">挤水泥或试压</text><text x=\"32\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">作为真值</text><rect x=\"318\" y=\"106\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#79828a\"/><text x=\"330\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">人工评级段</text><text x=\"330\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">100—300 段</text><text x=\"330\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">作为标签</text><rect x=\"20\" y=\"184\" width=\"582\" height=\"26\" rx=\"6\" fill=\"#f8ecdf\"/><text x=\"32\" y=\"202\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">训练策略：图像分段分类 + 波形特征提取 + 验窜回流</text></svg></div>"
+        },
+        {
+          "no": 4,
+          "en": "DIFFICULTY",
+          "title": "难度与参考方向",
+          "html": "<p>三个最容易翻车的点：</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>评级标准主观</b>——评级标准本身存在主观带</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>特殊井况易误判</b>——快速地层、微环隙需要专门样本</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>误判代价大</b>——评级与挤水泥决策直接相关</span></div></div><p>改进路线按成本从低到高：先做<b>胶结指数基线</b>；再加<b>波形特征融合</b>；最后用<b>分段分类</b>输出等级曲线。</p><div class=\"figure\"><svg viewBox=\"0 0 620 210\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"固井评价难点与对策\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">难点排序 + 成本从低到高的改进路线</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"52\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">① 评级标准主观</text><text x=\"32\" y=\"68\" font-size=\"8.5\" fill=\"#6b4a35\">边界难定</text><path d=\"M310 57 L356 57\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"34\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"52\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">胶结指数基线</text><text x=\"372\" y=\"68\" font-size=\"8.5\" fill=\"#4d565b\">阈值分级</text><rect x=\"20\" y=\"86\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"104\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">② 特殊井况误判</text><text x=\"32\" y=\"120\" font-size=\"8.5\" fill=\"#6b4a35\">微环隙</text><path d=\"M310 109 L356 109\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"86\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"104\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">波形特征融合</text><text x=\"372\" y=\"120\" font-size=\"8.5\" fill=\"#4d565b\">套管+地层波</text><rect x=\"20\" y=\"138\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"156\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">③ 误判代价大</text><text x=\"32\" y=\"172\" font-size=\"8.5\" fill=\"#6b4a35\">挤水泥决策</text><path d=\"M310 161 L356 161\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"138\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"156\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">分段分类</text><text x=\"372\" y=\"172\" font-size=\"8.5\" fill=\"#4d565b\">等级曲线</text><rect x=\"20\" y=\"192\" width=\"582\" height=\"16\" rx=\"8\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"310\" y=\"204\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#41699b\">胶结指数基线 → 波形特征融合 → 分段分类</text></svg></div>"
+        }
+      ]
+    },
+
+    "workflow": {
+      "label": "案例流程",
+      "title": "案例：某井的 CBL/VDL 固井质量智能评价",
+      "lead": [
+        "某井固井后需评价层间封隔。此前由解释员按胶结指数对 CBL/VDL 图人工分段评级，单井数十幅需 1—2 小时，快速地层、微环隙等特殊井况易误判，评级结果直接关系后续挤水泥决策。目标：波形分段分类输出胶结等级曲线，验窜结果回流。",
+        "注意第 3、4、5 步：波形特征提取、分段分类、验窜验证是智能化价值的三个落点，示范页三屏一一对应。"
+      ],
+      "stats": [
+        ["井", "某生产井"],
+        ["测井", "CBL/VDL"],
+        ["评级", "人工分段"],
+        ["标注", "评级段100—300"],
+        ["目标", "等级曲线自动出"],
+        ["难点", "误判代价大"]
+      ],
+      "steps": [
+        {
+          "name": "CBL/VDL 接入",
+          "role": "数据",
+          "do": "读入 CBL/VDL 测井（全井段约 0.5 m 一点）与人工评级段、施工记录。示范页屏 1 顶部可看。",
+          "effect": "CBL/VDL 波形 + 胶结指数。",
+          "trap": "不读验窜记录，评价无真值。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">CBL/VDL 接入：波形 + 胶结指数 + 验窜真值</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">CBL/VDL</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">全井段</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">评级段</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">100—300 段</text><path d=\"M360 72 L384 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">验窜真值</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">挤水泥/试压</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不读验窜 → 评价无真值</text></svg>"
+        },
+        {
+          "name": "胶结指数基线",
+          "role": "基线",
+          "do": "胶结指数固定阈值分级（优&gt;0.75，良&gt;分界，否则差）。示范页屏 1 展示。",
+          "effect": "基准评级，衡量提升。",
+          "trap": "评级标准存在主观带，快速地层、微环隙易误判。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">胶结指数基线：固定阈值分级</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">胶结指数</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">BI 0-1</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">固定阈值</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">优良差</text><path d=\"M360 72 L384 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">基准评级</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">对比提升</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：评级标准主观 → 特殊井况易误判</text></svg>"
+        },
+        {
+          "name": "波形特征提取",
+          "role": "算法核心",
+          "do": "提取套管波幅度与地层波强度。示范页屏 2 展示。",
+          "effect": "胶结好→套管波弱、地层波强。",
+          "trap": "单看套管波信息有限。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">波形特征提取：套管波 + 地层波</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">套管波</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">胶结好则弱</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">地层波</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">胶结好则强</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">双波融合</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">更稳</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：单看套管波 → 信息有限</text></svg>"
+        },
+        {
+          "name": "分段分类",
+          "role": "算法核心",
+          "do": "波形分段分类输出胶结等级曲线，替代人工分段评级。示范页屏 2 展示。",
+          "effect": "评级快，特殊井况更稳。",
+          "trap": "评级标准主观，特殊井况易误判。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">分段分类：输出胶结等级曲线</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">波形特征</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">融合</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">分段分类</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">优/良/差</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">等级曲线</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">替代人工</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：评级标准主观 → 特殊井况误判</text></svg>"
+        },
+        {
+          "name": "验窜验证",
+          "role": "人工确认",
+          "do": "评级结果与后续验窜（挤水泥/试压）对照，输出复核清单。示范页屏 3 展示。",
+          "effect": "评级可靠，误判不遗漏。",
+          "trap": "验窜不回流，模型不知道判错在哪，特殊井况永远误差。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">验窜验证：评级 → 验窜对照</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">评级结果</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">胶结等级</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">验窜对照</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">挤水泥/试压</text><path d=\"M378 72 L400 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">可靠↑</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">误判↓</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：验窜不回流 → 不知判错 → 特殊井况永远误差</text></svg>"
+        }
+      ],
+      "metrics": {
+        "title": "怎么算「评级对了」",
+        "html": "<p>固井评级用 <b>评级一致率</b>（预测等级与人工评级段一致的占比）衡量整体精度，<b>验窜相符率</b> 衡量评级与后续验窜（挤水泥/试压）结果是否相符，<b>误判代价</b> 衡量差级错判（该挤水泥却评优）的影响。</p><p>最终还要看 <b>决策可靠</b>：评级是否支撑后续挤水泥决策。</p><p style=\"margin-top:16px\"><svg viewBox='0 0 620 200' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='固井评级效果对比' style='width:100%;height:auto;display:block'><text x='14' y='20' font-size='10' fill='#4d565b' font-weight='600'>固井评级验收：评级一致 × 验窜相符 × 决策可靠</text><rect x='14' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='159' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>评级一致率</text><rect x='40' y='66' width='80' height='52' fill='#d9b78e'/><text x='80' y='96' text-anchor='middle' font-size='10' fill='#4d565b' font-weight='700'>Acc 0.76</text><text x='80' y='112' text-anchor='middle' font-size='8' fill='#8a6b52'>胶结指数基线</text><rect x='180' y='66' width='80' height='52' fill='#2f7d6b'/><text x='220' y='96' text-anchor='middle' font-size='10' fill='#fff' font-weight='700'>Acc 0.90</text><text x='220' y='112' text-anchor='middle' font-size='8' fill='#b9d8cb'>波形分段分类</text><text x='159' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>Acc ↑</text><rect x='316' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='461' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>验窜 + 决策</text><rect x='340' y='66' width='120' height='52' fill='#e7eef9' stroke='#41699b'/><text x='400' y='92' text-anchor='middle' font-size='9' fill='#2b4a72' font-weight='700'>验窜相符↑</text><text x='400' y='108' text-anchor='middle' font-size='8' fill='#79828a'>挤水泥/试压</text><rect x='470' y='66' width='120' height='52' fill='#e6f1ec' stroke='#2f7d6b'/><text x='530' y='92' text-anchor='middle' font-size='9' fill='#22604f' font-weight='700'>决策可靠↑</text><text x='530' y='108' text-anchor='middle' font-size='8' fill='#79828a'>误判代价↓</text><text x='461' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>相符 · 可靠</text><text x='310' y='188' text-anchor='middle' font-size='8' fill='#9ba3a9'>验收 = 评级一致 × 验窜相符 × 决策可靠</text></svg></p>"
+      },
+      "fails": [
+        { "name": "评级标准主观", "why": "评级标准本身存在主观带。" },
+        { "name": "特殊井况误判", "why": "快速地层、微环隙需要专门样本。" },
+        { "name": "误判代价大", "why": "评级与挤水泥决策直接相关。" },
+        { "name": "人工评级慢", "why": "单井数十幅图需 1—2 小时。" }
+      ]
+    },
+
+    "demo": {
+      "mode": "auto",
+      "html": "demo/index.html",
+      "js": "demo/demo.js",
+      "label": "可运行示范",
+      "intro": "用合成的 CBL/VDL 测井数据（含胶结指数、人工评级段与验窜真值）演示胶结指数基线、波形分段分类与验窜验证。",
+      "height": 600
+    }
+  }
+}

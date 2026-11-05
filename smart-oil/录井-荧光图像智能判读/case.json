@@ -1,0 +1,125 @@
+{
+  "id": "m3-fluor-image",
+  "sceneId": "m3",
+  "methods": ["cv"],
+  "title": "荧光图像智能判读：图像分类 + 颜色特征 + 成像标准化",
+  "version": "1.0.0",
+  "updated": "2026-11-05",
+
+  "tabs": {
+    "background": {
+      "label": "专业背景",
+      "lede": "荧光录井用紫外灯照射岩屑/岩心，据荧光颜色与面积判断含油级别（无/微/弱/中/强），是发现油气显示的重要辅助。判读靠目估分级，主观性强；灯源差异大时结论差异也大。智能方法用图像分类自动判含油级别，做颜色特征工程与成像标准化。",
+      "judge": [
+        { "label": "数据形态", "value": "紫外荧光图", "desc": "单井200—600张" },
+        { "label": "标注成本", "value": "中", "desc": "按含油级别" },
+        { "label": "可见收益", "value": "判读一致+不漏显示", "desc": "替代目估" },
+        { "label": "难度", "value": "中", "desc": "灯源差异大" }
+      ],
+      "sections": [
+        {
+          "no": 1,
+          "en": "PROBLEM",
+          "title": "当前做法与问题",
+          "html": "<p><b>荧光录井</b>用紫外灯照射岩屑/岩心，据荧光颜色与面积判断含油级别（无/微/弱/中/强），是发现油气显示的重要辅助。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>目估分级主观</b>——同一块样品不同人可差一个级别</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>灯源差异大</b>——不同灯源、曝光下结论差异大</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>量级大</b>——单井 200—600 张图，逐张目估费时</span></div></div><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"人工荧光判读的问题\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">人工目估荧光 → 主观分级 · 灯源差异大</text><rect x=\"20\" y=\"36\" width=\"280\" height=\"176\" rx=\"8\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"160\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">人工判读</text><rect x=\"36\" y=\"70\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"96\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#2b4a72\">荧光颜色目估</text><rect x=\"180\" y=\"70\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"230\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">面积目估</text><rect x=\"36\" y=\"112\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"96\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">主观分级</text><rect x=\"180\" y=\"112\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"230\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">灯源差异大</text><text x=\"160\" y=\"180\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#b26a39\" font-weight=\"700\">结论差异大 → 漏显示</text><text x=\"160\" y=\"198\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#79828a\">单井200—600张</text><rect x=\"316\" y=\"36\" width=\"284\" height=\"176\" rx=\"8\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"458\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">为什么难</text><text x=\"332\" y=\"82\" font-size=\"9.5\" fill=\"#4d565b\">· 目估分级主观</text><text x=\"332\" y=\"104\" font-size=\"9.5\" fill=\"#4d565b\">· 灯源差异大</text><text x=\"332\" y=\"126\" font-size=\"9.5\" fill=\"#4d565b\">· 图像量大</text><rect x=\"332\" y=\"150\" width=\"252\" height=\"46\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"344\" y=\"170\" font-size=\"8.5\" fill=\"#79828a\">同一块样品可差一个级别</text><text x=\"344\" y=\"186\" font-size=\"8.5\" fill=\"#b26a39\" font-weight=\"700\">需要智能判读</text></svg></div>"
+        },
+        {
+          "no": 2,
+          "en": "INTERVENTION",
+          "title": "AI 能做什么",
+          "html": "<p>用<b>图像分类</b>自动判含油级别，做<b>颜色特征工程</b>与<b>成像标准化</b>，替代目估分级。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>成像标准化</b>——校正灯源与曝光差异，让不同灯源结论一致</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>颜色特征工程</b>——提取荧光颜色/面积特征，量化含油级别</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>图像分类</b>——据特征自动判含油级别（无/微/弱/中/强）</span></div></div><p>落地形态：荧光图像自动判级，人工只做抽查复核。</p><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"荧光智能判读流程\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">荧光图像 → 成像标准化 + 颜色特征 → 含油级别</text><rect x=\"20\" y=\"40\" width=\"120\" height=\"120\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"80\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#242b2e\" font-weight=\"600\">荧光图像</text><path d=\"M40 78 C56 70 72 86 100 80\" fill=\"none\" stroke=\"#c98a2b\" stroke-width=\"2.6\"/><text x=\"80\" y=\"130\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">单井200—600张</text><path d=\"M144 100 L168 100\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"172\" y=\"40\" width=\"130\" height=\"120\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"237\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">成像标准化</text><text x=\"237\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">灯源校正</text><text x=\"237\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">曝光统一</text><path d=\"M306 100 L330 100\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"334\" y=\"40\" width=\"130\" height=\"120\" rx=\"6\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"399\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#2b4a72\" font-weight=\"600\">颜色特征</text><text x=\"399\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">颜色/面积</text><text x=\"399\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">量化级别</text><path d=\"M468 100 L492 100\" stroke=\"#2b4a72\" stroke-width=\"1.6\"/><rect x=\"496\" y=\"40\" width=\"104\" height=\"120\" rx=\"6\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"548\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">含油级别</text><text x=\"548\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">无/微/弱/中/强</text><text x=\"548\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">抽查复核</text><text x=\"310\" y=\"210\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">自动判级 · 结论一致 · 不漏显示</text></svg></div>"
+        },
+        {
+          "no": 3,
+          "en": "DATA",
+          "title": "需要准备什么",
+          "html": "<p><b>紫外荧光图像</b>：固定紫外灯源与曝光，单井 200—600 张；<b>含油级别标签</b>：按无/微/弱/中/强分级标注；<b>灯源记录</b>：灯源型号与曝光参数，用于标准化。</p><div class=\"figure\"><svg viewBox=\"0 0 620 220\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"荧光判读数据准备\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">荧光智能判读需要的数据</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#41699b\"/><text x=\"32\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">紫外荧光图像</text><text x=\"32\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">固定灯源与曝光</text><text x=\"32\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">单井200—600张</text><rect x=\"318\" y=\"34\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#b26a39\"/><text x=\"330\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">含油级别标签</text><text x=\"330\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">无/微/弱/中/强</text><text x=\"330\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">分级标注</text><rect x=\"20\" y=\"106\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#2f7d6b\"/><text x=\"32\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">灯源记录</text><text x=\"32\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">灯源型号/曝光</text><text x=\"32\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">用于标准化</text><rect x=\"318\" y=\"106\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#79828a\"/><text x=\"330\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">岩心描述</text><text x=\"330\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">含油性描述</text><text x=\"330\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">交叉验证</text><rect x=\"20\" y=\"184\" width=\"582\" height=\"26\" rx=\"6\" fill=\"#f8ecdf\"/><text x=\"32\" y=\"202\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">训练策略：成像标准化 + 颜色特征 + 图像分类</text></svg></div>"
+        },
+        {
+          "no": 4,
+          "en": "DIFFICULTY",
+          "title": "难度与参考方向",
+          "html": "<p>三个最容易翻车的点：</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>目估分级主观</b>——同一块样品不同人可差一个级别</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>灯源差异大</b>——不同灯源、曝光下结论差异大</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>边界模糊</b>——微/弱、中/强之间边界模糊</span></div></div><p>改进路线按成本从低到高：先做<b>成像标准化</b>统一灯源与曝光；再加<b>颜色特征工程</b>量化含油级别；最后用<b>图像分类</b>自动判级。</p><div class=\"figure\"><svg viewBox=\"0 0 620 210\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"荧光判读难点与对策\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">难点排序 + 成本从低到高的改进路线</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"52\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">① 目估分级主观</text><text x=\"32\" y=\"68\" font-size=\"8.5\" fill=\"#6b4a35\">可差一个级别</text><path d=\"M310 57 L356 57\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"34\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"52\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">成像标准化</text><text x=\"372\" y=\"68\" font-size=\"8.5\" fill=\"#4d565b\">统一灯源曝光</text><rect x=\"20\" y=\"86\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"104\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">② 灯源差异大</text><text x=\"32\" y=\"120\" font-size=\"8.5\" fill=\"#6b4a35\">结论差异大</text><path d=\"M310 109 L356 109\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"86\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"104\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">颜色特征工程</text><text x=\"372\" y=\"120\" font-size=\"8.5\" fill=\"#4d565b\">量化含油级别</text><rect x=\"20\" y=\"138\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"156\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">③ 边界模糊</text><text x=\"32\" y=\"172\" font-size=\"8.5\" fill=\"#6b4a35\">微弱中强</text><path d=\"M310 161 L356 161\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"138\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"156\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">图像分类</text><text x=\"372\" y=\"172\" font-size=\"8.5\" fill=\"#4d565b\">自动判级</text><rect x=\"20\" y=\"192\" width=\"582\" height=\"16\" rx=\"8\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"310\" y=\"204\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#41699b\">成像标准化 → 颜色特征 → 图像分类</text></svg></div>"
+        }
+      ]
+    },
+
+    "workflow": {
+      "label": "案例流程",
+      "title": "案例：一口井的荧光判读改造",
+      "lead": [
+        "某井此前由录井工目估荧光含油级别，主观分级、灯源差异大、结论不一致。目标：成像标准化统一灯源曝光，颜色特征量化含油级别，图像分类自动判级。",
+        "注意第 3、4、5 步：成像标准化、颜色特征、图像分类是智能化价值的三个落点，示范页三屏一一对应。"
+      ],
+      "stats": [
+        ["井", "某生产井"],
+        ["图像规模", "单井200—600张"],
+        ["判读方式", "人工目估分级"],
+        ["灯源", "紫外灯"],
+        ["目标", "含油级别自动判"],
+        ["难点", "主观+灯源差异"]
+      ],
+      "steps": [
+        {
+          "name": "荧光图像接入",
+          "role": "数据",
+          "do": "读入紫外荧光图像，固定灯源与曝光。示范页屏 1 顶部可看荧光图像。",
+          "effect": "单井 200—600 张图像集，含油级别标签。",
+          "trap": "不固定灯源与曝光，不同图像亮度差异大，特征不可比。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">荧光图像接入：固定灯源曝光</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">紫外荧光图像</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">单井200—600张</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">灯源曝光</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">固定参数</text><path d=\"M360 72 L384 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">含油级别标签</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">无/微/弱/中/强</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不固定灯源曝光 → 亮度差异大 → 特征不可比</text></svg>"
+        },
+        {
+          "name": "成像标准化",
+          "role": "算法核心",
+          "do": "用灯源记录校正亮度与色偏，让不同灯源结论一致。示范页屏 1 展示标准化前后。",
+          "effect": "不同灯源、曝光下的图像亮度一致，特征可比。",
+          "trap": "不做标准化，灯源差异被当成含油级别差异，误判。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">成像标准化：不同灯源 → 亮度一致</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">原始图像</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">亮度差异大</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">成像标准化</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">灯源校正</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">亮度一致</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">特征可比</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不做标准化 → 灯源差异被当含油差异 → 误判</text></svg>"
+        },
+        {
+          "name": "颜色特征工程",
+          "role": "算法核心",
+          "do": "提取荧光颜色/面积特征，量化含油级别。示范页屏 2 展示特征。",
+          "effect": "含油级别被量化成特征，可被分类器使用。",
+          "trap": "只取单一颜色特征，微/弱、中/强边界模糊时分不开。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">颜色特征：荧光 → 颜色/面积</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">标准化图像</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">亮度一致</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">颜色特征</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">RGB/HSV</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">含油级别量化</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">颜色+面积</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：单一特征 → 边界模糊分不开</text></svg>"
+        },
+        {
+          "name": "图像分类",
+          "role": "算法核心",
+          "do": "据颜色/面积特征自动判含油级别。示范页屏 2 展示分类。",
+          "effect": "含油级别自动判出，替代目估分级。",
+          "trap": "样本不均衡时全猜多数类，稀有级别全漏。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">图像分类：特征 → 含油级别</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">颜色特征</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">颜色+面积</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">图像分类</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">自动判级</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">含油级别</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">无/微/弱/中/强</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：样本不均衡 → 全猜多数类 → 稀有级别漏</text></svg>"
+        },
+        {
+          "name": "抽查复核",
+          "role": "人工确认",
+          "do": "模型判级给建议，录井工只抽查复核。示范页屏 3 展示复核清单。",
+          "effect": "判级一致性提升，稀有显示不漏。",
+          "trap": "复核结果不回流，模型不知道判错在哪，永远误判。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">抽查复核：判级 → 录井工复核</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">含油级别</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">模型建议</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">抽查复核</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">分级确认</text><path d=\"M378 72 L400 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">一致性↑</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">不漏显示</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：复核不回流 → 模型不知错 → 永远误判</text></svg>"
+        }
+      ],
+      "metrics": {
+        "title": "怎么算「判读对了」",
+        "html": "<p>荧光判读用 <b>含油级别准确率</b>（判对级别比例）与 <b>邻级容差</b> 双重验收；<b>漏显示</b> 衡量把有显示判成无的比例。</p><p>最终还要看 <b>抽查复核</b>：复核结果回流后，判级是否越用越准。</p><p style=\"margin-top:16px\"><svg viewBox='0 0 620 200' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='荧光判读效果对比' style='width:100%;height:auto;display:block'><text x='14' y='20' font-size='10' fill='#4d565b' font-weight='600'>荧光判读验收：级别准确 × 邻级容差 × 漏显示</text><rect x='14' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='159' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>级别准确率</text><rect x='40' y='66' width='80' height='52' fill='#d9b78e'/><text x='80' y='96' text-anchor='middle' font-size='10' fill='#4d565b' font-weight='700'>准确 58%</text><text x='80' y='112' text-anchor='middle' font-size='8' fill='#8a6b52'>人工目估</text><rect x='180' y='66' width='80' height='52' fill='#2f7d6b'/><text x='220' y='96' text-anchor='middle' font-size='10' fill='#fff' font-weight='700'>准确 91%</text><text x='220' y='112' text-anchor='middle' font-size='8' fill='#b9d8cb'>图像分类</text><text x='159' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>判级 ↑ 主观 ↓</text><rect x='316' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='461' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>邻级容差 + 漏显示</text><rect x='340' y='66' width='120' height='52' fill='#e7eef9' stroke='#41699b'/><text x='400' y='92' text-anchor='middle' font-size='9' fill='#2b4a72' font-weight='700'>邻级容差↑</text><text x='400' y='108' text-anchor='middle' font-size='8' fill='#79828a'>微/弱不误判</text><rect x='470' y='66' width='120' height='52' fill='#e6f1ec' stroke='#2f7d6b'/><text x='530' y='92' text-anchor='middle' font-size='9' fill='#22604f' font-weight='700'>漏显示↓</text><text x='530' y='108' text-anchor='middle' font-size='8' fill='#79828a'>有显示不漏</text><text x='461' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>结论一致 · 不漏显示</text><text x='310' y='188' text-anchor='middle' font-size='8' fill='#9ba3a9'>验收 = 级别准确 × 邻级容差 × 漏显示</text></svg></p>"
+      },
+      "fails": [
+        { "name": "目估分级主观", "why": "同一块样品不同人可差一个级别，判读一致性差。" },
+        { "name": "灯源差异大", "why": "不同灯源、曝光下结论差异大，不做标准化会误判。" },
+        { "name": "边界模糊", "why": "微/弱、中/强之间边界模糊，单一特征分不开。" },
+        { "name": "样本不均衡", "why": "稀有含油级别样本少，全猜多数类会漏稀有显示。" }
+      ]
+    },
+
+    "demo": {
+      "mode": "auto",
+      "html": "demo/index.html",
+      "js": "demo/demo.js",
+      "label": "可运行示范",
+      "intro": "用合成的荧光图像演示成像标准化、颜色特征与含油级别分类。",
+      "height": 600
+    }
+  }
+}

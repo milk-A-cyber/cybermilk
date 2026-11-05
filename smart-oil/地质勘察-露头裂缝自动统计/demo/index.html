@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示范：露头裂缝自动统计</title>
+<link rel="stylesheet" href="demo.css?v=20261105a">
+<link rel="stylesheet" href="aflow.css?v=20261105a">
+<link rel="stylesheet" href="aiq.css?v=20261105a">
+<style>
+/* 右侧控件抽屉（嵌入主站时由父页面接管，这里保留独立样式兜底） */
+#ctlDrawer{position:fixed;right:0;top:70px;width:268px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid #e9e4d8;border-radius:10px;box-shadow:0 6px 24px -8px rgba(0,0,0,.15);z-index:90;transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+#ctlDrawer.open{transform:translateX(0);opacity:1;pointer-events:auto}
+@media (max-width:760px){#ctlDrawer{width:calc(100vw - 20px);right:10px;top:auto;bottom:10px;max-height:45vh}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <span class="kicker">CASE DEMO · 地质勘察 / 露头裂缝自动统计</span>
+  <h1>从「持罗盘皮尺 · 半天/露头」到「分割 + 骨架 + 标定 · 分钟级产状」</h1>
+  <p class="sub">三个实验：Q1 看懂裂缝实例分割、Q2 看懂骨架化 + 线密度、Q3 产状反算 + 实测验证。</p>
+</header>
+
+<!-- ================= 算法解剖 · 裂缝统计全流程 ================= -->
+<section class="sec" id="sec0">
+  <div class="qa">
+    <span class="qa-q">深入 · 想逐帧看就往下</span>
+    <p class="qa-a">不是「照片 → 黑盒 → 统计」，而是<b>逐段展开</b>：数据采集 → 实例分割 → 骨架化 → 摄影测量标定 → 产状反算 → 实测验证，每一步都能看见中间量</p>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">可选深入 · 对应流程 STEP 2—5</span>
+    <h2>把「露头照片 → 裂缝统计」一步步拆开看</h2>
+    <p class="leadline">下面这段动画跑的是<b>真代码</b>（与实验 1—3 同一份模型）。自动播放，也可点阶段名跳步、拖速度。改分割阈值、最小长度、标定误差和验证比例，这里的每一步都会同步重算。</p>
+  </div>
+  <div id="flowMount"></div>
+  <details class="more">
+    <summary>这段动画与后面三个实验是什么关系</summary>
+    <div class="more-body">
+      <p>实验 1—3 给出的是<b>结果</b>（裂缝掩膜、骨架、玫瑰图）；这段动画给出的是<b>过程</b>——同一份 <code>demo.js</code> 里的 <code>instanceSeg / skeletonize / calibAttitude / verifyAttitude</code> 被拆成 6 个阶段依次放慢演给你看。</p>
+      <p>刻意做的两处细节：<b>①</b> 第 2 步用实例分割说明「每条裂缝单独抠出来」的条数逻辑；<b>②</b> 第 5 步用走向玫瑰图看得见 3 组优势走向，理解「标定误差怎么让玫瑰图失真」。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 1 · 裂缝实例分割 ================= -->
+<section class="sec" id="sec1">
+  <div class="qa">
+    <span class="qa-q">Q1 · 为什么需要智能算法</span>
+    <p class="qa-a">人工逐条量半天/露头；实例分割自动把每条裂缝抠出来，分钟级</p>
+    <button class="qa-go">开始实验 1</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 1 · 对应流程 STEP 2</span>
+    <h2>裂缝实例分割：每条裂缝一个掩膜</h2>
+    <p class="leadline">拖分割阈值，看裂缝怎么从「全检出」到「漏掉小裂缝」——阈值高保守、低粘连。</p>
+  </div>
+  <div class="ctl" id="segCtl">
+    <div class="sl">
+      <label>分割阈值<output id="outSegConf">0.50</output></label>
+      <input type="range" id="pSegConf" min="0.2" max="0.9" step="0.05" value="0.5">
+    </div>
+  </div>
+  <svg id="segChart" viewBox="0 0 512 384" role="img" aria-label="裂缝实例分割结果"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">召回率</span><b id="roSegRecall" class="good">—</b></div>
+    <div class="ro"><span class="k">检出裂缝</span><b id="roSegDet">—</b></div>
+  </div>
+  <p class="tip" id="segTip">绿色 = 检出的裂缝掩膜，灰色虚线 = 漏检裂缝。阈值越高越保守（小裂缝漏检多），越低越激进（易粘连少条数）。</p>
+</section>
+
+<!-- ================= 实验 2 · 骨架化 + 线密度 ================= -->
+<section class="sec" id="sec2">
+  <div class="qa">
+    <span class="qa-q">Q2 · 智能算法是什么</span>
+    <p class="qa-a"><b>骨架化</b> 把裂缝掩膜细化成中心线，量出长度与走向<span class="qa-algo">计算机视觉 · 骨架 / 细化</span></p>
+    <button class="qa-go">开始实验 2</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 2 · 对应流程 STEP 3</span>
+    <h2>骨架化：裂缝掩膜 → 中心线 → 长度与线密度</h2>
+    <p class="leadline">拖最小长度过滤掉过短裂缝，看骨架怎么量出每条裂缝的长度与走向。</p>
+  </div>
+  <div class="ctl" id="skelCtl">
+    <div class="sl">
+      <label>最小长度<output id="outMinLen">2</output></label>
+      <input type="range" id="pMinLen" min="1" max="5" step="1" value="2">
+    </div>
+  </div>
+  <svg id="skelChart" viewBox="0 0 512 384" role="img" aria-label="裂缝骨架化结果"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">骨架条数</span><b id="roSkelCount" class="good">—</b></div>
+    <div class="ro"><span class="k">过滤条数</span><b id="roSkelFiltered">—</b></div>
+  </div>
+  <p class="tip" id="skelTip">蓝色 = 裂缝骨架中心线。最小长度过滤掉过短裂缝；骨架质量决定长度与走向量得准不准。</p>
+</section>
+
+<!-- ================= 实验 3 · 产状反算 + 验证 ================= -->
+<section class="sec" id="sec3">
+  <div class="qa">
+    <span class="qa-q">Q3 · 它怎么工作</span>
+    <p class="qa-a">骨架走向 → 摄影测量标定 → 产状玫瑰图 + 罗盘实测验证</p>
+    <button class="qa-go">开始实验 3</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 3 · 对应流程 STEP 4—6</span>
+    <h2>产状反算：像素走向怎么变成真实地质产状</h2>
+    <p class="leadline">拖标定误差看玫瑰图怎么失真，拖验证比例看实测如何校准走向误差。</p>
+  </div>
+  <div class="ctl" id="calibCtl">
+    <div class="sl">
+      <label>标定误差<output id="outCalibErr">0.30</output></label>
+      <input type="range" id="pCalibErr" min="0.05" max="0.9" step="0.05" value="0.3">
+    </div>
+    <div class="sl">
+      <label>验证比例<output id="outVerify">0.30</output></label>
+      <input type="range" id="pVerify" min="0.1" max="0.6" step="0.05" value="0.3">
+    </div>
+  </div>
+  <svg id="calibChart" viewBox="0 0 512 384" role="img" aria-label="走向玫瑰图"></svg>
+  <div class="rrow ro3">
+    <div class="ro"><span class="k">统计裂缝</span><b id="roAttN" class="good">—</b></div>
+    <div class="ro"><span class="k">平均走向误差</span><b id="roMeanErr">—</b></div>
+    <div class="ro"><span class="k">实测验证误差</span><b id="roVerErr">—</b></div>
+  </div>
+  <p class="tip" id="calibTip">玫瑰图显示裂缝走向分布（35°/75°/120° 三组）。标定误差越大走向偏差越大；实测验证集用于校准误差到 ≤3°。</p>
+</section>
+
+<footer>
+  <div class="map">
+    <div><b>实验 1 → STEP 2</b><br>实例分割把每条裂缝抠成单独掩膜。</div>
+    <div><b>实验 2 → STEP 3</b><br>骨架化提炼中心线，量长度与走向。</div>
+    <div><b>实验 3 → STEP 4—6</b><br>摄影测量标定 + 产状反算 + 实测验证。</div>
+  </div>
+  <p class="note">纯前端教学演示：露头照片由「岩面背景 + 裂缝线段」合成，裂缝真值（走向/长度）已知、仅供对比；实例分割、骨架化、产状反算与实测验证均在浏览器实时计算。</p>
+</footer>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+/* 算法解剖：把 6 个阶段挂到 AFlow 引擎上 */
+(function () {
+  if (!window.AFlow || !window.RemoteFlow) return;
+  var F = window.RemoteFlow;
+  window.RemoteFlowApi = window.AFlow.create({
+    mount: document.getElementById('flowMount'),
+    title: '算法解剖',
+    subtitle: '自动播放：露头照片怎么一步步变成裂缝统计',
+    stages: [
+      { name: '数据采集', tag: '照片 + 点云', dur: 4200, draw: function (t, g) { return F.stage1(t); } },
+      { name: '实例分割', tag: '裂缝掩膜', dur: 4600, draw: function (t, g) { return F.stage2(t); } },
+      { name: '骨架化', tag: '中心线 + 长度', dur: 4400, draw: function (t, g) { return F.stage3(t); } },
+      { name: '摄影测量标定', tag: '像素 → 产状', dur: 4600, draw: function (t, g) { return F.stage4(t); } },
+      { name: '产状反算', tag: '玫瑰图 + 线密度', dur: 4600, draw: function (t, g) { return F.stage5(t); } },
+      { name: '实测验证', tag: '校准 + 回写', dur: 4400, draw: function (t, g) { return F.stage6(t); } }
+    ]
+  });
+})();
+</script>
+<script src="aiq.js?v=20261105a"></script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示范：钻速预测与参数优化</title>
+<link rel="stylesheet" href="demo.css?v=20261105a">
+<link rel="stylesheet" href="aflow.css?v=20261105a">
+<link rel="stylesheet" href="aiq.css?v=20261105a">
+<style>
+#ctlDrawer{position:fixed;right:0;top:70px;width:268px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid #e9e4d8;border-radius:10px;box-shadow:0 6px 24px -8px rgba(0,0,0,.15);z-index:90;transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+#ctlDrawer.open{transform:translateX(0);opacity:1;pointer-events:auto}
+@media (max-width:760px){#ctlDrawer{width:calc(100vw - 20px);right:10px;top:auto;bottom:10px;max-height:45vh}}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <span class="kicker">CASE DEMO · 钻井工程 / 钻速预测与参数优化</span>
+  <h1>从「经验试钻 · 保守压速」到「时序预测 + 贝叶斯优化」</h1>
+  <p class="sub">三个实验：Q1 看懂钻速预测、Q2 贝叶斯优化、Q3 保守 vs 最优参数。</p>
+</header>
+
+<!-- ================= 算法解剖 · 钻速优化全流程 ================= -->
+<section class="sec" id="sec0">
+  <div class="qa">
+    <span class="qa-q">深入 · 想逐帧看就往下</span>
+    <p class="qa-a">不是「随钻参数 → 黑盒 → 最优钻速」，而是<b>逐段展开</b>：数据接入 → 时序特征 → 钻速预测 → 贝叶斯优化 → 保守对比 → 部署回流，每一步都能看见中间量</p>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">可选深入 · 对应流程 STEP 3—5</span>
+    <h2>把「参数 → 最优钻速」一步步拆开看</h2>
+    <p class="leadline">下面这段动画跑的是<b>真代码</b>（与实验 1—3 同一份模型）。自动播放，也可点阶段名跳步、拖速度。改回归权重、优化迭代数，这里的每一步都会同步重算。</p>
+  </div>
+  <div id="flowMount"></div>
+  <details class="more">
+    <summary>这段动画与后面三个实验是什么关系</summary>
+    <div class="more-body">
+      <p>实验 1—3 给出的是<b>结果</b>（钻速预测、优化轨迹、参数对比）；这段动画给出的是<b>过程</b>——同一份 <code>demo.js</code> 里的 <code>ropPredict / bayesOptimize / ropModel</code> 被拆成 6 个阶段依次放慢演给你看。</p>
+      <p>刻意做的两处细节：<b>①</b> 第 4 步用参数空间热力图 + 优化轨迹，看得见贝叶斯优化在钻压×转速空间里怎么采样收敛；<b>②</b> 第 5 步把保守与最优参数的钻速柱并排放，看得见 20—30% 的提升从哪来。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 1 · 钻速时序预测 ================= -->
+<section class="sec" id="sec1">
+  <div class="qa">
+    <span class="qa-q">Q1 · 为什么需要智能算法</span>
+    <p class="qa-a">经验试钻靠拍脑袋；时序回归从随钻参数预测钻速</p>
+    <button class="qa-go">开始实验 1</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 1 · 对应流程 STEP 3</span>
+    <h2>钻速时序预测：随钻参数 → 钻速</h2>
+    <p class="leadline">拖回归权重看预测贴近真值的程度；切不同随钻参数看它随时间的变化——这些参数一起驱动钻速。</p>
+  </div>
+  <div class="ctl" id="predCtl">
+    <div class="sl">
+      <label>回归权重<output id="outWeight">0.70</output></label>
+      <input type="range" id="inWeight" min="0" max="1.2" step="0.05" value="0.7">
+    </div>
+    <div class="sl">
+      <label>显示参数<output id="outPar">钻压</output></label>
+      <input type="range" id="inPar" min="0" max="3" step="1" value="0">
+    </div>
+  </div>
+  <svg id="ropChart" viewBox="0 0 470 280" role="img" aria-label="钻速时序预测"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">预测 RMSE</span><b id="roRmse" class="good">—</b></div>
+    <div class="ro"><span class="k">相关系数</span><b id="roCorr">—</b></div>
+  </div>
+  <svg id="parChart" viewBox="0 0 400 120" role="img" aria-label="随钻参数变化"></svg>
+  <p class="tip" id="predTip">绿色 = 真实钻速，红色虚线 = 预测。钻速由钻压/转速/扭矩/排量共同驱动，且随时间漂移（地层变化、钻头磨损）。时序回归比只看当前时刻的普通回归更能抓住趋势。</p>
+</section>
+
+<!-- ================= 实验 2 · 贝叶斯优化 ================= -->
+<section class="sec" id="sec2">
+  <div class="qa">
+    <span class="qa-q">Q2 · 智能算法是什么</span>
+    <p class="qa-a"><b>贝叶斯优化</b>：用代理模型在参数空间找最优钻压与转速<span class="qa-algo">贝叶斯优化 · 代理模型</span></p>
+    <button class="qa-go">开始实验 2</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 2 · 对应流程 STEP 4</span>
+    <h2>贝叶斯优化：在参数空间找最优，避开高风险区</h2>
+    <p class="leadline">拖优化迭代数，看贝叶斯优化在钻压×转速空间采样收敛到最优点，红区是伤钻头的高风险区。</p>
+  </div>
+  <div class="ctl" id="optCtl">
+    <div class="sl">
+      <label>优化迭代数<output id="outIter">24</output></label>
+      <input type="range" id="inIter" min="4" max="60" step="2" value="24">
+    </div>
+  </div>
+  <svg id="optChart" viewBox="0 0 300 220" role="img" aria-label="贝叶斯优化参数空间"></svg>
+  <div class="rrow ro3">
+    <div class="ro"><span class="k">最优参数</span><b id="roBest" class="good">—</b></div>
+    <div class="ro"><span class="k">风险</span><b id="roRisk">—</b></div>
+    <div class="ro"><span class="k">迭代</span><b id="roIter">—</b></div>
+  </div>
+  <p class="tip" id="optTip">热力图颜色越深 = 钻速越高；红色区域 = 钻压过大或转速过高、伤钻头的高风险区。贝叶斯优化用代理模型在钻压×转速空间采样，逐步逼近「钻速高且风险低」的最优点（黑点）。</p>
+</section>
+
+<!-- ================= 实验 3 · 保守 vs 最优参数 ================= -->
+<section class="sec" id="sec3">
+  <div class="qa">
+    <span class="qa-q">Q3 · 它怎么工作</span>
+    <p class="qa-a">预测钻速 → <b>贝叶斯优化</b>给最优参数 → 替代保守参数的 20—30% 钻速损失</p>
+    <button class="qa-go">开始实验 3</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 3 · 对应流程 STEP 5</span>
+    <h2>保守 vs 最优参数：钻速提升与风险可控</h2>
+    <p class="leadline">对比保守参数（宁慢勿坏）与贝叶斯优化给的最优参数，看钻速提升与风险是否可控。</p>
+  </div>
+  <svg id="cmpChart" viewBox="0 0 440 340" role="img" aria-label="保守与最优参数对比"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">钻速提升</span><b id="roLift" class="good">—</b></div>
+    <div class="ro"><span class="k">风险对比</span><b id="roRiskCmp">—</b></div>
+  </div>
+  <p class="tip" id="cmpTip">保守参数把钻速压低约 25%，最优参数在避开高风险区的同时把钻速提回来。提升钻速不能以废钻头为代价——风险段（红区附近）必须控制，最终看钻头寿命与建井周期。</p>
+</section>
+
+<footer>
+  <div class="map">
+    <div><b>实验 1 → STEP 3</b><br>钻速时序预测。</div>
+    <div><b>实验 2 → STEP 4</b><br>贝叶斯优化找最优参数。</div>
+    <div><b>实验 3 → STEP 5</b><br>保守 vs 最优 + 风险可控。</div>
+  </div>
+  <p class="note">纯前端教学演示：钻时序列由「地层分段趋势 + 随钻参数」合成，钻速真值已知、仅供对比；时序回归、贝叶斯优化与参数对比均在浏览器实时计算。</p>
+</footer>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+/* 算法解剖：把 6 个阶段挂到 AFlow 引擎上 */
+(function () {
+  if (!window.AFlow || !window.RemoteFlow) return;
+  var F = window.RemoteFlow;
+  window.RemoteFlowApi = window.AFlow.create({
+    mount: document.getElementById('flowMount'),
+    title: '算法解剖',
+    subtitle: '自动播放：随钻参数怎么一步步变成最优钻速',
+    stages: [
+      { name: '数据接入', tag: '井段划分', dur: 4000, draw: function (t, g) { return F.stage1(t); } },
+      { name: '时序特征', tag: '滑动窗口', dur: 4200, draw: function (t, g) { return F.stage2(t); } },
+      { name: '钻速预测', tag: '时序回归', dur: 4800, draw: function (t, g) { return F.stage3(t); } },
+      { name: '贝叶斯优化', tag: '参数空间', dur: 5000, draw: function (t, g) { return F.stage4(t); } },
+      { name: '保守vs最优', tag: '钻速+风险', dur: 4400, draw: function (t, g) { return F.stage5(t); } },
+      { name: '部署与回流', tag: '在线更新', dur: 4400, draw: function (t, g) { return F.stage6(t); } }
+    ]
+  });
+})();
+</script>
+<script src="aiq.js?v=20261105a"></script>
+</body>
+</html>

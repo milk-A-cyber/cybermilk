@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>固井质量智能评价 · CBL/VDL 波形分段分类</title>
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="aflow.css">
+<style>
+  .qa{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:18px 20px;margin-bottom:20px;font-size:14px;line-height:1.75;color:#3a4348;}
+  .qa b{color:#242b2e;}
+  .sec{border:1px solid #e9e4d8;border-radius:14px;padding:20px;margin-bottom:20px;background:#fff;}
+  .sec>h3{margin:0 0 4px;font-size:18px;color:#242b2e;}
+  .sec>p.sub{color:#79828a;font-size:13px;margin:0 0 14px;}
+  .chart{width:100%;height:auto;display:block;background:#fff;border:1px solid #f0ece2;border-radius:8px;}
+  .ctl{background:#fbfaf6;border:1px dashed #d9cbb3;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13px;color:#4d565b;}
+  .ctl label{display:block;margin-bottom:4px;}
+  .ctl input[type=range]{width:100%;}
+  .rrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .rrow .chip{background:#e6f1ec;border:1px solid #b9d8cb;color:#22604f;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;}
+  .tip{background:#f8ecdf;border-left:3px solid #b26a39;border-radius:6px;padding:10px 14px;margin-top:12px;font-size:13px;color:#6b4a35;line-height:1.6;}
+  .tip b{color:#8a4f27;}
+  .flowblock{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:16px;margin-top:20px;}
+  #reviewList{margin-top:12px;}
+</style>
+</head>
+<body>
+
+<header class="demo-head">
+  <div class="badge">环节6 · 固井</div>
+  <h1>固井质量智能评价</h1>
+  <p>CBL/VDL 波形分段分类 · 输出胶结等级曲线 · 人工分段评级 1—2h · 评级标准主观 · 误判代价大</p>
+  <div class="hdmeta">
+    <span>数据形态：CBL/VDL 测井</span><span>方法：cv · ts</span><span>验收：评级一致 × 验窜相符</span>
+  </div>
+</header>
+
+<section class="section">
+  <div class="sec">
+    <h3>算法解剖</h3>
+    <p class="sub">把「CBL/VDL → 胶结等级」拆成 6 步，每一步都跑真代码，滑块可切参数。</p>
+    <div id="flowMount"></div>
+    <div class="qa">
+      <b>怎么做对：</b>先读 CBL/VDL 测井（全井段约 0.5 m 一点）与人工评级段；水泥胶结好则套管波弱、地层波强，传统由解释员按胶结指数分段评级，单井图数十幅需 1—2 小时；评级标准存在主观带，快速地层、微环隙等特殊井况易误判，评级结果直接关系挤水泥决策。用胶结指数基线做对照，波形分段分类输出胶结等级曲线，验窜结果回流越评越准。
+      <div id="more"><a href="#" onclick="return false">更多</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec1">
+    <h3>屏 1 · 胶结指数基线：固定阈值分级</h3>
+    <p class="sub">拖滑块调良/差分界，看评级准确率与判错怎么变。</p>
+    <div class="qa">胶结指数固定阈值分级（优&gt;0.75，良&gt;分界，否则差）。评级标准存在主观带，快速地层、微环隙等特殊井况易误判。</div>
+    <div id="biCtl" class="ctl">
+      <label>良/差分界 <b id="outThr">0.50</b></label>
+      <input id="inThr" type="range" min="0.3" max="0.7" step="0.05" value="0.5">
+    </div>
+    <svg id="biChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">评级准确率：<span id="roBiAcc">—</span></span><span class="chip">判错：<span id="roBiErr">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换胶结指数分级规则（cementEval），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec2">
+    <h3>屏 2 · 波形分段分类：输出胶结等级曲线</h3>
+    <p class="sub">切单特征/多特征融合，看评级准确率与判错怎么变。</p>
+    <div class="qa">套管波弱、地层波强→胶结好。单特征信息有限，多特征融合（套管波+地层波）判胶结等级更稳。</div>
+    <div id="segCtl" class="ctl">
+      <label>分类特征 <b id="outMode">多特征融合</b></label>
+      <input id="inMode" type="range" min="0" max="1" step="1" value="1">
+    </div>
+    <svg id="segChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">评级准确率：<span id="roSegAcc">—</span></span><span class="chip">方式：<span id="roSeg">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换分段分类规则（segClassify），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec3">
+    <h3>屏 3 · 验窜验证 + 复核</h3>
+    <p class="sub">看判错清单，验窜结果复核。</p>
+    <div class="qa">评级结果给建议，验窜（挤水泥/试压）验证复核。验窜不回流，模型不知道判错在哪，特殊井况永远误差。</div>
+    <svg id="revChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">判错：<span id="roRevErr">—</span></span></div>
+    <div id="reviewList"></div>
+    <div class="tip"><b>想改成你自己的：</b>换验证逻辑，或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<div class="flowblock">
+  <h3>示范说明</h3>
+  <p style="color:#4d565b;font-size:13px;line-height:1.7;margin:8px 0 0">合成一口井的 CBL/VDL 测井（含胶结指数、人工评级段与验窜真值），演示胶结指数基线、波形分段分类与验窜验证的固井质量评价链路。所有数字都是浏览器里算出来的，没有后端。</p>
+</div>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+(function () {
+  var mount = document.getElementById('flowMount');
+  var flow = window.RemoteFlow;
+  var AFlow = window.AFlow;
+  if (!flow || !mount || !AFlow) return;
+  var ui = AFlow.create(mount, {
+    title: 'CBL/VDL → 胶结等级 · 胶结指数基线 + 波形分段分类',
+    captions: { prev: '上一步', next: '下一步', close: '收起' }
+  });
+  ui.setSteps([
+    { name: 'CBL/VDL 接入', desc: '波形+BI' },
+    { name: '胶结指数基线', desc: '阈值分级' },
+    { name: '波形特征提取', desc: '套管波+地层波' },
+    { name: '分段分类', desc: '胶结等级曲线' },
+    { name: '验窜验证', desc: '挤水泥/试压' },
+    { name: '回流', desc: '评级回流' }
+  ]);
+  ui.onRender = function (i) {
+    var out = flow['stage' + (i + 1)](ui.progress());
+    if (out) {
+      ui.setSvg(out.svg);
+      ui.setStats(out.stats || []);
+      ui.setNote(out.note || '');
+    }
+  };
+  ui.render();
+})();
+</script>
+<script src="aiq.js"></script>
+</body>
+</html>

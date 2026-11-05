@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>射孔参数优化 · 可运行示范</title>
+<link rel="stylesheet" href="demo.css"/>
+<link rel="stylesheet" href="aiq.css"/>
+<link rel="stylesheet" href="aflow.css"/>
+<style>
+  body { margin: 0; padding: 24px 18px; background: #f7f6f1; color: #242b2e; font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+  .wrap { max-width: 1160px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
+  .sub { font-size: 12.5px; color: #6c747a; margin-bottom: 18px; }
+  .chip { display: inline-block; background: #e9efef; color: #2f5c6b; border: 1px solid #d4e2e2; border-radius: 10px; padding: 1px 9px; font-size: 11px; margin: 0 5px 4px 0; }
+  .screen { background: #fff; border: 1px solid #e6e2d8; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .screen h2 { font-size: 14px; margin: 0 0 3px; }
+  .screen .desc { font-size: 12px; color: #6c747a; margin-bottom: 10px; }
+  svg { display: block; width: 100%; height: auto; }
+  .ctl { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; font-size: 12px; }
+  .ctl input[type=range] { flex: 1; max-width: 220px; }
+  .ctl .out { font-weight: 700; color: #2f5c6b; min-width: 52px; }
+  .rrow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; font-size: 12.5px; }
+  .rrow .chip { background: #f0ece1; border-color: #e2dcc9; color: #5c5140; }
+  .flowblock { background: #fff; border: 1px solid #e6e2d8; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .flowblock h2 { font-size: 14px; margin: 0 0 8px; }
+  .qa { font-size: 12.5px; color: #4a5257; background: #faf9f4; border-left: 3px solid #41699b; padding: 8px 11px; margin-bottom: 12px; border-radius: 0 6px 6px 0; line-height: 1.65; }
+  .qa b { color: #242b2e; }
+  .tip { font-size: 12px; color: #8a5a2a; background: #fbf3e7; border: 1px solid #f0dfc4; border-radius: 8px; padding: 7px 11px; margin-top: 8px; }
+  .more { font-size: 12px; color: #41699b; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>射孔参数优化 · 可运行示范</h1>
+  <div class="sub">代理模型 + 实验设计（DOE）+ 多目标优化 —— 按储层条件推荐孔密、相位与穿深组合</div>
+
+  <div class="screen">
+    <h2>算法解剖</h2>
+    <div class="desc">用实验设计采样代替全枚举，代理模型评估产能与出砂，多目标优化给出帕累托推荐。</div>
+    <div id="flowMount"></div>
+  </div>
+
+  <div class="screen">
+    <h2>屏1 · 储层力学参数 + 参数空间</h2>
+    <div class="desc">读入储层强度、应力、渗透率；展示孔密/相位/穿深的可选参数空间。</div>
+    <div class="qa"><b>专业背景</b> 射孔是连通井筒与储层的最后一枪，孔密、相位、穿深共同决定产能与出砂风险。参数空间大（5×5×5 组合），现场多沿用标准设计，不同储层用同一套参数产能损失无法量化。</div>
+    <svg id="resChart"></svg>
+    <div class="ctl">
+      <span>储层强度</span>
+      <input type="range" id="inStrength" min="0.2" max="1.0" step="0.1" value="0.7"/>
+      <span class="out" id="outStrength">0.70</span>
+    </div>
+    <div class="rrow">
+      <span class="chip">强度 <b id="roStr">0.70</b></span>
+      <span class="chip">应力 <b id="roStress">—</b></span>
+      <span class="chip">渗透率 <b id="roPerm">—</b></span>
+    </div>
+  </div>
+
+  <div class="screen">
+    <h2>屏2 · 实验设计采样（DOE）</h2>
+    <div class="desc">用拉丁超立方采样少量点均匀覆盖参数空间，对比全枚举（X=孔密，Y=穿深）。</div>
+    <div class="qa"><b>案例流程</b> 全枚举 125 点仿真成本高。实验设计（DOE）用少量精心选择的点覆盖参数空间，让代理模型在这些点上评估，逼近全局优化。</div>
+    <svg id="doeChart"></svg>
+    <div class="ctl">
+      <span>DOE 采样点数</span>
+      <input type="range" id="inSamples" min="6" max="20" step="1" value="15"/>
+      <span class="out" id="outSamples">15 点</span>
+    </div>
+    <div class="rrow">
+      <span class="chip">采样 <b id="roSamples">15 点</b></span>
+      <span class="chip">全枚举 <b id="roAll">125 点</b></span>
+    </div>
+  </div>
+
+  <div class="screen">
+    <h2>屏3 · 多目标优化推荐</h2>
+    <div class="desc">代理模型评估采样点，找帕累托前沿（产能↑出砂↓），并对比全局前沿给出推荐方案。</div>
+    <div class="qa"><b>案例演示</b> 产能与出砂是一对矛盾目标。帕累托前沿上的点互为最优，推荐点取前沿上产能最高者；采样前沿（绿点）逼近全局前沿（蓝虚线），体现 DOE 用更少点逼近全局。</div>
+    <svg id="optChart"></svg>
+    <div class="rrow">
+      <span class="chip">推荐 <b id="roOptCfg">—</b></span>
+      <span class="chip">产能 <b id="roOptQ">—</b></span>
+      <span class="chip">出砂 <b id="roOptRisk">—</b></span>
+      <span class="chip">与全局差距 <b id="roGap">—</b></span>
+    </div>
+  </div>
+
+  <div class="flowblock">
+    <h2>示范说明</h2>
+    <div class="qa"><b>怎么用</b> 拖动「储层强度」看弱储层出砂风险上升、推荐穿深变小；拖动「DOE 采样点数」看采样越多前沿越贴近全局前沿、推荐越稳。全部真计算，无后端。</div>
+    <a class="more" href="#" onclick="return false;">本案例为独立交付包，未在主站注册</a>
+    <div class="tip">建议先看顶部「算法解剖」6 步动画，再回到三个屏拖动控件观察响应。</div>
+  </div>
+</div>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+  (function () {
+    if (!window.AFlow) return;
+    var steps = [
+      { title: '储层接入', get: function (t) { return window.RemoteFlow.stage1(t); } },
+      { title: '参数空间', get: function (t) { return window.RemoteFlow.stage2(t); } },
+      { title: '实验设计采样', get: function (t) { return window.RemoteFlow.stage3(t); } },
+      { title: '代理模型', get: function (t) { return window.RemoteFlow.stage4(t); } },
+      { title: '多目标优化', get: function (t) { return window.RemoteFlow.stage5(t); } },
+      { title: '推荐方案', get: function (t) { return window.RemoteFlow.stage6(t); } }
+    ];
+    var flow = window.AFlow.create(document.getElementById('flowMount'), steps, { loop: false, auto: true });
+    if (flow) flow.start && flow.start();
+  })();
+</script>
+<script src="aiq.js"></script>
+</body>
+</html>
