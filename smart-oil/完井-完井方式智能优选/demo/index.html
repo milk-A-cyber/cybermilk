@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>完井方式智能优选 · 知识图谱 + 案例推理 + 多目标排序</title>
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="aflow.css">
+<style>
+  .qa{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:18px 20px;margin-bottom:20px;font-size:14px;line-height:1.75;color:#3a4348;}
+  .qa b{color:#242b2e;}
+  .sec{border:1px solid #e9e4d8;border-radius:14px;padding:20px;margin-bottom:20px;background:#fff;}
+  .sec>h3{margin:0 0 4px;font-size:18px;color:#242b2e;}
+  .sec>p.sub{color:#79828a;font-size:13px;margin:0 0 14px;}
+  .chart{width:100%;height:auto;display:block;background:#fff;border:1px solid #f0ece2;border-radius:8px;}
+  .ctl{background:#fbfaf6;border:1px dashed #d9cbb3;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13px;color:#4d565b;}
+  .ctl label{display:block;margin-bottom:4px;}
+  .ctl input[type=range]{width:100%;}
+  .rrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .rrow .chip{background:#e6f1ec;border:1px solid #b9d8cb;color:#22604f;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;}
+  .tip{background:#f8ecdf;border-left:3px solid #b26a39;border-radius:6px;padding:10px 14px;margin-top:12px;font-size:13px;color:#6b4a35;line-height:1.6;}
+  .tip b{color:#8a4f27;}
+  .flowblock{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:16px;margin-top:20px;}
+</style>
+</head>
+<body>
+
+<header class="demo-head">
+  <div class="badge">环节7 · 完井</div>
+  <h1>完井方式智能优选</h1>
+  <p>知识图谱组织"储层特征—完井方式—生产表现" · 相似案例推理 · 多目标排序给出候选方案</p>
+  <div class="hdmeta">
+    <span>数据形态：储层+流体特征</span><span>方法：kg+opt</span><span>验收：候选排序 × 帕累托</span>
+  </div>
+</header>
+
+<section class="section">
+  <div class="sec">
+    <h3>算法解剖</h3>
+    <p class="sub">把「完井方式优选」拆成 6 步，每一步都跑真代码，滑块可切参数。</p>
+    <div id="flowMount"></div>
+    <div class="qa">
+      <b>怎么做对：</b>完井方式（裸眼、射孔、筛管、砾石充填）决定了井与储层的连通方式与后续措施空间。方案选择强依赖工程师经验与邻井案例，新区块无邻井可参考时容易选错。用知识图谱组织关系，基于相似案例推理推荐候选方案并做多目标排序。
+      <div id="more"><a href="#" onclick="return false">更多</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec1">
+    <h3>屏 1 · 储层特征</h3>
+    <p class="sub">看当前井的储层特征与完井方式分布。</p>
+    <div class="qa">岩性、出砂指数、水层位置共同决定完井方式选择依据。</div>
+    <svg id="lithoChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">岩性：<span id="roLitho">—</span></span><span class="chip">出砂指数：<span id="roSand">—</span></span><span class="chip">水层：<span id="roWater">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换储层生成（genWells），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec2">
+    <h3>屏 2 · 相似案例</h3>
+    <p class="sub">切井，看知识图谱与 kNN 相似案例。</p>
+    <div class="qa">按储层特征 kNN 找最相似历史井，取其完井方式与生产表现作为候选证据。</div>
+    <div id="simCtl" class="ctl">
+      <label>选择井 <b id="outWell">井 0</b></label>
+      <input id="inWell" type="range" min="0" max="119" step="1" value="0">
+    </div>
+    <svg id="kgChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">相似井数：<span id="roSimCount">—</span></span><span class="chip">候选方案：<span id="roSimTop">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换相似案例推理（similarCases），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec3">
+    <h3>屏 3 · 多目标排序</h3>
+    <p class="sub">调成本权重，看候选方案排序与帕累托。</p>
+    <div class="qa">蓝=产能、绿=防砂，成本见右侧。★为帕累托方案（无其他方案在产能与防砂上同时更优）。</div>
+    <div id="rankCtl" class="ctl">
+      <label>防砂/成本权重 <b id="outWeight">0.50</b></label>
+      <input id="inWeight" type="range" min="0" max="1" step="0.05" value="0.5">
+    </div>
+    <svg id="rankChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">首选方案：<span id="roTopPlan">—</span></span><span class="chip">帕累托集：<span id="roPareto">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换多目标排序（rankPlans），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<div class="flowblock">
+  <h3>示范说明</h3>
+  <p style="color:#4d565b;font-size:13px;line-height:1.7;margin:8px 0 0">合成 120 口历史井的储层特征、完井方式与生产表现，演示用知识图谱组织关系、基于相似案例推理推荐候选方案并做多目标排序的完井方式优选链路。所有数字都是浏览器里算出来的，没有后端。</p>
+</div>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+(function () {
+  var mount = document.getElementById('flowMount');
+  var flow = window.RemoteFlow;
+  var AFlow = window.AFlow;
+  if (!flow || !mount || !AFlow) return;
+  var ui = AFlow.create(mount, {
+    title: '完井方式智能优选 · 知识图谱 + 案例推理 + 多目标排序',
+    captions: { prev: '上一步', next: '下一步', close: '收起' }
+  });
+  ui.setSteps([
+    { name: '储层接入', desc: '储层特征' },
+    { name: '完井方式', desc: '4类属性' },
+    { name: '知识图谱', desc: '储层→方式→表现' },
+    { name: '相似案例', desc: 'kNN推理' },
+    { name: '多目标排序', desc: '产能/防砂/成本' },
+    { name: '方案推荐', desc: '候选+帕累托' }
+  ]);
+  ui.onRender = function (i) {
+    var out = flow['stage' + (i + 1)](ui.progress());
+    if (out) {
+      ui.setSvg(out.svg);
+      ui.setStats(out.stats || []);
+      ui.setNote(out.note || '');
+    }
+  };
+  ui.render();
+})();
+</script>
+<script src="aiq.js"></script>
+</body>
+</html>

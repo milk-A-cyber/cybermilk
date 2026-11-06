@@ -1,0 +1,202 @@
+/* =========================================================
+   AI 三问 · 可运行示范页通用区块
+   ---------------------------------------------------------
+   01 为什么（传统做法 vs AI 做法的同一段数据对照）
+   02 是什么（把业务对象翻译成算法可处理的形式）
+   03 怎样实现（五步工程路线，可跳到下方逐帧解剖）
+   依赖各包 demo.css 里的 --jade / --clay / --blue / --ink*
+   ========================================================= */
+
+.aiq {
+  margin: 0 0 18px; padding: 15px 18px 16px;
+  background: linear-gradient(180deg, #fbfaf6 0%, #ffffff 52%);
+  border: 1px solid var(--line, #e9e4d8); border-radius: 12px;
+}
+.aiq-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+.aiq-chip {
+  flex: none; font-size: 10px; font-weight: 700; letter-spacing: .12em;
+  color: var(--jade, #2f7d6b); background: var(--jade-bg, #e6f1ec); border: 1px solid #cfe3d9;
+  border-radius: 999px; padding: 3px 9px; margin-top: 1px;
+}
+.aiq-lede { margin: 0; font-size: 13px; line-height: 1.7; color: var(--ink-2, #4d565b); }
+.aiq-lede b { color: var(--ink, #242b2e); }
+
+.aiq-grid { display: grid; grid-template-columns: 1.32fr 1fr 1fr; gap: 11px; }
+@media (max-width: 1040px) and (min-width: 760px) {
+  .aiq-grid { grid-template-columns: 1fr 1fr; grid-template-areas: "a a" "b c"; }
+  .aiq-card.q1 { grid-area: a; }
+  .aiq-card.q2 { grid-area: b; }
+  .aiq-card.q3 { grid-area: c; }
+}
+@media (max-width: 759px) { .aiq-grid { grid-template-columns: 1fr; } }
+.aiq-foot { margin: auto 0 0; padding-top: 2px; font-size: 10.5px; line-height: 1.5; color: var(--ink-4, #9ba3a9); }
+
+.aiq-card {
+  display: flex; flex-direction: column; gap: 9px;
+  border: 1px solid var(--line, #e9e4d8); border-radius: 10px;
+  background: #fff; padding: 11px 12px 11px;
+}
+.aiq-hd {
+  display: flex; align-items: center; gap: 7px;
+  padding-bottom: 8px; border-bottom: 1px dashed var(--line, #e9e4d8);
+}
+.aiq-hd .n {
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-size: 10.5px; font-weight: 700; color: #fff;
+  border-radius: 5px; padding: 2px 6px; line-height: 1.5;
+}
+.aiq-hd > div { display: flex; align-items: baseline; gap: 4px; }
+.aiq-hd b { font-size: 14px; color: var(--ink, #242b2e); letter-spacing: .01em; }
+.aiq-hd em {
+  font-style: normal; font-size: 9px; letter-spacing: .16em; color: var(--ink-4, #9ba3a9);
+}
+.aiq-card.q1 .aiq-hd .n { background: var(--clay, #b26a39); }
+.aiq-card.q2 .aiq-hd .n { background: var(--blue, #41699b); }
+.aiq-card.q3 .aiq-hd .n { background: var(--jade, #2f7d6b); }
+
+/* ---------- 01 为什么：曲线对照 ---------- */
+.aiq-switch {
+  display: inline-flex; align-self: flex-start; gap: 2px; padding: 2px;
+  background: var(--card, #fbfaf6); border: 1px solid var(--line, #e9e4d8); border-radius: 999px;
+}
+.aiq-switch button {
+  font: inherit; font-size: 11.5px; line-height: 1.5; cursor: pointer;
+  border: 0; background: transparent; color: var(--ink-3, #79828a);
+  padding: 3px 11px; border-radius: 999px; transition: all .15s;
+}
+.aiq-switch button:hover { color: var(--ink, #242b2e); }
+.aiq-switch button.on {
+  background: #fff; color: var(--ink, #242b2e); font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+}
+.aiq-fig { margin: 1px 0 0; }
+.aiq-fig svg { display: block; width: 100%; height: auto; }
+
+.aiq-nums {
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px;
+  margin: 0; padding: 0; list-style: none;
+}
+.aiq-nums li {
+  background: var(--card, #fbfaf6); border: 1px solid #efeadf; border-radius: 7px;
+  padding: 5px 6px 6px; text-align: center;
+}
+.aiq-nums b {
+  display: block; font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-size: 14.5px; line-height: 1.25; color: var(--ink-2, #4d565b);
+  font-variant-numeric: tabular-nums; transition: color .2s;
+}
+.aiq-nums span { display: block; font-size: 10px; color: var(--ink-3, #79828a); line-height: 1.35; margin-top: 2px; }
+.aiq-card[data-mode="new"] .aiq-nums li[data-tone="good"] b { color: var(--jade, #2f7d6b); }
+.aiq-card[data-mode="new"] .aiq-nums li[data-tone="bad"] b { color: var(--clay, #b26a39); }
+.aiq-card[data-mode="new"] .aiq-nums li[data-tone="neut"] b { color: var(--ink, #242b2e); }
+
+.aiq-note { margin: 0; font-size: 11.5px; line-height: 1.62; color: var(--ink-3, #79828a); }
+.aiq-note b { color: var(--ink-2, #4d565b); }
+.aiq-note .hl-bad { color: var(--clay, #b26a39); font-weight: 600; }
+.aiq-note .hl-good { color: var(--jade, #2f7d6b); font-weight: 600; }
+
+/* ---------- 02 是什么：翻译管线 + 式子 ---------- */
+.aiq-say { margin: 0; font-size: 12.5px; line-height: 1.7; color: var(--ink-2, #4d565b); }
+.aiq-say b { color: var(--ink, #242b2e); }
+.aiq-pipe { display: flex; flex-direction: column; }
+.aiq-pipe .p {
+  position: relative; padding: 5px 8px 5px 27px; border-radius: 6px;
+  background: var(--card, #fbfaf6); font-size: 11.5px; line-height: 1.5; color: var(--ink-3, #79828a);
+}
+.aiq-pipe .p i {
+  position: absolute; left: 8px; top: 6px; font-style: normal;
+  font-family: ui-monospace, Consolas, monospace; font-size: 9px;
+  color: var(--blue, #41699b); font-weight: 700; letter-spacing: .02em;
+}
+.aiq-pipe .p b { color: var(--ink-2, #4d565b); font-weight: 600; }
+.aiq-pipe .ar { display: grid; place-items: center; height: 11px; }
+.aiq-pipe .ar::before {
+  content: ""; width: 1px; height: 7px; background: #ddd6c8;
+  box-shadow: 0 7px 0 -2px #ddd6c8;
+}
+.aiq-eq {
+  margin: 0; padding: 6px 9px; border-radius: 7px;
+  background: var(--jade-bg, #e6f1ec); border: 1px solid #cfe3d9;
+  font-family: ui-monospace, "SF Mono", Consolas, monospace;
+  font-size: 11px; line-height: 1.8; color: #1f5f4d;
+  overflow-x: auto; white-space: nowrap;
+}
+.aiq-eq em { font-style: normal; color: #5f8f80; font-size: 10px; }
+.aiq-fit { margin: 0; padding: 0; list-style: none; font-size: 11.5px; line-height: 1.56; color: var(--ink-2, #4d565b); }
+.aiq-fit li { position: relative; padding-left: 15px; }
+.aiq-fit li + li { margin-top: 2px; }
+.aiq-fit li i { position: absolute; left: 0; top: 0; font-style: normal; font-weight: 700; }
+.aiq-fit .y i { color: var(--jade, #2f7d6b); }
+.aiq-fit .n i { color: var(--clay, #b26a39); }
+
+/* ---------- 03 怎样实现：五步 + 跳转 ---------- */
+.aiq-steps { margin: 0; padding: 0; list-style: none; counter-reset: aiqs; }
+.aiq-steps li {
+  position: relative; padding-left: 20px;
+  font-size: 11.5px; line-height: 1.55; color: var(--ink-2, #4d565b);
+}
+.aiq-steps li + li { margin-top: 5px; }
+.aiq-steps li::before {
+  counter-increment: aiqs; content: counter(aiqs);
+  position: absolute; left: 0; top: 1px; width: 14px; height: 14px;
+  border-radius: 50%; background: var(--jade-bg, #e6f1ec); color: var(--jade, #2f7d6b);
+  font-family: ui-monospace, Consolas, monospace; font-size: 9px; font-weight: 700;
+  display: grid; place-items: center;
+}
+.aiq-steps li b { color: var(--ink, #242b2e); font-weight: 600; }
+.aiq-steps li code {
+  font-family: ui-monospace, Consolas, monospace; font-size: 10px;
+  background: #f3f0e8; border-radius: 3px; padding: 0 3px; color: #5c666b;
+}
+.aiq-jump {
+  margin-top: auto; padding-top: 8px; border-top: 1px dashed var(--line, #e9e4d8);
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+}
+.aiq-jump span { font-size: 11px; color: var(--ink-4, #9ba3a9); }
+.aiq-jump a {
+  font-size: 11.5px; font-weight: 600; color: var(--jade, #2f7d6b);
+  text-decoration: none; white-space: nowrap;
+}
+.aiq-jump a:hover { color: #1f5f4d; text-decoration: underline; }
+
+/* 折叠态的三问（窄屏或用户收起时） */
+@media (max-width: 720px) {
+  .aiq { padding: 13px 12px 14px; }
+  .aiq-top { flex-direction: column; gap: 6px; }
+  .aiq-nums b { font-size: 13.5px; }
+}
+
+/* ---------- 03 卡内的踩坑提示 ---------- */
+.aiq-warn {
+  margin: 0; padding: 7px 9px; border-radius: 7px;
+  background: var(--clay-bg, #f7ece2); border: 1px solid #eed9c6;
+  font-size: 11.5px; line-height: 1.6; color: #8a4f28;
+}
+.aiq-warn b { display: block; font-size: 10px; letter-spacing: .06em; color: var(--clay, #b26a39); margin-bottom: 2px; }
+
+/* ---------- 01 卡的对比表（没有可画的数字时用） ---------- */
+.aiq-tbl { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+.aiq-tbl th {
+  font-size: 9.5px; font-weight: 600; color: var(--ink-4, #9ba3a9);
+  text-align: left; padding: 0 6px 5px; border-bottom: 1px solid var(--line, #e9e4d8);
+  letter-spacing: .02em;
+}
+.aiq-tbl th:first-child { padding-left: 0; }
+.aiq-tbl th:nth-child(2) { color: #8a9099; }
+.aiq-tbl th:nth-child(3) { color: var(--jade, #2f7d6b); }
+.aiq-tbl td {
+  padding: 5px 6px; border-bottom: 1px dashed #f2eee4;
+  color: var(--ink-2, #4d565b); line-height: 1.45; vertical-align: top;
+}
+.aiq-tbl td:first-child { padding-left: 0; color: var(--ink-3, #79828a); font-size: 11px; white-space: nowrap; }
+.aiq-tbl td:nth-child(2) { color: #7b838a; }
+.aiq-tbl td:nth-child(3) { color: #1f5f4d; font-weight: 500; }
+.aiq-tbl tr:last-child td { border-bottom: 0; }
+
+/* ---------- 01 卡的「代价」补充（填满短卡，也把边界说清） ---------- */
+.aiq-cost {
+  margin: 0; padding: 7px 9px; border-radius: 7px;
+  background: #f4f2ea; border: 1px solid #e8e3d5;
+  font-size: 11.5px; line-height: 1.6; color: #5f676c;
+}
+.aiq-cost b { display: block; font-size: 10px; letter-spacing: .06em; color: #8a9099; margin-bottom: 2px; }

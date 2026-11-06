@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示范：荧光图像智能判读</title>
+<link rel="stylesheet" href="demo.css?v=20261105a">
+<link rel="stylesheet" href="aflow.css?v=20261105a">
+<link rel="stylesheet" href="aiq.css?v=20261105a">
+<style>
+#ctlDrawer{position:fixed;right:0;top:70px;width:268px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid #e9e4d8;border-radius:10px;box-shadow:0 6px 24px -8px rgba(0,0,0,.15);z-index:90;transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+#ctlDrawer.open{transform:translateX(0);opacity:1;pointer-events:auto}
+@media (max-width:760px){#ctlDrawer{width:calc(100vw - 20px);right:10px;top:auto;bottom:10px;max-height:45vh}}
+.review-list{font-size:13px;border:1px solid #e9e4d8;border-radius:8px;overflow:hidden;margin-top:8px}
+.review-list .row{display:flex;align-items:center;padding:7px 12px;border-bottom:1px solid #f0ece2}
+.review-list .row:last-child{border-bottom:none}
+.review-list .row span{flex:1;color:#4d565b}
+.review-list .row b{width:220px;color:#24333a;font-weight:700}
+.review-list .row em{color:#2f7d6b;font-style:normal;font-weight:700;font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <span class="kicker">CASE DEMO · 录井 / 荧光图像智能判读</span>
+  <h1>从「目估分级」到「成像标准化 + 颜色特征 + 图像分类」</h1>
+  <p class="sub">三个实验：Q1 成像标准化、Q2 颜色特征+分类、Q3 抽查复核。</p>
+</header>
+
+<!-- ================= 算法解剖 · 判读全流程 ================= -->
+<section class="sec" id="sec0">
+  <div class="qa">
+    <span class="qa-q">深入 · 想逐帧看就往下</span>
+    <p class="qa-a">不是「荧光图像 → 黑盒 → 含油级别」，而是<b>逐段展开</b>：图像接入 → 成像标准化 → 颜色特征 → 图像分类 → 抽查复核 → 回流，每一步都能看见中间量</p>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">可选深入 · 对应流程 STEP 1—6</span>
+    <h2>把「荧光图像 → 含油级别」一步步拆开看</h2>
+    <p class="leadline">下面这段动画跑的是<b>真代码</b>（与实验 1—3 同一份模型）。自动播放，也可点阶段名跳步、拖速度。切成像标准化、颜色特征，这里的每一步都会同步重算。</p>
+  </div>
+  <div id="flowMount"></div>
+  <details class="more">
+    <summary>这段动画与后面三个实验是什么关系</summary>
+    <div class="more-body">
+      <p>实验 1—3 给出的是<b>结果</b>（亮度一致、含油级别、待复核清单）；这段动画给出的是<b>过程</b>——同一份 <code>demo.js</code> 里的 <code>stdImaging / colorFeat / fluorClassify</code> 被拆成 6 个阶段依次放慢演给你看。</p>
+      <p>刻意做的两处细节：<b>①</b> 第 2 步把两灯源亮度分布并列，看得见成像标准化把差异拉平；<b>②</b> 第 4 步用混淆矩阵展示判级，看得见「对多少、错多少、错到哪」。 </p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 1 · 成像标准化 ================= -->
+<section class="sec" id="sec1">
+  <div class="qa">
+    <span class="qa-q">Q1 · 为什么需要智能算法</span>
+    <p class="qa-a">荧光判读靠目估分级，主观性强；灯源差异大时结论差异大</p>
+    <button class="qa-go">开始实验 1</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 1 · 对应流程 STEP 1—2</span>
+    <h2>成像标准化：不同灯源 → 亮度一致</h2>
+    <p class="leadline">切未校正/已校正，看两灯源亮度分布怎么重合。</p>
+  </div>
+  <div class="ctl" id="stdCtl">
+    <div class="sl">
+      <label>成像标准化<output id="outStd">已校正</output></label>
+      <input type="range" id="inStd" min="0" max="1" step="1" value="1">
+    </div>
+  </div>
+  <svg id="stdChart" viewBox="0 0 400 180" role="img" aria-label="成像标准化"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">标准化</span><b id="roStd">—</b></div>
+    <div class="ro"><span class="k">灯源</span><b id="roDiff">—</b></div>
+  </div>
+  <p class="tip" id="stdTip">荧光录井用紫外灯照射岩屑/岩心，不同灯源、曝光下结论差异大。成像标准化校正亮度与色偏，让不同灯源结论一致，特征可比。</p>
+</section>
+
+<!-- ================= 实验 2 · 颜色特征 + 分类 ================= -->
+<section class="sec" id="sec2">
+  <div class="qa">
+    <span class="qa-q">Q2 · 智能算法是什么</span>
+    <p class="qa-a"><b>图像分类</b>：标准化图像 → 颜色特征 → 含油级别<span class="qa-algo">颜色特征工程 · 图像分类</span></p>
+    <button class="qa-go">开始实验 2</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 2 · 对应流程 STEP 3—4</span>
+    <h2>颜色特征 + 分类：标准化 → 含油级别</h2>
+    <p class="leadline">切单/多特征、拖阈值，看判级怎么变。</p>
+  </div>
+  <div class="ctl" id="featCtl">
+    <div class="sl">
+      <label>颜色特征<output id="outFeat">多特征</output></label>
+      <input type="range" id="inFeat" min="0" max="1" step="1" value="1">
+    </div>
+    <div class="sl">
+      <label>判级阈值<output id="outThr">0.38</output></label>
+      <input type="range" id="inThr" min="0.2" max="0.56" step="0.01" value="0.38">
+    </div>
+  </div>
+  <svg id="featChart" viewBox="0 0 400 200" role="img" aria-label="颜色特征与分类"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">级别准确</span><b id="roAcc">—</b></div>
+    <div class="ro"><span class="k">特征</span><b id="roFeat">—</b></div>
+  </div>
+  <p class="tip" id="featTip">荧光图像按含油级别分级标注（无/微/弱/中/强）。颜色特征工程提取亮度/饱和/面积量化级别，图像分类自动判级；单特征在微/弱、中/强边界分不开，多特征联合更稳。</p>
+</section>
+
+<!-- ================= 实验 3 · 抽查复核 ================= -->
+<section class="sec" id="sec3">
+  <div class="qa">
+    <span class="qa-q">Q3 · 它怎么工作</span>
+    <p class="qa-a">判级给建议 → <b>抽查复核</b>（录井工只复核，不漏显示）</p>
+    <button class="qa-go">开始实验 3</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 3 · 对应流程 STEP 5—6</span>
+    <h2>抽查复核：判级给建议 + 复核回流</h2>
+    <p class="leadline">看待复核清单、判对率与复核回流。</p>
+  </div>
+  <svg id="revChart" viewBox="0 0 400 200" role="img" aria-label="抽查复核"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">待复核</span><b id="roRev">—</b></div>
+    <div class="ro"><span class="k">判对率</span><b id="roOk">—</b></div>
+  </div>
+  <div class="review-list" id="reviewList"></div>
+  <p class="tip" id="revTip">荧光判读目估分级主观，漏显示会错失油气显示。图像分类自动判级给建议，录井工只抽查复核判错/低置信样本；复核结果回流，判级越用越准、不漏显示。</p>
+</section>
+
+<footer>
+  <div class="map">
+    <div><b>实验 1 → STEP 1—2</b><br>成像标准化。</div>
+    <div><b>实验 2 → STEP 3—4</b><br>颜色特征+分类。</div>
+    <div><b>实验 3 → STEP 5—6</b><br>抽查复核 + 回流。</div>
+  </div>
+  <p class="note">纯前端教学演示：荧光图像由「含油级别基础 + 灯源差异 + 噪声」合成，真实级别已知、仅供对比；成像标准化、颜色特征与含油级别分类均在浏览器实时计算。</p>
+</footer>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+/* 算法解剖：把 6 个阶段挂到 AFlow 引擎上 */
+(function () {
+  if (!window.AFlow || !window.RemoteFlow) return;
+  var F = window.RemoteFlow;
+  window.RemoteFlowApi = window.AFlow.create({
+    mount: document.getElementById('flowMount'),
+    title: '算法解剖',
+    subtitle: '自动播放：荧光图像怎么一步步变成含油级别',
+    stages: [
+      { name: '图像接入', tag: '荧光图', dur: 4000, draw: function (t, g) { return F.stage1(t); } },
+      { name: '成像标准化', tag: '亮度一致', dur: 4600, draw: function (t, g) { return F.stage2(t); } },
+      { name: '颜色特征', tag: '级别量化', dur: 4400, draw: function (t, g) { return F.stage3(t); } },
+      { name: '图像分类', tag: '自动判级', dur: 4600, draw: function (t, g) { return F.stage4(t); } },
+      { name: '抽查复核', tag: '判错样本', dur: 4200, draw: function (t, g) { return F.stage5(t); } },
+      { name: '回流', tag: '更准', dur: 4200, draw: function (t, g) { return F.stage6(t); } }
+    ]
+  });
+})();
+</script>
+<script src="aiq.js?v=20261105a"></script>
+</body>
+</html>

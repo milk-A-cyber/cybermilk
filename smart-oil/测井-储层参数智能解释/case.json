@@ -1,0 +1,125 @@
+{
+  "id": "w2-reservoir-interp",
+  "sceneId": "w2",
+  "methods": ["ts", "opt"],
+  "title": "储层参数智能解释：深度回归 + 迁移学习 + 物理约束",
+  "version": "1.0.0",
+  "updated": "2026-11-05",
+
+  "tabs": {
+    "background": {
+      "label": "专业背景",
+      "lede": "储层参数（孔隙度/渗透率/含油饱和度）由测井曲线解释。常规+特殊测井+岩心分析 50—200 样点+试油验证。岩心有限，回归模型跨区不成立，低阻油层误差大。智能方法做深度回归、迁移学习、物理约束损失。",
+      "judge": [
+        { "label": "数据形态", "value": "测井+岩心", "desc": "50—200 样点" },
+        { "label": "标注成本", "value": "高", "desc": "岩心分析" },
+        { "label": "可见收益", "value": "解释快+准", "desc": "替代人工" },
+        { "label": "难度", "value": "中", "desc": "低阻油层误差大" }
+      ],
+      "sections": [
+        {
+          "no": 1,
+          "en": "PROBLEM",
+          "title": "当前做法与问题",
+          "html": "<p><b>储层参数解释</b>由测井曲线反演孔隙度/渗透率/含油饱和度，是储层评价的核心。常规+特殊测井+岩心分析 50—200 样点+试油验证。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>岩心有限</b>——岩心分析样点 50—200 个，回归模型跨区不成立</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>低阻油层误差大</b>——低阻油层测井响应弱，解释误差大</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>单井解释主观</b>——解释依赖人工经验，主观性强</span></div></div><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"人工储层参数解释的问题\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">人工解释 → 岩心有限 · 低阻误差 · 主观</text><rect x=\"20\" y=\"36\" width=\"280\" height=\"176\" rx=\"8\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"160\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">人工解释</text><rect x=\"36\" y=\"70\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"96\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#2b4a72\">测井反演</text><rect x=\"180\" y=\"70\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"230\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">岩心校正</text><rect x=\"36\" y=\"112\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"96\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">岩心有限</text><rect x=\"180\" y=\"112\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"230\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">低阻误差大</text><text x=\"160\" y=\"180\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#b26a39\" font-weight=\"700\">跨区不成立</text><text x=\"160\" y=\"198\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#79828a\">主观性强</text><rect x=\"316\" y=\"36\" width=\"284\" height=\"176\" rx=\"8\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"458\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">为什么难</text><text x=\"332\" y=\"82\" font-size=\"9.5\" fill=\"#4d565b\">· 岩心样点 50—200</text><text x=\"332\" y=\"104\" font-size=\"9.5\" fill=\"#4d565b\">· 低阻油层响应弱</text><text x=\"332\" y=\"126\" font-size=\"9.5\" fill=\"#4d565b\">· 跨区不成立</text><rect x=\"332\" y=\"150\" width=\"252\" height=\"46\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"344\" y=\"170\" font-size=\"8.5\" fill=\"#79828a\">试油验证</text><text x=\"344\" y=\"186\" font-size=\"8.5\" fill=\"#b26a39\" font-weight=\"700\">需要智能解释</text></svg></div>"
+        },
+        {
+          "no": 2,
+          "en": "INTERVENTION",
+          "title": "AI 能做什么",
+          "html": "<p>用<b>深度回归</b>从测井反演参数，<b>迁移学习</b>解决岩心有限、跨区不成立，<b>物理约束损失</b>保证解释符合规律。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>深度回归</b>——测井曲线 → 孔隙度/渗透率/含油饱和度</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>迁移学习</b>——用邻区模型迁移，岩心有限也能训练</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>物理约束</b>——解释结果符合岩石物理规律，低阻油层更准</span></div></div><p>落地形态：参数连续剖面自动解释，试油验证复核。</p><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"储层参数智能解释流程\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">测井 → 深度回归 + 迁移学习 + 物理约束 → 储层参数</text><rect x=\"16\" y=\"40\" width=\"110\" height=\"120\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"71\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#242b2e\" font-weight=\"600\">测井曲线</text><text x=\"71\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">常规+特殊</text><path d=\"M130 100 L148 100\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"152\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"211\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#2b4a72\" font-weight=\"600\">深度回归</text><text x=\"211\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">反演参数</text><text x=\"211\" y=\"96\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">连续剖面</text><path d=\"M274 100 L292 100\" stroke=\"#2b4a72\" stroke-width=\"1.6\"/><rect x=\"296\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"355\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">迁移学习</text><text x=\"355\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">岩心有限</text><text x=\"355\" y=\"96\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">跨区成立</text><path d=\"M418 100 L436 100\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"440\" y=\"40\" width=\"118\" height=\"120\" rx=\"6\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">物理约束</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">规律符合</text><text x=\"499\" y=\"96\" text-anchor=\"middle\" font-size=\"8\" fill=\"#4d565b\">低阻更准</text><text x=\"310\" y=\"210\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">岩心有限也能 · 跨区成立 · 低阻更准</text></svg></div>"
+        },
+        {
+          "no": 3,
+          "en": "DATA",
+          "title": "需要准备什么",
+          "html": "<p><b>测井曲线</b>：常规（GR/SP/RT/DEN/CNL）+特殊测井；<b>岩心分析</b>：孔隙度/渗透率/含油饱和度样点 50—200 个；<b>试油验证</b>：试油结果，验证解释。</p><div class=\"figure\"><svg viewBox=\"0 0 620 220\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"储层参数解释数据准备\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">储层参数解释需要的数据</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#41699b\"/><text x=\"32\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">测井曲线</text><text x=\"32\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">常规+特殊</text><text x=\"32\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">GR/SP/RT/DEN/CNL</text><rect x=\"318\" y=\"34\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#b26a39\"/><text x=\"330\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">岩心分析</text><text x=\"330\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">孔隙/渗透/含油</text><text x=\"330\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">50—200 样点</text><rect x=\"20\" y=\"106\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#2f7d6b\"/><text x=\"32\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">试油验证</text><text x=\"32\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">试油结果</text><text x=\"32\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">验证解释</text><rect x=\"318\" y=\"106\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#79828a\"/><text x=\"330\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">邻区模型</text><text x=\"330\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">迁移学习</text><text x=\"330\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">跨区成立</text><rect x=\"20\" y=\"184\" width=\"582\" height=\"26\" rx=\"6\" fill=\"#f8ecdf\"/><text x=\"32\" y=\"202\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">训练策略：深度回归 + 迁移学习 + 物理约束</text></svg></div>"
+        },
+        {
+          "no": 4,
+          "en": "DIFFICULTY",
+          "title": "难度与参考方向",
+          "html": "<p>三个最容易翻车的点：</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>岩心有限</b>——岩心样点 50—200 个，数据少难训练</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>跨区不成立</b>——回归模型跨区失效</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>低阻油层误差大</b>——低阻油层测井响应弱</span></div></div><p>改进路线按成本从低到高：先做<b>深度回归</b>；再加<b>迁移学习</b>解决岩心有限、跨区；最后用<b>物理约束损失</b>保证低阻油层准确。</p><div class=\"figure\"><svg viewBox=\"0 0 620 210\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"储层参数解释难点与对策\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">难点排序 + 成本从低到高的改进路线</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"52\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">① 岩心有限</text><text x=\"32\" y=\"68\" font-size=\"8.5\" fill=\"#6b4a35\">50—200 样点</text><path d=\"M310 57 L356 57\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"34\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"52\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">深度回归</text><text x=\"372\" y=\"68\" font-size=\"8.5\" fill=\"#4d565b\">连续剖面</text><rect x=\"20\" y=\"86\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"104\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">② 跨区不成立</text><text x=\"32\" y=\"120\" font-size=\"8.5\" fill=\"#6b4a35\">岩心少</text><path d=\"M310 109 L356 109\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"86\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"104\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">迁移学习</text><text x=\"372\" y=\"120\" font-size=\"8.5\" fill=\"#4d565b\">跨区成立</text><rect x=\"20\" y=\"138\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"156\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">③ 低阻误差大</text><text x=\"32\" y=\"172\" font-size=\"8.5\" fill=\"#6b4a35\">响应弱</text><path d=\"M310 161 L356 161\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"138\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"156\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">物理约束</text><text x=\"372\" y=\"172\" font-size=\"8.5\" fill=\"#4d565b\">低阻更准</text><rect x=\"20\" y=\"192\" width=\"582\" height=\"16\" rx=\"8\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"310\" y=\"204\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#41699b\">深度回归 → 迁移学习 → 物理约束</text></svg></div>"
+        }
+      ]
+    },
+
+    "workflow": {
+      "label": "案例流程",
+      "title": "案例：一口井的储层参数解释改造",
+      "lead": [
+        "某井此前由测井解释员据测井+岩心人工解释储层参数，岩心样点 50—200 个、跨区不成立，低阻油层误差大。目标：深度回归反演参数，迁移学习解决岩心有限，物理约束保证低阻油层准确。",
+        "注意第 3、4、5 步：深度回归、迁移学习、物理约束是智能化价值的三个落点，示范页三屏一一对应。"
+      ],
+      "stats": [
+        ["井", "某生产井"],
+        ["岩心", "50—200 样点"],
+        ["解释方式", "人工反演"],
+        ["曲线", "常规+特殊"],
+        ["目标", "参数连续剖面"],
+        ["难点", "低阻误差大"]
+      ],
+      "steps": [
+        {
+          "name": "测井与岩心接入",
+          "role": "数据",
+          "do": "读入测井曲线（常规+特殊）与岩心分析样点。示范页屏 1 顶部可看。",
+          "effect": "测井曲线 + 岩心样点集。",
+          "trap": "不结合岩心校正，解释参数误差大。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">测井与岩心接入：曲线 + 岩心样点</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">测井曲线</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">常规+特殊</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">岩心分析</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">50—200 样点</text><path d=\"M360 72 L384 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">试油验证</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">验证解释</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不岩心校正 → 解释参数误差大</text></svg>"
+        },
+        {
+          "name": "深度回归",
+          "role": "算法核心",
+          "do": "用测井曲线反演孔隙度/渗透率/含油饱和度。示范页屏 1 展示。",
+          "effect": "参数连续剖面自动解释，替代人工反演。",
+          "trap": "岩心样点少，回归过拟合、跨区不成立。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">深度回归：测井 → 储层参数</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">测井曲线</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">常规+特殊</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">深度回归</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">反演参数</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">参数剖面</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">孔隙/渗透/含油</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：岩心少 → 过拟合 → 跨区不成立</text></svg>"
+        },
+        {
+          "name": "迁移学习",
+          "role": "算法核心",
+          "do": "用邻区模型迁移，岩心有限也能训练。示范页屏 2 展示。",
+          "effect": "跨区成立，岩心有限也能训练。",
+          "trap": "不迁移，岩心少模型过拟合、跨区失效。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">迁移学习：邻区模型 → 本井岩心有限</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">邻区模型</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">预训练</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">迁移学习</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">微调</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">跨区成立</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">岩心少也行</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不迁移 → 过拟合 → 跨区失效</text></svg>"
+        },
+        {
+          "name": "物理约束",
+          "role": "算法核心",
+          "do": "用物理约束损失保证解释符合岩石物理规律。示范页屏 3 展示。",
+          "effect": "低阻油层解释更准，结果符合规律。",
+          "trap": "不做物理约束，解释可能违反岩石物理规律、低阻误差大。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">物理约束：解释 → 符合岩石物理规律</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">解释结果</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">回归输出</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">物理约束</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">规律损失</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">低阻更准</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">规律符合</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不约束 → 违反规律 → 低阻误差大</text></svg>"
+        },
+        {
+          "name": "试油验证",
+          "role": "人工确认",
+          "do": "解释结果给建议，试油验证复核。示范页屏 3 展示复核清单。",
+          "effect": "解释准确性与可靠性提升。",
+          "trap": "验证结果不回流，模型不知道解释错在哪，低阻永远误差大。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">试油验证：解释 → 试油复核</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">解释结果</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">模型建议</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">试油验证</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">核对参数</text><path d=\"M378 72 L400 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">可靠↑</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">低阻误差↓</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：验证不回流 → 模型不知错 → 永远误差大</text></svg>"
+        }
+      ],
+      "metrics": {
+        "title": "怎么算「解释对了」",
+        "html": "<p>储层参数解释用 <b>决定系数 R²</b>（解释值与岩心实测的拟合度）与 <b>平均相对误差</b>（解释值相对岩心实测的偏差）双重验收；<b>低阻油层误差</b> 单独衡量低阻段。</p><p>最终还要看 <b>试油一致</b>：解释的油气层是否与试油结果对得上。</p><p style=\"margin-top:16px\"><svg viewBox='0 0 620 200' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='储层参数解释效果对比' style='width:100%;height:auto;display:block'><text x='14' y='20' font-size='10' fill='#4d565b' font-weight='600'>储层参数解释验收：R² × 相对误差 × 低阻误差</text><rect x='14' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='159' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>决定系数 R²</text><rect x='40' y='66' width='80' height='52' fill='#d9b78e'/><text x='80' y='96' text-anchor='middle' font-size='10' fill='#4d565b' font-weight='700'>R²=0.62</text><text x='80' y='112' text-anchor='middle' font-size='8' fill='#8a6b52'>人工解释</text><rect x='180' y='66' width='80' height='52' fill='#2f7d6b'/><text x='220' y='96' text-anchor='middle' font-size='10' fill='#fff' font-weight='700'>R²=0.91</text><text x='220' y='112' text-anchor='middle' font-size='8' fill='#b9d8cb'>回归+迁移+约束</text><text x='159' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>R² ↑ 误差 ↓</text><rect x='316' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='461' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>相对误差 + 低阻</text><rect x='340' y='66' width='120' height='52' fill='#e7eef9' stroke='#41699b'/><text x='400' y='92' text-anchor='middle' font-size='9' fill='#2b4a72' font-weight='700'>误差↓</text><text x='400' y='108' text-anchor='middle' font-size='8' fill='#79828a'>整体精度</text><rect x='470' y='66' width='120' height='52' fill='#e6f1ec' stroke='#2f7d6b'/><text x='530' y='92' text-anchor='middle' font-size='9' fill='#22604f' font-weight='700'>低阻误差↓</text><text x='530' y='108' text-anchor='middle' font-size='8' fill='#79828a'>物理约束</text><text x='461' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>跨区成立 · 低阻准</text><text x='310' y='188' text-anchor='middle' font-size='8' fill='#9ba3a9'>验收 = R² × 相对误差 × 低阻误差</text></svg></p>"
+      },
+      "fails": [
+        { "name": "岩心有限", "why": "岩心样点 50—200 个，数据少难训练。" },
+        { "name": "跨区不成立", "why": "回归模型跨区失效，需迁移学习。" },
+        { "name": "低阻油层误差大", "why": "低阻油层测井响应弱，解释误差大。" },
+        { "name": "解释主观", "why": "解释依赖人工经验，主观性强。" }
+      ]
+    },
+
+    "demo": {
+      "mode": "auto",
+      "html": "demo/index.html",
+      "js": "demo/demo.js",
+      "label": "可运行示范",
+      "intro": "用合成的测井+岩心数据演示深度回归、迁移学习与物理约束。",
+      "height": 600
+    }
+  }
+}

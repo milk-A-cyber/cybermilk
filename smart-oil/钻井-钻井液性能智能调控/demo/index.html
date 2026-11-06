@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>示范：钻井液性能智能调控</title>
+<link rel="stylesheet" href="demo.css?v=20261105a">
+<link rel="stylesheet" href="aflow.css?v=20261105a">
+<link rel="stylesheet" href="aiq.css?v=20261105a">
+<style>
+#ctlDrawer{position:fixed;right:0;top:70px;width:268px;max-height:calc(100vh - 120px);overflow-y:auto;background:#fff;border:1px solid #e9e4d8;border-radius:10px;box-shadow:0 6px 24px -8px rgba(0,0,0,.15);z-index:90;transform:translateX(-100%);opacity:0;pointer-events:none;transition:transform .3s ease,opacity .3s ease}
+#ctlDrawer.open{transform:translateX(0);opacity:1;pointer-events:auto}
+@media (max-width:760px){#ctlDrawer{width:calc(100vw - 20px);right:10px;top:auto;bottom:10px;max-height:45vh}}
+.review-list{font-size:13px;border:1px solid #e9e4d8;border-radius:8px;overflow:hidden;margin-top:8px}
+.review-list .row{display:flex;align-items:center;padding:7px 12px;border-bottom:1px solid #f0ece2}
+.review-list .row:last-child{border-bottom:none}
+.review-list .row span{flex:1;color:#4d565b}
+.review-list .row b{width:180px;color:#24333a;font-weight:700}
+.review-list .row em{color:#2f7d6b;font-style:normal;font-weight:700;font-size:12px}
+</style>
+</head>
+<body>
+
+<header class="hd">
+  <span class="kicker">CASE DEMO · 钻井工程 / 钻井液性能智能调控</span>
+  <h1>从「按班测量 · 凭经验加量」到「多源融合软测量 + 加量推荐」</h1>
+  <p class="sub">三个实验：Q1 多源融合软测量、Q2 加量推荐、Q3 过调抑制。</p>
+</header>
+
+<!-- ================= 算法解剖 · 调控全流程 ================= -->
+<section class="sec" id="sec0">
+  <div class="qa">
+    <span class="qa-q">深入 · 想逐帧看就往下</span>
+    <p class="qa-a">不是「高频参数 → 黑盒 → 加量」，而是<b>逐段展开</b>：数据接入 → 软测量 → 加量推荐 → 过调抑制 → 性能验收 → 加量回流，每一步都能看见中间量</p>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">可选深入 · 对应流程 STEP 2—5</span>
+    <h2>把「高频循环参数 → 加量调控」一步步拆开看</h2>
+    <p class="leadline">下面这段动画跑的是<b>真代码</b>（与实验 1—3 同一份模型）。自动播放，也可点阶段名跳步、拖速度。切软测量/加量方式，这里的每一步都会同步重算。</p>
+  </div>
+  <div id="flowMount"></div>
+  <details class="more">
+    <summary>这段动画与后面三个实验是什么关系</summary>
+    <div class="more-body">
+      <p>实验 1—3 给出的是<b>结果</b>（软测趋势、推荐加量、波动对比）；这段动画给出的是<b>过程</b>——同一份 <code>demo.js</code> 里的 <code>softSense / doseRecommend / oscillationCtrl</code> 被拆成 6 个阶段依次放慢演给你看。</p>
+      <p>刻意做的两处细节：<b>①</b> 第 2 步把真实与软测性能同框，看得见「多源融合」贴近真实；<b>②</b> 第 4 步把经验与推荐加量后的性能偏差同框，看得见「过调抑制」让曲线更稳。</p>
+    </div>
+  </details>
+</section>
+
+<!-- ================= 实验 1 · 多源融合软测量 ================= -->
+<section class="sec" id="sec1">
+  <div class="qa">
+    <span class="qa-q">Q1 · 为什么需要智能算法</span>
+    <p class="qa-a">性能测量每班 1—2 次，变化滞后井下；高频参数没用起来</p>
+    <button class="qa-go">开始实验 1</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 1 · 对应流程 STEP 1—2</span>
+    <h2>多源融合软测量：稀疏性能 → 连续趋势</h2>
+    <p class="leadline">切「纯稀疏测量 / 多源融合」，看软测性能与真实差距。</p>
+  </div>
+  <div class="ctl" id="senseCtl">
+    <div class="sl">
+      <label>测量方式<output id="outSense">多源融合</output></label>
+      <input type="range" id="inSense" min="0" max="1" step="1" value="1">
+    </div>
+  </div>
+  <svg id="senseChart" viewBox="0 0 400 200" role="img" aria-label="多源融合软测量"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">软测误差</span><b id="roErr">—</b></div>
+    <div class="ro"><span class="k">数据来源</span><b id="roSrc">—</b></div>
+  </div>
+  <p class="tip" id="senseTip">性能每班才测 1—2 次，纯稀疏测量跟不上下井变化（阶梯状、滞后）。多源融合用高频循环参数（流量/温度/压力）连续估算 + 稀疏测量点校正，软测出连续性能趋势，误差大幅下降。</p>
+</section>
+
+<!-- ================= 实验 2 · 加量推荐 ================= -->
+<section class="sec" id="sec2">
+  <div class="qa">
+    <span class="qa-q">Q2 · 智能算法是什么</span>
+    <p class="qa-a"><b>加量推荐</b>：偏差 → 该加多少（用加量记录做动作标签）<span class="qa-algo">多源融合软测量 · 加量推荐</span></p>
+    <button class="qa-go">开始实验 2</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 2 · 对应流程 STEP 3</span>
+    <h2>加量推荐：偏差 → 处理剂该加多少</h2>
+    <p class="leadline">切「经验加量 / 推荐」，看加量随偏差怎么变。</p>
+  </div>
+  <div class="ctl" id="doseCtl">
+    <div class="sl">
+      <label>加量方式<output id="outRec">推荐+抑过调</output></label>
+      <input type="range" id="inRec" min="0" max="1" step="1" value="1">
+    </div>
+  </div>
+  <svg id="doseChart" viewBox="0 0 400 200" role="img" aria-label="加量推荐"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">末端加量</span><b id="roDose">—</b></div>
+    <div class="ro"><span class="k">性能偏差</span><b id="roDev">—</b></div>
+  </div>
+  <p class="tip" id="doseTip">经验加量按偏差猛加、容易过调；推荐加量按偏差幅度校准（小偏差少加）。加量记录做动作标签、反推该加多少，替代凭经验。但若把经验加量当最优标签，学到的是过调行为，推荐也过调。</p>
+</section>
+
+<!-- ================= 实验 3 · 过调抑制 ================= -->
+<section class="sec" id="sec3">
+  <div class="qa">
+    <span class="qa-q">Q3 · 它怎么工作</span>
+    <p class="qa-a">加量后性能偏差更小 → <b>过调抑制</b>（少振荡、省料）</p>
+    <button class="qa-go">开始实验 3</button>
+  </div>
+  <div class="sec-hd">
+    <span class="sec-no">实验 3 · 对应流程 STEP 4—6</span>
+    <h2>过调抑制：经验 vs 推荐加量 + 性能验收</h2>
+    <p class="leadline">看经验与推荐加量后的性能偏差，达标率差多少、回流清单。</p>
+  </div>
+  <svg id="oscChart" viewBox="0 0 400 200" role="img" aria-label="过调抑制"></svg>
+  <div class="rrow ro2">
+    <div class="ro"><span class="k">波动幅度</span><b id="roWave">—</b></div>
+    <div class="ro"><span class="k">达标率</span><b id="roOk">—</b></div>
+  </div>
+  <div class="review-list" id="reviewList"></div>
+  <p class="tip" id="oscTip">经验加量过调再回调、性能来回摆、处理剂浪费；推荐加量按偏差校准、性能更稳、达标率更高。实际加量与性能反馈回流模型，推荐越用越准、振荡持续下降。</p>
+</section>
+
+<footer>
+  <div class="map">
+    <div><b>实验 1 → STEP 2</b><br>多源融合软测量。</div>
+    <div><b>实验 2 → STEP 3</b><br>加量推荐替代经验。</div>
+    <div><b>实验 3 → STEP 4</b><br>过调抑制 + 回流。</div>
+  </div>
+  <p class="note">纯前端教学演示：循环参数与性能由「基波 + 趋势 + 噪声」合成，目标窗口已知、仅供对比；多源融合软测量、加量推荐与过调抑制均在浏览器实时计算。</p>
+</footer>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+/* 算法解剖：把 6 个阶段挂到 AFlow 引擎上 */
+(function () {
+  if (!window.AFlow || !window.RemoteFlow) return;
+  var F = window.RemoteFlow;
+  window.RemoteFlowApi = window.AFlow.create({
+    mount: document.getElementById('flowMount'),
+    title: '算法解剖',
+    subtitle: '自动播放：高频循环参数怎么一步步变成加量调控',
+    stages: [
+      { name: '数据接入', tag: '多源数据', dur: 4000, draw: function (t, g) { return F.stage1(t); } },
+      { name: '多源融合软测量', tag: '连续趋势', dur: 4600, draw: function (t, g) { return F.stage2(t); } },
+      { name: '加量推荐', tag: '该加多少', dur: 4400, draw: function (t, g) { return F.stage3(t); } },
+      { name: '过调抑制', tag: '少振荡', dur: 4600, draw: function (t, g) { return F.stage4(t); } },
+      { name: '性能验收', tag: '达标率', dur: 4200, draw: function (t, g) { return F.stage5(t); } },
+      { name: '加量回流', tag: '更准', dur: 4200, draw: function (t, g) { return F.stage6(t); } }
+    ]
+  });
+})();
+</script>
+<script src="aiq.js?v=20261105a"></script>
+</body>
+</html>

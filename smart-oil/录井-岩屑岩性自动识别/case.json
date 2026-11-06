@@ -1,0 +1,133 @@
+{
+  "id": "m1-cuttings-litho",
+  "sceneId": "m1",
+  "methods": ["cv"],
+  "title": "岩屑岩性自动识别：细粒度分类 + 多标签 + 类别不均衡",
+  "version": "1.0.0",
+  "updated": "2026-11-05",
+
+  "tabs": {
+    "background": {
+      "label": "专业背景",
+      "lede": "岩屑录井是判断钻遇地层最直接的手段。捞取的岩屑由录井工在显微镜下目估成分、粒级与含油级别，形成岩屑描述表。类间差异小（泥岩/页岩、粉砂岩/细砂岩）、样本不均衡，混样与污染带来标签噪声。智能方法对岩屑显微图像做细粒度分类与多标签识别，输出岩性组分比例，替代人工目估。",
+      "judge": [
+        { "label": "数据形态", "value": "岩屑显微图像", "desc": "单井300—800张" },
+        { "label": "标注成本", "value": "高", "desc": "每类岩性≥500张" },
+        { "label": "可见收益", "value": "组分化+省人力", "desc": "描述一致可追溯" },
+        { "label": "难度", "value": "高", "desc": "细粒度+不均衡" }
+      ],
+      "sections": [
+        {
+          "no": 1,
+          "en": "PROBLEM",
+          "title": "当前做法与问题",
+          "html": "<p><b>岩屑录井</b>是判断钻遇地层最直接的手段，捞取的岩屑由录井工在显微镜下<b>目估</b>成分、粒级与含油级别，形成岩屑描述表。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>样品密集</b>——每 1—2 m 捞样一次，单井数百个样品</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>类间差异小</b>——泥岩/页岩、粉砂岩/细砂岩难分</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>人工目估主观</b>——同一块样品不同人可差一个粒级</span></div></div><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"人工目估的问题\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">人工目估 → 主观 · 不一致</text><rect x=\"20\" y=\"36\" width=\"280\" height=\"176\" rx=\"8\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"160\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">显微镜目估</text><rect x=\"36\" y=\"70\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"96\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#2b4a72\">每 1—2 m 捞样</text><rect x=\"180\" y=\"70\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"230\" y=\"90\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">目估成分粒级</text><rect x=\"36\" y=\"112\" width=\"120\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"96\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">同一块不同人可差</text><rect x=\"180\" y=\"112\" width=\"100\" height=\"30\" rx=\"5\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"230\" y=\"132\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#8a4f27\">含油级别靠经验</text><text x=\"160\" y=\"180\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#b26a39\" font-weight=\"700\">描述不一致 → 地层判断受影响</text><text x=\"160\" y=\"198\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#79828a\">混样污染 → 标签噪声</text><rect x=\"316\" y=\"36\" width=\"284\" height=\"176\" rx=\"8\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"458\" y=\"56\" text-anchor=\"middle\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">为什么难</text><text x=\"332\" y=\"82\" font-size=\"9.5\" fill=\"#4d565b\">· 类间差异小（泥岩/页岩）</text><text x=\"332\" y=\"104\" font-size=\"9.5\" fill=\"#4d565b\">· 样本不均衡</text><text x=\"332\" y=\"126\" font-size=\"9.5\" fill=\"#4d565b\">· 混样污染</text><rect x=\"332\" y=\"150\" width=\"252\" height=\"46\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"344\" y=\"170\" font-size=\"8.5\" fill=\"#79828a\">标签噪声 → 描述表不可靠</text><text x=\"344\" y=\"186\" font-size=\"8.5\" fill=\"#b26a39\" font-weight=\"700\">需要智能识别</text></svg></div>"
+        },
+        {
+          "no": 2,
+          "en": "INTERVENTION",
+          "title": "AI 能做什么",
+          "html": "<p>对岩屑显微图像做<b>细粒度分类</b>与<b>多标签识别</b>，输出<b>岩性组分比例</b>，替代人工目估。</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>细粒度分类</b>——区分泥岩/页岩、粉砂岩/细砂岩等难分对</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>多标签识别</b>——单样品多组分，输出岩性组分比例</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>不均衡处理</b>——少数类加权/重采样，提升召回</span></div></div><p>落地形态：岩屑描述一致、可追溯，录井工程师只做复核。</p><div class=\"figure\"><svg viewBox=\"0 0 620 250\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"岩屑岩性智能识别流程\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">岩屑图像 → 细粒度分类 + 多标签 → 组分比例</text><rect x=\"20\" y=\"40\" width=\"120\" height=\"120\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"80\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#242b2e\" font-weight=\"600\">岩屑显微图像</text><path d=\"M36 78 C60 62 90 76 116 68\" fill=\"none\" stroke=\"#7a8a9a\" stroke-width=\"2.6\"/><text x=\"80\" y=\"130\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">标尺+固定光照</text><path d=\"M144 100 L168 100\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"172\" y=\"40\" width=\"130\" height=\"120\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"237\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">细粒度分类</text><text x=\"237\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">区分难分对</text><text x=\"237\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">多标签组分</text><path d=\"M306 100 L330 100\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"334\" y=\"40\" width=\"130\" height=\"120\" rx=\"6\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"399\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#2b4a72\" font-weight=\"600\">不均衡处理</text><text x=\"399\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">加权/重采样</text><text x=\"399\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">提升少数类</text><path d=\"M468 100 L492 100\" stroke=\"#2b4a72\" stroke-width=\"1.6\"/><rect x=\"496\" y=\"40\" width=\"104\" height=\"120\" rx=\"6\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"548\" y=\"62\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">组分比例</text><text x=\"548\" y=\"82\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">描述一致</text><text x=\"548\" y=\"98\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#4d565b\">可追溯</text><text x=\"310\" y=\"210\" text-anchor=\"middle\" font-size=\"9.5\" fill=\"#22604f\" font-weight=\"600\">岩屑描述一致 · 可追溯 · 工程师只做复核</text></svg></div>"
+        },
+        {
+          "no": 3,
+          "en": "DATA",
+          "title": "需要准备什么",
+          "html": "<p><b>岩屑显微图像</b>：单井 300—800 张，含标尺与固定光照；<b>岩屑描述表</b>：对应井深与岩性、含油级别，作为标签；<b>洗样与混样记录</b>：样品处理条件，用于分组避免数据泄漏。</p><div class=\"figure\"><svg viewBox=\"0 0 620 220\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"岩屑识别数据准备\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">岩屑岩性识别需要的数据</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#41699b\"/><text x=\"32\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">岩屑显微图像</text><text x=\"32\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">单井300—800张</text><text x=\"32\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">每类岩性≥500张</text><rect x=\"318\" y=\"34\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"34\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#b26a39\"/><text x=\"330\" y=\"54\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">岩屑描述表</text><text x=\"330\" y=\"72\" font-size=\"8.8\" fill=\"#79828a\">井深+岩性+含油级别</text><text x=\"330\" y=\"88\" font-size=\"8.5\" fill=\"#9ba3a9\">作为标签</text><rect x=\"20\" y=\"106\" width=\"286\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"20\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#2f7d6b\"/><text x=\"32\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">洗样与混样记录</text><text x=\"32\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">样品处理条件</text><text x=\"32\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">分组避免泄漏</text><rect x=\"318\" y=\"106\" width=\"284\" height=\"64\" rx=\"6\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><rect x=\"318\" y=\"106\" width=\"4\" height=\"64\" rx=\"2\" fill=\"#79828a\"/><text x=\"330\" y=\"126\" font-size=\"10\" fill=\"#242b2e\" font-weight=\"600\">钻井参数</text><text x=\"330\" y=\"144\" font-size=\"8.8\" fill=\"#79828a\">井深/钻速/排量</text><text x=\"330\" y=\"160\" font-size=\"8.5\" fill=\"#9ba3a9\">辅助上下文</text><rect x=\"20\" y=\"184\" width=\"582\" height=\"26\" rx=\"6\" fill=\"#f8ecdf\"/><text x=\"32\" y=\"202\" font-size=\"9.5\" fill=\"#8a4f27\" font-weight=\"600\">训练策略：细粒度分类 + 多标签识别 + 类别不均衡处理</text></svg></div>"
+        },
+        {
+          "no": 4,
+          "en": "DIFFICULTY",
+          "title": "难度与参考方向",
+          "html": "<p>三个最容易翻车的点：</p><div class=\"enlist\"><div class=\"it\"><span class=\"no\">①</span><span class=\"tx\"><b>类间差异小</b>——泥岩/页岩、粉砂岩/细砂岩难分，需要细粒度特征</span></div><div class=\"it\"><span class=\"no\">②</span><span class=\"tx\"><b>样本不均衡</b>——少数岩性样本少，模型易偏向多数类</span></div><div class=\"it\"><span class=\"no\">③</span><span class=\"tx\"><b>混样污染</b>——洗样不净与上返混样带来标签噪声</span></div></div><p>改进路线按成本从低到高：先用<b>类别不均衡处理</b>（加权/重采样）让少数类不被淹没；再加<b>细粒度分类</b>区分难分对；最后用<b>多标签识别</b>输出组分比例。</p><div class=\"figure\"><svg viewBox=\"0 0 620 210\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"岩屑识别难点与对策\" style=\"width:100%;height:auto;display:block\"><text x=\"310\" y=\"18\" text-anchor=\"middle\" font-size=\"11\" fill=\"#242b2e\" font-weight=\"600\">难点排序 + 成本从低到高的改进路线</text><rect x=\"20\" y=\"34\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"52\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">① 类间差异小</text><text x=\"32\" y=\"68\" font-size=\"8.5\" fill=\"#6b4a35\">泥岩/页岩难分</text><path d=\"M310 57 L356 57\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"34\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"52\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">细粒度分类</text><text x=\"372\" y=\"68\" font-size=\"8.5\" fill=\"#4d565b\">局部纹理特征</text><rect x=\"20\" y=\"86\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"104\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">② 样本不均衡</text><text x=\"32\" y=\"120\" font-size=\"8.5\" fill=\"#6b4a35\">少数类被淹没</text><path d=\"M310 109 L356 109\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"86\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"104\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">类别不均衡处理</text><text x=\"372\" y=\"120\" font-size=\"8.5\" fill=\"#4d565b\">加权/重采样</text><rect x=\"20\" y=\"138\" width=\"286\" height=\"46\" rx=\"6\" fill=\"#f9efea\" stroke=\"#d8a48c\"/><text x=\"32\" y=\"156\" font-size=\"10\" fill=\"#8a4f27\" font-weight=\"600\">③ 混样污染</text><text x=\"32\" y=\"172\" font-size=\"8.5\" fill=\"#6b4a35\">标签噪声</text><path d=\"M310 161 L356 161\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"360\" y=\"138\" width=\"242\" height=\"46\" rx=\"6\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"372\" y=\"156\" font-size=\"10\" fill=\"#22604f\" font-weight=\"600\">多标签组分比例</text><text x=\"372\" y=\"172\" font-size=\"8.5\" fill=\"#4d565b\">输出组分占比</text><rect x=\"20\" y=\"192\" width=\"582\" height=\"16\" rx=\"8\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"310\" y=\"204\" text-anchor=\"middle\" font-size=\"8.5\" fill=\"#41699b\">不均衡处理 → 细粒度分类 → 多标签识别</text></svg></div>"
+        }
+      ]
+    },
+
+    "workflow": {
+      "label": "案例流程",
+      "title": "案例：一口井的岩屑岩性识别改造",
+      "lead": [
+        "某井此前由录井工显微镜下目估岩屑成分、粒级，同一块样品不同人可差一个粒级。目标：用细粒度分类 + 多标签识别输出岩性组分比例，加类别不均衡处理。",
+        "注意第 3、4、5 步：细粒度分类、多标签识别、类别不均衡处理是智能化价值的三个落点，示范页三屏一一对应。"
+      ],
+      "stats": [
+        ["井", "某生产井"],
+        ["采样间隔", "每 1—2 m 捞样"],
+        ["样品规模", "单井 300—800 张"],
+        ["识别方式", "显微镜目估"],
+        ["目标", "组分比例+省人力"],
+        ["难点", "细粒度+不均衡"]
+      ],
+      "steps": [
+        {
+          "name": "岩屑图像接入",
+          "role": "数据",
+          "do": "读入岩屑显微图像与岩屑描述表（井深、岩性、含油级别）。示范页屏 1 顶部可看图像分类。",
+          "effect": "带标签的岩屑图像集，每类岩性 ≥ 500 张。",
+          "trap": "不同井光照/倍率不一致，直接合并训练会学偏，需统一成像条件。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">图像接入：岩屑显微图像 + 描述表</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">岩屑图像</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">单井300—800张</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">描述表</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">岩性/含油级别</text><path d=\"M360 72 L384 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">洗样/混样记录</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">分组避免泄漏</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：光照/倍率不一致 → 合并训练学偏 → 需统一成像</text></svg>"
+        },
+        {
+          "name": "细粒度分类",
+          "role": "算法核心",
+          "do": "对岩屑图像做细粒度分类，区分泥岩/页岩、粉砂岩/细砂岩等难分对。示范页屏 1 展示分类。",
+          "effect": "难分对的岩性被正确区分，替代人工目估粒级。",
+          "trap": "只做粗粒度分类，泥岩/页岩等难分对混淆，漏掉关键岩性变化。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">细粒度分类：图像 → 岩性类别</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">岩屑图像</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">局部纹理</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">细粒度模型</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">区分难分对</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">岩性类别概率</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">泥岩/页岩/粉砂岩</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：只做粗粒度 → 难分对混淆 → 漏关键岩性</text></svg>"
+        },
+        {
+          "name": "多标签识别",
+          "role": "算法核心",
+          "do": "单样品多组分，识别出岩性组分比例。示范页屏 2 展示组分。",
+          "effect": "一个样品输出多组分占比，替代目估成分比例。",
+          "trap": "把样品当单标签，混样样品只能归一类，丢失组分信息。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">多标签识别：样品 → 组分比例</text><rect x=\"24\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"99\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">单样品</text><text x=\"99\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">混样多组分</text><path d=\"M178 72 L202 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"206\" y=\"42\" width=\"150\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"281\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">多标签模型</text><text x=\"281\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">多输出占比</text><path d=\"M360 72 L384 72\" stroke=\"#2f7d6b\" stroke-width=\"1.6\"/><rect x=\"388\" y=\"42\" width=\"206\" height=\"60\" rx=\"5\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"491\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#242b2e\" font-weight=\"600\">组分比例</text><text x=\"491\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">泥岩60%+粉砂30%</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：当单标签 → 混样只能归一类 → 丢组分信息</text></svg>"
+        },
+        {
+          "name": "类别不均衡处理",
+          "role": "算法核心",
+          "do": "少数类岩性加权或重采样，提升召回。示范页屏 3 展示不均衡处理前后。",
+          "effect": "少数类岩性不被淹没，召回显著提升。",
+          "trap": "不做不均衡处理，模型全猜多数类，罕见岩性全部漏检。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">不均衡处理：加权/重采样 → 少数类召回</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">不均衡数据</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">少数类被淹没</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">加权/重采样</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">提升少数类</text><path d=\"M378 72 L400 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">少数类召回↑</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">罕见岩性不漏</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：不处理 → 全猜多数类 → 罕见岩性全漏检</text></svg>"
+        },
+        {
+          "name": "人工复核",
+          "role": "人工确认",
+          "do": "模型输出组分比例，工程师只对异常样品复核。示范页屏 3 展示复核清单。",
+          "effect": "录井工从逐样目估改为异常复核，效率与一致性提升。",
+          "trap": "只看总体准确率，不看少数类召回，罕见岩性错误被掩盖。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">复核：模型组分比例 → 工程师复核</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">组分比例</text><text x=\"104\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">模型输出</text><path d=\"M188 72 L210 72\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"60\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">异常复核</text><text x=\"294\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">只看异常样品</text><path d=\"M378 72 L400 72\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"60\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"62\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">描述一致</text><text x=\"499\" y=\"80\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">可追溯</text><text x=\"24\" y=\"128\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：只看总体准确率 → 少数类错误被掩盖</text></svg>"
+        },
+        {
+          "name": "成果回流",
+          "role": "人工确认",
+          "do": "复核结果回流训练集，模型越用越准。示范页屏 3 展示回流清单。",
+          "effect": "模型持续改进，少数类岩性越标越全。",
+          "trap": "复核结果不回流，模型不知道错在哪，永远漏检。",
+          "fig": "<svg viewBox=\"0 0 620 150\" xmlns=\"http://www.w3.org/2000/svg\"><rect x=\"1\" y=\"1\" width=\"618\" height=\"148\" rx=\"10\" fill=\"#fbfaf6\" stroke=\"#e9e4d8\"/><text x=\"24\" y=\"30\" font-size=\"12\" fill=\"#4d565b\" font-weight=\"600\">回流：复核结果 → 训练集 → 更准</text><rect x=\"24\" y=\"42\" width=\"160\" height=\"52\" rx=\"5\" fill=\"#e7eef9\" stroke=\"#41699b\"/><text x=\"104\" y=\"60\" text-anchor=\"middle\" font-size=\"9\" fill=\"#2b4a72\" font-weight=\"600\">复核结果</text><text x=\"104\" y=\"76\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">纠正的标签</text><path d=\"M188 68 L210 68\" stroke=\"#9ba3a9\" stroke-width=\"1.6\"/><rect x=\"214\" y=\"42\" width=\"160\" height=\"52\" rx=\"5\" fill=\"#f7ece2\" stroke=\"#b26a39\"/><text x=\"294\" y=\"60\" text-anchor=\"middle\" font-size=\"9\" fill=\"#8a4f27\" font-weight=\"600\">训练集</text><text x=\"294\" y=\"76\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">增量更新</text><path d=\"M378 68 L400 68\" stroke=\"#b26a39\" stroke-width=\"1.6\"/><rect x=\"404\" y=\"42\" width=\"190\" height=\"52\" rx=\"5\" fill=\"#e6f1ec\" stroke=\"#2f7d6b\"/><text x=\"499\" y=\"60\" text-anchor=\"middle\" font-size=\"9\" fill=\"#22604f\" font-weight=\"600\">更准</text><text x=\"499\" y=\"76\" text-anchor=\"middle\" font-size=\"8\" fill=\"#79828a\">漏检变少</text><text x=\"24\" y=\"120\" font-size=\"8.5\" fill=\"#8a4f27\">陷阱：复核不回流 → 模型不知道错在哪 → 永远漏检</text></svg>"
+        }
+      ],
+      "metrics": {
+        "title": "怎么算「识别对了」",
+        "html": "<p>岩屑识别用 <b>总体准确率</b> 与 <b>少数类召回率</b> 双重验收；<b>组分比例误差</b> 衡量多标签输出。</p><p>最终还要看 <b>人工复核占比</b>：模型接管常规样品后，工程师只需复核异常样品。</p><p style=\"margin-top:16px\"><svg viewBox='0 0 620 200' xmlns='http://www.w3.org/2000/svg' role='img' aria-label='岩屑识别效果对比' style='width:100%;height:auto;display:block'><text x='14' y='20' font-size='10' fill='#4d565b' font-weight='600'>岩屑识别验收：准确率 × 少数类召回 × 复核占比</text><rect x='14' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='159' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>识别效果</text><rect x='40' y='66' width='80' height='52' fill='#d9b78e'/><text x='80' y='96' text-anchor='middle' font-size='10' fill='#4d565b' font-weight='700'>准确 79%</text><text x='80' y='112' text-anchor='middle' font-size='8' fill='#8a6b52'>目估粗分</text><rect x='180' y='66' width='80' height='52' fill='#2f7d6b'/><text x='220' y='96' text-anchor='middle' font-size='10' fill='#fff' font-weight='700'>准确 96%</text><text x='220' y='112' text-anchor='middle' font-size='8' fill='#b9d8cb'>细粒度+多标签</text><text x='159' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>准确 ↑ 少数类召回 ↑</text><rect x='316' y='34' width='290' height='120' rx='8' fill='#fbfaf6' stroke='#e9e4d8'/><text x='461' y='54' text-anchor='middle' font-size='9.5' fill='#242b2e' font-weight='600'>少数类 + 复核</text><rect x='340' y='66' width='120' height='52' fill='#e7eef9' stroke='#41699b'/><text x='400' y='92' text-anchor='middle' font-size='9' fill='#2b4a72' font-weight='700'>召回 41%→88%</text><text x='400' y='108' text-anchor='middle' font-size='8' fill='#79828a'>不均衡处理</text><rect x='470' y='66' width='120' height='52' fill='#e6f1ec' stroke='#2f7d6b'/><text x='530' y='92' text-anchor='middle' font-size='9' fill='#22604f' font-weight='700'>复核占比↓</text><text x='530' y='108' text-anchor='middle' font-size='8' fill='#79828a'>只复核异常</text><text x='461' y='146' text-anchor='middle' font-size='8.5' fill='#79828a'>描述一致 · 可追溯</text><text x='310' y='188' text-anchor='middle' font-size='8' fill='#9ba3a9'>验收 = 准确率 × 少数类召回 × 复核占比</text></svg></p>"
+      },
+      "fails": [
+        { "name": "类间差异小", "why": "泥岩/页岩、粉砂岩/细砂岩难分，粗粒度分类漏掉关键岩性变化。" },
+        { "name": "样本不均衡", "why": "少数岩性样本少，模型偏多数类，罕见岩性全部漏检。" },
+        { "name": "混样污染", "why": "洗样不净与上返混样带来标签噪声，模型学到错误映射。" },
+        { "name": "成像不一致", "why": "不同井光照/倍率不一致，直接合并训练会学偏。" }
+      ]
+    },
+
+    "demo": {
+      "mode": "auto",
+      "html": "demo/index.html",
+      "js": "demo/demo.js",
+      "label": "可运行示范",
+      "intro": "用合成的岩屑显微图像特征演示细粒度分类、多标签识别与类别不均衡处理。",
+      "height": 600
+    }
+  }
+}

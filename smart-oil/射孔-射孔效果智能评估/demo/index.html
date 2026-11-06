@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>射孔效果智能评估 · 可运行示范</title>
+<link rel="stylesheet" href="demo.css"/>
+<link rel="stylesheet" href="aiq.css"/>
+<link rel="stylesheet" href="aflow.css"/>
+<style>
+  body { margin: 0; padding: 24px 18px; background: #f7f6f1; color: #242b2e; font-family: "Segoe UI", "Microsoft YaHei", sans-serif; }
+  .wrap { max-width: 1160px; margin: 0 auto; }
+  h1 { font-size: 20px; font-weight: 700; margin: 0 0 4px; }
+  .sub { font-size: 12.5px; color: #6c747a; margin-bottom: 18px; }
+  .chip { display: inline-block; background: #e9efef; color: #2f5c6b; border: 1px solid #d4e2e2; border-radius: 10px; padding: 1px 9px; font-size: 11px; margin: 0 5px 4px 0; }
+  .screen { background: #fff; border: 1px solid #e6e2d8; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .screen h2 { font-size: 14px; margin: 0 0 3px; }
+  .screen .desc { font-size: 12px; color: #6c747a; margin-bottom: 10px; }
+  svg { display: block; width: 100%; height: auto; }
+  .ctl { display: flex; align-items: center; gap: 10px; margin: 10px 0 0; font-size: 12px; }
+  .ctl input[type=range] { flex: 1; max-width: 220px; }
+  .ctl .out { font-weight: 700; color: #2f5c6b; min-width: 52px; }
+  .rrow { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; font-size: 12.5px; }
+  .rrow .chip { background: #f0ece1; border-color: #e2dcc9; color: #5c5140; }
+  .flowblock { background: #fff; border: 1px solid #e6e2d8; border-radius: 10px; padding: 14px 16px; margin-bottom: 14px; }
+  .flowblock h2 { font-size: 14px; margin: 0 0 8px; }
+  .qa { font-size: 12.5px; color: #4a5257; background: #faf9f4; border-left: 3px solid #41699b; padding: 8px 11px; margin-bottom: 12px; border-radius: 0 6px 6px 0; line-height: 1.65; }
+  .qa b { color: #242b2e; }
+  .tip { font-size: 12px; color: #8a5a2a; background: #fbf3e7; border: 1px solid #f0dfc4; border-radius: 8px; padding: 7px 11px; margin-top: 8px; }
+  .more { font-size: 12px; color: #41699b; text-decoration: none; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>射孔效果智能评估 · 可运行示范</h1>
+  <div class="sub">生产数据反演 + 不确定性量化 + 补孔建议 —— 识别低效射孔段，定量替代人工判断</div>
+
+  <div class="screen">
+    <h2>算法解剖</h2>
+    <div class="desc">从生产数据反演各射孔段效率（带不确定性区间），识别低效段并给出补孔建议。</div>
+    <div id="flowMount"></div>
+  </div>
+
+  <div class="screen">
+    <h2>屏1 · 生产数据 + 射孔记录</h2>
+    <div class="desc">单井产量时序 + 多段射孔记录（层段/孔密/相位）。</div>
+    <div class="qa"><b>专业背景</b> 射孔效果（完善度、表皮系数）只能通过试井或生产数据间接反演，评估结果直接影响是否补孔或重复射孔。试井资料有限，多数井只有生产数据。</div>
+    <svg id="prodChart"></svg>
+    <div class="rrow">
+      <span class="chip">射孔段 <b id="roZoneN">6 段</b></span>
+      <span class="chip">产量 <b id="roQ">—</b></span>
+    </div>
+  </div>
+
+  <div class="screen">
+    <h2>屏2 · 效率反演（不确定性区间）</h2>
+    <div class="desc">从生产数据反演各段效率，带不确定性区间（受数据噪声影响）。</div>
+    <div class="qa"><b>案例流程</b> 按孔密×相位的权重分解产量，反演每段贡献效率。反演是多解问题，数据噪声带来区间（红条），避免把结果当确定结论。</div>
+    <svg id="invChart"></svg>
+    <div class="ctl">
+      <span>数据噪声</span>
+      <input type="range" id="inNoise" min="0.05" max="0.5" step="0.05" value="0.15"/>
+      <span class="out" id="outNoise">0.15</span>
+    </div>
+    <div class="rrow">
+      <span class="chip">反演 <b id="roInvN">6 段</b></span>
+    </div>
+  </div>
+
+  <div class="screen">
+    <h2>屏3 · 低效段识别 + 补孔建议</h2>
+    <div class="desc">用效率阈值识别低效段，给出补孔建议与增益估计。</div>
+    <div class="qa"><b>案例演示</b> 区间上界低于阈值判低效（红），区间跨阈值标待复核（橙）。低效段建议补孔并估计增益，待复核段先结合地质认识。</div>
+    <svg id="lowChart"></svg>
+    <div class="ctl">
+      <span>低效阈值</span>
+      <input type="range" id="inCut" min="0.2" max="0.6" step="0.05" value="0.4"/>
+      <span class="out" id="outCut">0.40</span>
+    </div>
+    <div class="rrow">
+      <span class="chip">补孔 <b id="roLow">—</b></span>
+      <span class="chip">待复核 <b id="roReview">—</b></span>
+      <span id="roPatch"></span>
+    </div>
+  </div>
+
+  <div class="flowblock">
+    <h2>示范说明</h2>
+    <div class="qa"><b>怎么用</b> 拖动「数据噪声」看反演区间随噪声变宽；拖动「低效阈值」看补孔建议变化。全部真计算，无后端。</div>
+    <a class="more" href="#" onclick="return false;">本案例为独立交付包，未在主站注册</a>
+    <div class="tip">建议先看顶部「算法解剖」6 步动画，理解生产数据→反演→不确定性→补孔的链路。</div>
+  </div>
+</div>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+  (function () {
+    if (!window.AFlow) return;
+    var steps = [
+      { title: '生产数据', get: function (t) { return window.RemoteFlow.stage1(t); } },
+      { title: '射孔记录', get: function (t) { return window.RemoteFlow.stage2(t); } },
+      { title: '反演', get: function (t) { return window.RemoteFlow.stage3(t); } },
+      { title: '不确定性', get: function (t) { return window.RemoteFlow.stage4(t); } },
+      { title: '低效识别', get: function (t) { return window.RemoteFlow.stage5(t); } },
+      { title: '补孔建议', get: function (t) { return window.RemoteFlow.stage6(t); } }
+    ];
+    var flow = window.AFlow.create(document.getElementById('flowMount'), steps, { loop: false, auto: true });
+    if (flow) flow.start && flow.start();
+  })();
+</script>
+<script src="aiq.js"></script>
+</body>
+</html>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>岩性识别 · 序列分类 + 多曲线融合 + 交会图对比基线</title>
+<link rel="stylesheet" href="demo.css">
+<link rel="stylesheet" href="aflow.css">
+<style>
+  .qa{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:18px 20px;margin-bottom:20px;font-size:14px;line-height:1.75;color:#3a4348;}
+  .qa b{color:#242b2e;}
+  .sec{border:1px solid #e9e4d8;border-radius:14px;padding:20px;margin-bottom:20px;background:#fff;}
+  .sec>h3{margin:0 0 4px;font-size:18px;color:#242b2e;}
+  .sec>p.sub{color:#79828a;font-size:13px;margin:0 0 14px;}
+  .chart{width:100%;height:auto;display:block;background:#fff;border:1px solid #f0ece2;border-radius:8px;}
+  .ctl{background:#fbfaf6;border:1px dashed #d9cbb3;border-radius:8px;padding:10px 14px;margin:10px 0;font-size:13px;color:#4d565b;}
+  .ctl label{display:block;margin-bottom:4px;}
+  .ctl input[type=range]{width:100%;}
+  .rrow{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .rrow .chip{background:#e6f1ec;border:1px solid #b9d8cb;color:#22604f;border-radius:20px;padding:4px 14px;font-size:13px;font-weight:600;}
+  .tip{background:#f8ecdf;border-left:3px solid #b26a39;border-radius:6px;padding:10px 14px;margin-top:12px;font-size:13px;color:#6b4a35;line-height:1.6;}
+  .tip b{color:#8a4f27;}
+  .flowblock{background:#fbfaf6;border:1px solid #e9e4d8;border-radius:10px;padding:16px;margin-top:20px;}
+</style>
+</head>
+<body>
+
+<header class="demo-head">
+  <div class="badge">环节5 · 测井</div>
+  <h1>岩性识别</h1>
+  <p>序列分类 + 多曲线融合 + 交会图对比基线 · 常规+伽马能谱 · 交会图多解性强 · 复杂岩性误差大</p>
+  <div class="hdmeta">
+    <span>数据形态：常规+伽马能谱</span><span>方法：ts</span><span>验收：准确率 × 多解性 × 基线对比</span>
+  </div>
+</header>
+
+<section class="section">
+  <div class="sec">
+    <h3>算法解剖</h3>
+    <p class="sub">把「测井 → 岩性」拆成 6 步，每一步都跑真代码，滑块可切参数。</p>
+    <div id="flowMount"></div>
+    <div class="qa">
+      <b>怎么做对：</b>先读常规测井+伽马能谱与定名层点，交会图固定边界多解性强、复杂岩性误差大；用多曲线融合（GR/RT/DEN/U）联合判岩性，序列分类逐点判岩性；最后薄片鉴定验证，验证结果回流越用越准。
+      <div id="more"><a href="#" onclick="return false">更多</a></div>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec1">
+    <h3>屏 1 · 交会图基线：GR×RT 固定边界</h3>
+    <p class="sub">拖滑块调边界，看准确率与判错怎么变。</p>
+    <div class="qa">GR×RT 交会图固定边界分类。多解性强，灰岩/白云岩重叠，复杂岩性固定边界误差大。</div>
+    <div id="crossCtl" class="ctl">
+      <label>GR 边界 <b id="outX">1.60</b></label>
+      <input id="inX" type="range" min="0.8" max="2.4" step="0.05" value="1.6">
+    </div>
+    <svg id="crossChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">准确率：<span id="roAcc">—</span></span><span class="chip">判错：<span id="roErr">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换交会图边界规则（crossPlot），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec2">
+    <h3>屏 2 · 多曲线融合 + 序列分类</h3>
+    <p class="sub">拖滑块切单曲线/多曲线，看准确率与岩性序列怎么变。</p>
+    <div class="qa">单曲线信息有限。多曲线融合用 GR/RT/DEN/U 联合判岩性，序列分类逐点判岩性，复杂岩性更稳。</div>
+    <div id="classCtl" class="ctl">
+      <label>分类 <b id="outClass">多曲线</b></label>
+      <input id="inClass" type="range" min="0" max="1" step="1" value="1">
+    </div>
+    <svg id="classChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">准确率：<span id="roClassAcc">—</span></span><span class="chip">方式：<span id="roClass">—</span></span></div>
+    <div class="tip"><b>想改成你自己的：</b>换序列分类规则（lithoClassify），或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="sec" id="sec3">
+    <h3>屏 3 · 薄片鉴定验证 + 复核</h3>
+    <p class="sub">看判错清单，薄片鉴定验证复核。</p>
+    <div class="qa">识别结果给建议，薄片鉴定验证复核。判错岩性红边标出，复核清单可核。</div>
+    <div id="revCtl" class="ctl">
+      <label>复核确认 <b id="outRev">未确认</b></label>
+      <input id="inRev" type="range" min="0" max="1" step="1" value="0">
+    </div>
+    <svg id="revChart" class="chart" viewBox="0 0 360 200"></svg>
+    <div class="rrow"><span class="chip">判错：<span id="roRevErr">—</span></span></div>
+    <div id="reviewList"></div>
+    <div class="tip"><b>想改成你自己的：</b>换验证逻辑，或调屏幕上方流程里的算法参数。</div>
+  </div>
+</section>
+
+<div class="flowblock">
+  <h3>示范说明</h3>
+  <p style="color:#4d565b;font-size:13px;line-height:1.7;margin:8px 0 0">合成一口井的常规+伽马能谱测井与岩性定名，演示交会图基线、多曲线融合与序列分类的岩性识别链路。所有数字都是浏览器里算出来的，没有后端。</p>
+</div>
+
+<script src="demo.js"></script>
+<script src="aflow.js"></script>
+<script src="flow.js"></script>
+<script>
+(function () {
+  var mount = document.getElementById('flowMount');
+  var flow = window.RemoteFlow;
+  var AFlow = window.AFlow;
+  if (!flow || !mount || !AFlow) return;
+  var ui = AFlow.create(mount, {
+    title: '测井 → 岩性 · 交会图基线 + 多曲线融合 + 序列分类',
+    captions: { prev: '上一步', next: '下一步', close: '收起' }
+  });
+  ui.setSteps([
+    { name: '测井与定名接入', desc: '常规+能谱' },
+    { name: '交会图基线', desc: '固定边界' },
+    { name: '多曲线融合', desc: '联合判岩性' },
+    { name: '序列分类', desc: '逐点判岩性' },
+    { name: '薄片验证', desc: '定名核对' },
+    { name: '回流', desc: '复核回流' }
+  ]);
+  ui.onRender = function (i) {
+    var out = flow['stage' + (i + 1)](ui.progress());
+    if (out) {
+      ui.setSvg(out.svg);
+      ui.setStats(out.stats || []);
+      ui.setNote(out.note || '');
+    }
+  };
+  ui.render();
+})();
+</script>
+<script src="aiq.js"></script>
+</body>
+</html>

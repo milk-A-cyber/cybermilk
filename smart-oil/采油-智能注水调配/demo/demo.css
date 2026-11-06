@@ -1,0 +1,167 @@
+/* 示范页样式。运行在沙箱 iframe 里，随便写，不影响主站。 */
+:root{
+  --ink:#242b2e; --ink-2:#4d565b; --ink-3:#79828a;
+  --line:#e9e4d8; --jade:#2f7d6b; --jade-l:#e6f1ec;
+  --clay:#b26a39; --clay-l:#f7ece2; --blue:#41699b; --blue-l:#e7eef9;
+  --paper:#fbfaf6; --bad:#b05a51; --warn:#c98a2d;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;padding:20px 22px 28px;background:var(--paper);color:var(--ink);
+  font-family:"Inter","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  font-size:14.5px;line-height:1.7;
+}
+.panel{max-width:860px;margin:0 auto}
+h1{font-size:21px;margin:0 0 6px;letter-spacing:-.01em}
+.hd{margin-bottom:20px}
+.kicker{
+  display:inline-block;font-size:10.5px;letter-spacing:.14em;color:var(--jade);
+  background:var(--jade-l);border-radius:999px;padding:3px 11px;font-weight:600;
+}
+.lead{margin:10px 0 0;color:var(--ink-2);font-size:13.5px;line-height:1.82}
+.lead b{color:var(--ink)}
+.method-card{
+  margin:14px 0 6px;
+  display:grid;grid-template-columns:1fr 34px 1fr;align-items:stretch;gap:0;
+}
+.method-card .mc-side{border-radius:10px;padding:11px 15px;font-size:13.5px;line-height:1.65}
+.method-card .mc-old{background:#f1f1ee;color:#6a6f73;border:1px solid #e3e0d6}
+.method-card .mc-new{background:var(--jade-l);color:#1f5f4d;border:1px solid #b9d8cb}
+.method-card .mc-tag{display:block;font-size:10px;font-weight:700;letter-spacing:.08em;margin-bottom:4px}
+.method-card .mc-old .mc-tag{color:#9a948a}
+.method-card .mc-new .mc-tag{color:var(--jade)}
+.method-card .mc-side b{font-weight:700}
+.method-card .mc-arrow{display:grid;place-items:center;color:var(--clay);font-size:20px;font-weight:700}
+@media (max-width:720px){.method-card{grid-template-columns:1fr;gap:6px}.method-card .mc-arrow{transform:rotate(90deg)}}
+@media (max-width:860px){.method-card{grid-template-columns:1fr}}
+.sec{
+  border:1px solid var(--line);border-radius:12px;background:#fff;
+  padding:16px 18px 14px;margin-bottom:18px;
+}
+.sec-hd{margin-bottom:12px}
+.sec-no{
+  display:inline-block;font-size:10px;letter-spacing:.1em;color:var(--clay);
+  background:var(--clay-l);border-radius:999px;padding:2px 10px;font-weight:600;
+}
+.sec-hd h2{font-size:16.5px;margin:9px 0 5px}
+.sec-hd p{margin:0;color:var(--ink-2);font-size:13px;line-height:1.8}
+.sec-hd p b{color:var(--ink)}
+.ctl{display:flex;flex-wrap:wrap;align-items:center;gap:12px 20px;margin:4px 0 12px}
+.sl{display:flex;align-items:center;gap:8px;min-width:220px}
+.sl label{font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:7px}
+.sl output{font-family:ui-monospace,monospace;font-size:13px;color:var(--jade);font-weight:600}
+.ctl input[type=range]{flex:1;accent-color:var(--jade);height:18px;min-width:120px}
+.chk{font-size:12.5px;color:var(--ink-2);display:flex;align-items:center;gap:6px;cursor:pointer}
+.chk input{accent-color:var(--jade)}
+button{
+  font:inherit;font-size:12.5px;color:#fff;background:var(--jade);border:0;
+  border-radius:8px;padding:7px 15px;cursor:pointer;font-weight:600;
+}
+button:hover{filter:brightness(1.06)}
+button:active{transform:translateY(1px)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px}
+svg{display:block;width:100%;height:auto;border:1px solid var(--line);border-radius:8px;background:#fff}
+.cap{margin:8px 2px 12px;font-size:11.5px;color:var(--ink-3);line-height:1.72}
+.cap b{color:var(--ink)}
+.rrow{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  margin:10px 0 8px;
+}
+.rrow.ro5{grid-template-columns:repeat(5,1fr)}
+.ro{background:#fff;padding:8px 11px}
+.ro .k{display:block;font-size:10.5px;color:var(--ink-3);letter-spacing:.04em;margin-bottom:2px}
+.ro b{font-family:ui-monospace,monospace;font-size:14px;font-weight:600;white-space:nowrap}
+.ro b.ok{color:var(--jade)}
+.ro b.bad{color:var(--bad)}
+.ro b.warn{color:var(--warn)}
+.tip{margin:10px 0 2px;font-size:13px;color:var(--ink-3);line-height:1.78;background:var(--blue-l);
+  border-radius:8px;padding:9px 13px}
+.tip b{color:var(--ink)}
+.tip.clay{background:var(--clay-l)}
+footer{font-size:12px;color:var(--ink-3);line-height:1.78}
+footer .map{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px}
+footer .map div{background:#fff;border:1px solid var(--line);border-radius:8px;padding:10px 12px}
+footer .map b{display:block;color:var(--ink-2);font-size:12.5px;margin-bottom:4px}
+@media (max-width:640px){
+  .fg{grid-template-columns:1fr}
+  .rrow{grid-template-columns:repeat(2,1fr)}
+  footer .map{grid-template-columns:1fr}
+}
+
+/* =========================================================
+   教学化版式（2026-11 追加）：三问卡片 / 精简导读 / 折叠详解
+   只作用于页面外框文字，不改 demo.js 生成的 SVG / canvas
+   ========================================================= */
+.hd { margin-bottom: 0; }
+.hd h1 { margin-bottom: 5px; }
+.hd .sub { margin: 0; font-size: 13.5px; line-height: 1.7; color: #4d565b; max-width: 900px; }
+.q3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 9px; margin: 13px 0 2px; }
+.qcard { background: #fff; border: 1px solid #e9e4d8; border-radius: 10px; padding: 10px 13px 11px; }
+.qcard .qn {
+  display: block; font-size: 10px; font-weight: 700; letter-spacing: .07em;
+  color: #2f7d6b; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; margin-bottom: 4px;
+}
+.qcard p { margin: 0; font-size: 12.5px; line-height: 1.62; color: #4d565b; }
+.qcard p b { color: #242b2e; font-weight: 600; }
+.qcard.q-why { background: #f6f5f1; border-color: #e3e0d6; }
+.qcard.q-what { background: #f7fbfd; border-color: #d5e2ea; }
+.qcard.q-how { background: #fdfaf3; border-color: #e6dcc8; }
+@media (max-width: 860px) { .q3 { grid-template-columns: 1fr; } }
+
+.sec { margin-top: 18px; padding: 16px 20px 18px; }
+.sec-hd { margin-bottom: 12px; }
+.sec-hd .leadline { margin: 0; font-size: 13.5px; line-height: 1.7; color: #4d565b; max-width: 900px; }
+
+details.more { margin-top: 10px; }
+details.more summary {
+  cursor: pointer; font-size: 11.5px; color: #22604f; list-style: none;
+  display: inline-flex; align-items: baseline; gap: 5px; padding: 2px 0;
+}
+details.more summary::-webkit-details-marker { display: none; }
+details.more summary::before { content: "＋"; font-size: 11px; color: #2f7d6b; }
+details.more[open] summary::before { content: "－"; }
+details.more .more-body {
+  margin-top: 8px; font-size: 12.5px; line-height: 1.72; color: #79828a;
+  border-left: 2px solid #e9e4d8; padding-left: 11px; max-width: 940px;
+}
+details.more .more-body p { margin: 0 0 6px; }
+details.more .more-body p:last-child { margin-bottom: 0; }
+details.more .more-body b { color: #4d565b; }
+footer .note { margin: 8px 0 0; font-size: 11.5px; line-height: 1.7; color: #9ba3a9; }
+@media (max-width: 860px) { footer .note { font-size: 11px; } }
+
+/* =========================================================
+   三问锚点（2026-11 追加）：Q1/Q2/Q3 直接钉在对应实验顶部
+   不新增 DOM id、不动 demo.js 生成的内容
+   ========================================================= */
+.qa {
+  display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px;
+  background: linear-gradient(135deg, #e6f1ec 0%, #fbfaf6 100%);
+  border: 1px solid #b9d8cb; border-radius: 10px; padding: 9px 14px;
+  margin-bottom: 12px;
+}
+.qa-q {
+  font-size: 10px; font-weight: 700; letter-spacing: .08em;
+  color: #2f7d6b; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+.qa-a { margin: 0; font-size: 13px; color: #242b2e; line-height: 1.55; }
+.qa-go {
+  border: 1px solid #2f7d6b; background: #fff; color: #235f51;
+  border-radius: 999px; padding: 4px 12px; font-size: 11.5px; font-weight: 600;
+  cursor: pointer; font-family: inherit; white-space: nowrap;
+}
+.qa-go:hover { background: #2f7d6b; color: #fff; }
+@media (max-width: 800px) {
+  .qa { grid-template-columns: 1fr; gap: 4px; padding: 10px 13px; }
+  .qa-go { justify-self: start; }
+}
+
+/* AI 领域标签药丸（2026-11） */
+.qa-algo {
+  display: inline-block; margin-left: 8px; padding: 1px 7px;
+  font-size: 9.5px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  color: #235f51; background: #e6f1ec; border: 1px solid #b9d8cb;
+  border-radius: 999px; letter-spacing: .04em;
+}
+.qa-a b { color: #2f7d6b; font-weight: 600; }
